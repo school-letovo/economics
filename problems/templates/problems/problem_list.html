@@ -1,0 +1,13 @@
+{% for problem in problems %}
+<div class="problem_in_list">
+    <div class="name">
+        {{ problem.name }}
+    </div>
+    <div class="task">
+        {{ problem.task }}
+    </div>
+    <div class="problem_links">
+        <a href="hint/problem.id">Подсказка</a> <a href="solution/problem.id">Решение</a>
+    </div>
+</div>
+{% endfor %}

@@ -6,11 +6,11 @@ from django.contrib.auth.models import User
 class Problem(models.Model):
     name = models.CharField('Название', max_length=200)
     task = models.TextField('Условие')
-    short_answer = models.CharField('Ответ (для автоматической проверки)', max_length=200)
+    short_answer = models.CharField('Ответ (для автоматической проверки)', max_length=200, blank=True)
     # TODO long_answer =
     # TODO subproblem_answers
 
-    solution = models.TextField('Решение')
+    solution = models.TextField('Решение', blank=True)
 
     # TODO author
     # TODO difficulty
@@ -27,7 +27,7 @@ class Problem(models.Model):
     # TODO checkboxes
     # TODO problem_type - стандартные, олимпиадные
 
-    hint = models.TextField('Подсказка')
+    hint = models.TextField('Подсказка', blank=True)
 
     assignments = models.ManyToManyField(User, through='Assignment', through_fields=['problem', 'person'])
 
