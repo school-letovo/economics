@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 # Create your models here.
 
@@ -28,7 +29,24 @@ class Problem(models.Model):
 
     hint = models.TextField('Подсказка')
 
+    assignments = models.ManyToManyField(User, through='Assignment', through_fields=['problem', 'person'])
+
     def __str__(self):
-        return "{}. {}...".format(self.name, self.task[:30])
+        return "{}. {}. {}...".format(self.id, self.name, self.task[:30])
+
+    class Meta:
+        ordering = ['id']
 
 
+class Assignment(models.Model):
+    person = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Кому задано')
+    problem = models.ForeignKey(Problem, on_delete=models.CASCADE, verbose_name='Задача')
+    date_assigned = models.DateField('Когда задано', auto_now_add=True, blank=False)
+    date_deadline = models.DateField('Сдать до', blank=True)
+    assigned_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='assigner', verbose_name='Кем задано')
+
+    def __str__(self):
+        return "{} -> {}".format(self.problem, self.person)
+
+    class Meta:
+        ordering = ['date_assigned']
