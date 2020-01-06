@@ -29,6 +29,6 @@ class Problem(models.Model):
     hint = models.TextField('Подсказка')
 
     def __str__(self):
-        return "{}. {}".format(self.name, self.task[:30])
+        return "{}. {}...".format(self.name, self.task[:30])
 
 
