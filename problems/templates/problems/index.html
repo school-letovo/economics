@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="style.css">
+    <title>Economics</title>
+</head>
+
+<body>
+    <form method="POST" action="assign">
+        <h2>Задачи</h2>
+        <div id="problems">
+            {% include "problems/problem_list.html" %}
+        </div>
+
+        <H2>Ученики</H2>
+        <div id="students">
+            {% include "problems/student_list.html" %}
+        </div>
+
+        <h2>Срок сдачи:</h2>
+        <p><input type="date" name="date_deadline">
+        <h2><input type="submit" value="Назначить задачи"></h2>
+    </form>
+</body>
+</html>

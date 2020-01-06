@@ -13,3 +13,10 @@ def all_student_list(request):
     students = User.objects.all()
     context = {'students': students,}
     return render(request, 'problems/student_list.html', context)
+
+def index(request):
+    students = User.objects.all()
+    problems = Problem.objects.all()
+    context = {'problems': problems,
+               'students': students,}
+    return render(request, 'problems/index.html', context)
