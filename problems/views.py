@@ -19,4 +19,4 @@ def index(request):
     problems = Problem.objects.all()
     context = {'problems': problems,
                'students': students,}
-    return render(request, 'problems/index.html', context)
+    return render(request, 'problems/sb/index.html', context)
