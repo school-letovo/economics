@@ -16,6 +16,14 @@
         <div class="container">
             <div class="row">
                 <div class="col">
+                    <h3>Срок сдачи:</h3>
+                    <p><input type="date" name="date_deadline">
+                </div>
+                <div class="col">
+                    <h3><input type="submit" value="Назначить задачи"></h3>
+                </div>
+            </div><div class="row">
+                <div class="col">
                     <h3>Задачи</h3>
                     <div id="problems">
                         {% include "problems/problem_list.html" %}
@@ -28,15 +36,7 @@
                     </div>
                 </div>
             </div>
-            <div class="row">
-                <div class="col">
-                    <h3>Срок сдачи:</h3>
-                    <p><input type="date" name="date_deadline">
-                </div>
-                <div class="col">
-                    <h3><input type="submit" value="Назначить задачи"></h3>
-                </div>
-            </div>
+
         </div>
     </form>
     <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>

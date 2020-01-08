@@ -2,25 +2,34 @@
 
 <div class="problem_in_list">
     <div class="card shadow mb-4">
-                <!-- Card Header - Accordion -->
-                <a class="d-block card-header py-3" role="button" aria-expanded="true" aria-controls="collapseCardExample">
-                  <h6 class="m-0 font-weight-bold text-primary">
-                      <input type="checkbox" name="problem[]" value="{{ problem.id }}">
-                      {{ problem.name }}
-                  </h6>
-                </a>
-                <!-- Card Content - Collapse -->
-                <div class="collapse show" id="collapseCardExample">
-                  <div class="card-body">
-                    <div class="task">
-                        {{ problem.task }}
-                    </div>
-                    <div class="problem_links">
-                        <a href="hint/problem.id">Подсказка</a> <a href="solution/problem.id">Решение</a>
-                    </div>
-                  </div>
+        <!-- Card Header - Accordion -->
+        <a class="d-block card-header py-3" role="button" aria-expanded="true" aria-controls="collapseCardExample">
+          <h6 class="m-0 font-weight-bold text-primary">
+              <input type="checkbox" name="problem[]" value="{{ problem.id }}">
+              {{ problem.name }}
+          </h6>
+        </a>
+        <!-- Card Content - Collapse -->
+        <div class="collapse show" id="collapseCardExample">
+          <div class="card-body">
+            <div class="task">
+                {{ problem.task }}
+            </div>
+            <div class="problem_links">
+                <br>
+                <a class="btn btn-primary" data-toggle="collapse" href="#hint-{{ problem.id }}" role="button" aria-expanded="false" aria-controls="collapseExample">Подсказка</a>
+                <a class="btn btn-primary" data-toggle="collapse" href="#solution-{{ problem.id }}" role="button" aria-expanded="false" aria-controls="collapseExample">Решение</a>
+                <p>
+                <div class="collapse" id="hint-{{ problem.id }}">
+                    <p><em>Подсказка.</em> {{ problem.hint }}
                 </div>
-              </div>
-
+                <div class="collapse" id="solution-{{ problem.id }}">
+                    <p><em>Решение.</em> {{ problem.solution }}
+                </div>
+            </div>
+          </div>
+        </div>
+    </div>
 </div>
+
 {% endfor %}
