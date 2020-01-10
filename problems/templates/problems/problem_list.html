@@ -1,9 +1,8 @@
 {% for problem in problems %}
-
 <div class="problem_in_list">
     <div class="card shadow mb-4">
         <!-- Card Header - Accordion -->
-        <a class="d-block card-header py-3" role="button" aria-expanded="true" aria-controls="collapseCardExample">
+        <a class="d-block card-header py-3" role="button" aria-expanded="true" aria-controls="collapse">
           <h6 class="m-0 font-weight-bold text-primary">
               <input type="checkbox" name="problem" value="{{ problem.id }}">
               {{ problem.name }}

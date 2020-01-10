@@ -3,6 +3,18 @@ from django.contrib.auth.models import User
 
 # Create your models here.
 
+class Topic(models.Model):
+    name = models.CharField('Название', max_length=200)
+    parent = models.ForeignKey('Topic', on_delete=models.CASCADE, related_name='children', verbose_name='Предок', null=True, blank=True)
+    order = models.IntegerField('Порядковый номер')
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        ordering = ['order']
+
+
 class Problem(models.Model):
     name = models.CharField('Название', max_length=200)
     task = models.TextField('Условие')
@@ -29,7 +41,11 @@ class Problem(models.Model):
 
     hint = models.TextField('Подсказка', blank=True)
 
+    topics = models.ManyToManyField(Topic, related_name="problems", verbose_name='Темы')
+
     assignments = models.ManyToManyField(User, through='Assignment', through_fields=['problem', 'person'])
+
+
 
     def __str__(self):
         return "{}. {}. {}...".format(self.id, self.name, self.task[:30])
@@ -51,13 +67,3 @@ class Assignment(models.Model):
     class Meta:
         ordering = ['date_assigned']
 
-class Topic(models.Model):
-    name = models.CharField('Название', max_length=200)
-    parent = models.ForeignKey('Topic', on_delete=models.CASCADE, related_name='child', verbose_name='Предок', null=True, blank=True)
-    order = models.IntegerField('Порядковый номер')
-
-    def __str__(self):
-        return self.name
-
-    class Meta:
-        ordering = ['order']
