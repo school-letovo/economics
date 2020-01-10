@@ -2,7 +2,7 @@ from django.contrib import admin
 
 # Register your models here.
 
-from .models import Problem, Assignment
+from .models import Problem, Assignment, Topic
 
 admin.site.register(Problem)
 
@@ -23,3 +23,5 @@ class AssignmentAdmin(admin.ModelAdmin):
         return form
 
 admin.site.register(Assignment, AssignmentAdmin)
+
+admin.site.register(Topic)

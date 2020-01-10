@@ -50,3 +50,14 @@ class Assignment(models.Model):
 
     class Meta:
         ordering = ['date_assigned']
+
+class Topic(models.Model):
+    name = models.CharField('Название', max_length=200)
+    parent = models.ForeignKey('Topic', on_delete=models.CASCADE, related_name='child', verbose_name='Предок', null=True, blank=True)
+    order = models.IntegerField('Порядковый номер')
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        ordering = ['order']
