@@ -178,11 +178,6 @@
                                                 {% endwith %}
                                             {% endif %}
                                     {% endfor %}
-                                    {% with topicid=topic.id %}
-                                      {% with problems=topic.problems.all %}
-                                        {% include "problems/problem_list.html" %}
-                                      {% endwith %}
-                                    {% endwith %}
                                   </div>
                                 </div>
                               </div>

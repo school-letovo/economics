@@ -15,9 +15,11 @@
                                 {% endwith %}
                             {% endif %}
                     {% endfor %}
-                      {% with problems=topic.problems.all %}
-                        {% include "problems/problem_list.html" %}
-                      {% endwith %}
+                      {% if topic.leaf %}
+                        {% with problems=topic.problems.all %}
+                            {% include "problems/problem_list.html" %}
+                        {% endwith %}
+                      {% endif %}
                   </div>
                 </div>
               </div>
