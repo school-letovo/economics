@@ -153,7 +153,7 @@
                           <b>Назначить задачи ученикам</b>
                           <br><br>Срок сдачи:
                           <input type="date" name="date_deadline">&nbsp;&nbsp;&nbsp;
-                          <input type="submit" value="Назначить ученикам">
+                          <input type="submit" value="Назначить">
                         </div>
                     </div>
                   </div>
@@ -161,7 +161,9 @@
                       <div class="col-10">
                           <h3>Задачи</h3>
                           <div id="problems">
+                              {% autoescape off %}
                               {% include "problems/problem_list.html" %}
+                              {% endautoescape %}
                           </div>
                       </div>
                       <div class="col">
