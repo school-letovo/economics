@@ -38,7 +38,7 @@
     };
   </script>
 
-</script>
+
   <!-- Page Wrapper -->
   <div id="wrapper">
 
@@ -146,6 +146,7 @@
 
         <!-- Begin Page Content -->
           <form method="POST" action="assign">
+            {% csrf_token %}
             <div class="container-fluid">
                   <div class="row">
                       <div class="col">

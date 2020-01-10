@@ -1,6 +1,6 @@
 {% for student in students %}
 <div class="student">
-    <input type="checkbox" name="student[]" value="{{ student.id }}">
+    <input type="checkbox" name="student" value="{{ student.id }}">
     {{ student.last_name }} {{ student.first_name }}
 </div>
 {% endfor %}
