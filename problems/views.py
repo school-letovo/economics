@@ -1,9 +1,11 @@
-from django.shortcuts import render, redirect
-from django.contrib.auth.models import User
-from .models import Assignment, Problem
 from datetime import datetime
 
-from .models import Problem
+from django.shortcuts import render, redirect
+from django.contrib.auth.models import User
+from django.views.defaults import page_not_found
+
+from .models import Assignment, Problem
+
 # Create your views here.
 
 def all_problem_list(request):
@@ -17,11 +19,18 @@ def all_student_list(request):
     return render(request, 'problems/student_list.html', context)
 
 def index(request):
-    students = User.objects.all()
-    problems = Problem.objects.all()
-    context = {'problems': problems,
-               'students': students,}
-    return render(request, 'problems/sb/index.html', context)
+    if request.user.groups.filter(name='teachers').exists():
+        students = User.objects.all()
+        problems = Problem.objects.all()
+        context = {'problems': problems,
+                   'students': students,}
+        return render(request, 'problems/sb/index_teacher.html', context)
+    elif request.user.groups.filter(name='students').exists():
+        assigned_problems = Assignment.objects.filter(person=request.user).order_by('date_deadline')
+        context = {'assigned_problems': assigned_problems,}
+        return render(request, 'problems/sb/index_student.html', context)
+    else:
+        return render(request, 'problems/sb/login.html', {})
 
 def assign(request):
     if request.POST['date_deadline']:

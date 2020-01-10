@@ -1,0 +1,34 @@
+{% for assigned in assigned_problems %}
+
+<div class="problem_in_list">
+    <div class="card shadow mb-4">
+        <!-- Card Header - Accordion -->
+        <a class="d-block card-header py-3" role="button" aria-expanded="true" aria-controls="collapseCardExample">
+          <nobr><h6 class="m-0 font-weight-bold text-primary">
+              {{ assigned.problem.name }}
+          </h6>
+              {% if assigned.date_deadline %}
+                Срок сдачи: {{ assigned.date_deadline|date:"d-m-Y" }}.
+              {% endif %}
+              Задано: {{ assigned.date_assigned|date:"d-m-Y" }} учителем {{ assigned.assigned_by.last_name }} {{ assigned.assigned_by.first_name }}</nobr>
+        </a>
+        <!-- Card Content - Collapse -->
+        <div class="collapse show" id="collapseCardExample">
+          <div class="card-body">
+            <div class="task">
+                {{ assigned.problem.task }}
+            </div>
+            <div class="problem_links">
+                <br>
+                <a class="btn btn-primary" data-toggle="collapse" href="#hint-{{ assigned.id }}" role="button" aria-expanded="false" aria-controls="collapseExample">Подсказка</a>
+                <p>
+                <div class="collapse" id="hint-{{ assigned.id }}">
+                    <p><b>Подсказка.</b> {{ assigned.problem.hint }}
+                </div>
+            </div>
+          </div>
+        </div>
+    </div>
+</div>
+
+{% endfor %}
