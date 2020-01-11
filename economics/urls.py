@@ -18,11 +18,12 @@ from django.urls import path, include, re_path
 from django.contrib.auth import views as auth_views
 from django.conf import settings
 from django.conf.urls.static import static
-
+from problems.views import index
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('problems/', include('problems.urls')),
+    path('', index),
     path('accounts/login/', auth_views.LoginView.as_view(template_name='problems/sb/login.html'), name='login'),
     re_path(r'^ckeditor/', include('ckeditor_uploader.urls'))
 ]  + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
