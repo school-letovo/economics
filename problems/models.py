@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
 
+from ckeditor_uploader.fields import RichTextUploadingField
+
 # Create your models here.
 
 class Topic(models.Model):
@@ -18,12 +20,12 @@ class Topic(models.Model):
 
 class Problem(models.Model):
     name = models.CharField('Название', max_length=200)
-    task = models.TextField('Условие')
+    task = RichTextUploadingField('Условие')
     short_answer = models.CharField('Ответ (для автоматической проверки)', max_length=200, blank=True)
     # TODO long_answer =
     # TODO subproblem_answers
 
-    solution = models.TextField('Решение', blank=True)
+    solution = RichTextUploadingField('Решение', blank=True)
 
     # TODO author
     # TODO difficulty
@@ -40,7 +42,7 @@ class Problem(models.Model):
     # TODO checkboxes
     # TODO problem_type - стандартные, олимпиадные
 
-    hint = models.TextField('Подсказка', blank=True)
+    hint = RichTextUploadingField('Подсказка', blank=True)
 
     topics = models.ManyToManyField(Topic, related_name="problems", verbose_name='Темы')
 
