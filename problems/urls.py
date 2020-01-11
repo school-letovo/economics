@@ -6,4 +6,5 @@ urlpatterns = [
     # ex: /polls/
     path('', views.index, name='index'),
     path('assign', views.assign, name='assign'),
+    path('submit', views.submit, name='submit'),
 ]

@@ -3,7 +3,8 @@ from datetime import datetime
 from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
 
-from .models import Assignment, Problem, Topic
+from .models import Assignment, Problem, Topic, Submit
+from .forms import SubmitForm
 
 # Create your views here.
 
@@ -21,7 +22,8 @@ def index(request):
         return render(request, 'problems/sb/index_teacher.html', context)
     elif request.user.groups.filter(name='students').exists():
         assigned_problems = Assignment.objects.filter(person=request.user).order_by('date_deadline')
-        context = {'assigned_problems': assigned_problems,}
+        form = SubmitForm()
+        context = {'assigned_problems': assigned_problems, 'form': form,}
         return render(request, 'problems/sb/index_student.html', context)
     else:
         return render(request, 'problems/sb/login.html', {})
@@ -36,3 +38,6 @@ def assign(request):
             assign_task = Assignment(person=User.objects.get(id=int(student)), problem=Problem.objects.get(id=int(problem)), date_deadline=date_deadline, assigned_by=request.user).save()
     return redirect('index')
 
+def submit(request):
+    Submit(assignment=Assignment.objects.get(id=request.POST["assignment_id"]), short_answer=request.POST["short_answer"], solution=request.POST["solution"]).save()
+    return redirect("index")

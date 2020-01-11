@@ -20,10 +20,42 @@
             </div>
             <div class="problem_links">
                 <br>
+                {% if assigned.submits.all %}
+                    <table border="1">
+                        <tr>
+                            <th>ID</th>
+                            <th>Время сдачи</th>
+                            <th>Результат проверки</th>
+                            <th>Комментарий учителя</th>
+                        </tr>
+                        {% for submit in assigned.submits.all %}
+                            <tr>
+                                <td>{{ submit.id }}</td>
+                                <td>{{ submit.submit_datetime }}</td>
+                                <td>{{ submit.get_verdict_display }}</td>
+                                <td>{{ submit.teacher_comment }}</td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                    <p></p>
+                {% endif %}
                 <a class="btn btn-primary" data-toggle="collapse" href="#hint-{{ assigned.id }}" role="button" aria-expanded="false" aria-controls="collapseExample">Подсказка</a>
+                <a class="btn btn-primary" data-toggle="collapse" href="#submit-{{ assigned.id }}" role="button" aria-expanded="false" aria-controls="collapseExample">Сдать решение</a>
                 <p>
                 <div class="collapse" id="hint-{{ assigned.id }}">
                     <p><b>Подсказка.</b> {{ assigned.problem.hint }}
+                </div>
+                <div class="collapse" id="submit-{{ assigned.id }}">
+                    <p><h4>Решение</h4>
+                    <form method="post" action="{% url 'submit' %}">
+                        {% csrf_token %}
+                        <table>
+                        {{ form }}
+                        {{ form.media }}
+                        </table>
+                        <input type="hidden" name="assignment_id" value="{{ assigned.id }}">
+                        <input type="submit" value="Сдать на проверку">
+                    </form>
                 </div>
             </div>
           </div>
