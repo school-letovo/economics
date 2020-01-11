@@ -7,4 +7,5 @@ urlpatterns = [
     path('', views.index, name='index'),
     path('assign', views.assign, name='assign'),
     path('submit', views.submit, name='submit'),
+    path('check/<int:submit_id>', views.check_solution, name="check_solution"),
 ]

@@ -4,7 +4,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
 
 from .models import Assignment, Problem, Topic, Submit
-from .forms import SubmitForm
+from .forms import SubmitForm, CheckForm
 
 # Create your views here.
 
@@ -15,7 +15,7 @@ def index(request):
         problems = dict()
         for topic in topics:
             problems[topic.id] = topic.problems.all()
-        topic = Topic.objects.get(id=1);
+        topic = Topic.objects.get(id=1)
         context = {'problems': problems,
                    'students': students,
                    'topic': topic}
@@ -44,3 +44,12 @@ def submit(request):
     assignment.status = 1
     assignment.save()
     return redirect("index")
+
+def check_solution(request, submit_id):
+    submit = Submit.objects.get(id=submit_id)
+    if request.user == submit.assignment.assigned_by:
+        form = CheckForm()
+        context = {'form': form, 'submit': submit}
+        return render(request, 'problems/sb/index_temp.html', context)
+    else:
+        return redirect('index')

@@ -90,6 +90,7 @@ class Submit(models.Model):
     short_answer = models.CharField('Ответ (для автоматической проверки)', max_length=200, blank=True)
     solution = RichTextUploadingField('Решение', blank=True)
     submit_datetime = models.DateTimeField('Время и дата сдачи решения', auto_now_add=True, blank=False)
+    answer_autoverdict = models.BooleanField('Результат автоматической проверки ответа', blank=True, null=True)
     verdict = models.IntegerField('Результат проверки', choices=VERDICT_CHOICES, blank=False, null=False, default=-1)
     teacher_comment = models.TextField('Комментарий учителя', blank=True)
 

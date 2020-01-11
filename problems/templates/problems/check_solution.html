@@ -1,0 +1,41 @@
+{% autoescape off %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-10">
+            <h4>Задача {{ submit.assignment.problem.id }}. {{ submit.assignment.problem.name }}</h4>
+            <p>{{ submit.assignment.problem.task }}
+            <hr>
+            <table border="1">
+                <tr>
+                    <td>Правильный ответ</td>
+                    <td>Ответ ученика</td>
+                    <td>Результат автопроверки</td>
+                </tr>
+                <tr>
+                    <td>{{ submit.assignment.problem.short_answer }}</td>
+                    <td>{{ submit.short_answer }}</td>
+                    <td>{% if submit__answer_autoverdict == 0 %}–
+                        {% elif submit__answer_autoverdict == 1 %}+
+                        {% endif %}
+                    </td>
+                </tr>
+            </table>
+            <hr>
+            <p>Решение ученика:
+            <p>{{ submit.solution }}
+            <p>
+            <form action="problems/save_verdict" method="POST">
+                {% csrf_token %}
+                <table>
+                    {{ form }}
+                </table>
+                <input type="submit" value="Оценить">
+            </form>
+
+            <p>Правильное решение:
+            <p>{{ submit.assignment.problem.solution }}
+
+        </div>
+    </div>
+</div>
+{% endautoescape %}
