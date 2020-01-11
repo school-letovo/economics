@@ -1,0 +1,5 @@
+<ul>
+    {% for submit in submits %}
+    <li><a href="{% url 'check' submit.id %}">{{ submit.assignment.problem.id }} {{ submit.assignment.person.last_name }}</a></li>
+    {% endfor %}
+</ul>

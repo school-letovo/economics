@@ -16,14 +16,16 @@ def index(request):
         for topic in topics:
             problems[topic.id] = topic.problems.all()
         topic = Topic.objects.get(id=1)
+        submits = Submit.objects.filter(assignment__assigned_by=request.user)
         context = {'problems': problems,
                    'students': students,
-                   'topic': topic}
+                   'topic': topic,
+                   'submits': submits,}
         return render(request, 'problems/sb/index_teacher.html', context)
     elif request.user.groups.filter(name='students').exists():
         assigned_problems = Assignment.objects.filter(person=request.user).order_by('date_deadline')
         form = SubmitForm()
-        context = {'assigned_problems': assigned_problems, 'form': form,}
+        context = {'assigned_problems': assigned_problems, 'form': form}
         return render(request, 'problems/sb/index_student.html', context)
     else:
         return render(request, 'problems/sb/login.html', {})
