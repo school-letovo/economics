@@ -40,7 +40,9 @@
                     <p></p>
                 {% endif %}
                 <a class="btn btn-primary" data-toggle="collapse" href="#hint-{{ assigned.id }}" role="button" aria-expanded="false" aria-controls="collapseExample">Подсказка</a>
-                <a class="btn btn-primary" data-toggle="collapse" href="#submit-{{ assigned.id }}" role="button" aria-expanded="false" aria-controls="collapseExample">Сдать решение</a>
+                {% if assigned.status != 1 %}
+                    <a class="btn btn-primary" data-toggle="collapse" href="#submit-{{ assigned.id }}" role="button" aria-expanded="false" aria-controls="collapseExample">Сдать решение</a>
+                {% endif %}
                 <p>
                 <div class="collapse" id="hint-{{ assigned.id }}">
                     <p><b>Подсказка.</b> {{ assigned.problem.hint }}

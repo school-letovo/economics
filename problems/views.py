@@ -39,5 +39,8 @@ def assign(request):
     return redirect('index')
 
 def submit(request):
-    Submit(assignment=Assignment.objects.get(id=request.POST["assignment_id"]), short_answer=request.POST["short_answer"], solution=request.POST["solution"]).save()
+    assignment = Assignment.objects.get(id=request.POST["assignment_id"])
+    Submit(assignment=assignment, short_answer=request.POST["short_answer"], solution=request.POST["solution"]).save()
+    assignment.status = 1
+    assignment.save()
     return redirect("index")
