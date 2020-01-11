@@ -57,12 +57,19 @@ class Problem(models.Model):
         ordering = ['id']
 
 
+STATUS_CHOICES = {
+    (0, 'Решение не сдано'),
+    (1, 'Решение не проверено'),
+    (2, 'Решение проверено'),
+}
+
 class Assignment(models.Model):
     person = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Кому задано')
     problem = models.ForeignKey(Problem, on_delete=models.CASCADE, verbose_name='Задача')
     date_assigned = models.DateField('Когда задано', auto_now_add=True, blank=False)
     date_deadline = models.DateField('Сдать до', blank=True, null=True)
     assigned_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='assigner', verbose_name='Кем задано')
+    status = models.IntegerField('Статус', choices = STATUS_CHOICES, null=False, blank=False, default=0)
 
     def __str__(self):
         return "{} -> {}. {} {}".format(self.problem, self.person.id, self.person.last_name, self.person.first_name)
@@ -70,3 +77,21 @@ class Assignment(models.Model):
     class Meta:
         ordering = ['date_assigned']
 
+VERDICT_CHOICES = [
+    (-1, 'Решение не проверено'),
+    (0, 'Неверное решение'),
+    (1, 'Частично верное решение'),
+    (2, 'Верное решение с недочетами'),
+    (3, 'Верное решение'),
+]
+
+class Submit(models.Model):
+    assignment = models.ForeignKey(Assignment, on_delete=models.CASCADE, verbose_name='Назначенная задача', related_name='submits')
+    short_answer = models.CharField('Ответ (для автоматической проверки)', max_length=200, blank=True)
+    solution = RichTextUploadingField('Решение', blank=True)
+    submit_datetime = models.DateTimeField('Время и дата сдачи решения', auto_now_add=True, blank=False)
+    verdict = models.IntegerField('Результат проверки', choices=VERDICT_CHOICES, blank=False, null=False, default=-1)
+    teacher_comment = models.TextField('Комментарий учителя', blank=True)
+
+    def __str__(self):
+        return '{} {} {}'.format(self.assignment, self.submit_datetime, self.get_verdict_display())
