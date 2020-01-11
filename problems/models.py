@@ -75,7 +75,7 @@ class Assignment(models.Model):
         return "{} -> {}. {} {}".format(self.problem, self.person.id, self.person.last_name, self.person.first_name)
 
     class Meta:
-        ordering = ['date_assigned']
+        ordering = ['status', 'date_deadline']
 
 VERDICT_CHOICES = [
     (-1, 'Решение не проверено'),
