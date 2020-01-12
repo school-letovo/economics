@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from django.shortcuts import render, redirect
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 
 from .models import Assignment, Problem, Topic, Submit
 from .forms import SubmitForm, CheckForm
@@ -13,6 +13,7 @@ def index(request):
         students = User.objects.filter(groups__name='students')
         topics = Topic.objects.all()
         problems = dict()
+        groups = Group.objects.all()
         for topic in topics:
             problems[topic.id] = topic.problems.all()
         topic = Topic.objects.get(id=1)
@@ -20,7 +21,8 @@ def index(request):
         context = {'problems': problems,
                    'students': students,
                    'topic': topic,
-                   'submits': submits,}
+                   'submits': submits,
+                   'groups': groups,}
         return render(request, 'problems/sb/index_teacher.html', context)
     elif request.user.groups.filter(name='students').exists():
         assigned_problems = Assignment.objects.filter(person=request.user).order_by('date_deadline')
@@ -38,6 +40,13 @@ def assign(request):
     for student in request.POST.getlist('student'):
         for problem in request.POST.getlist('problem'):
             assign_task = Assignment(person=User.objects.get(id=int(student)), problem=Problem.objects.get(id=int(problem)), date_deadline=date_deadline, assigned_by=request.user).save()
+    for group_id in request.POST.getlist('group'):
+        group = Group.objects.get(id=group_id)
+        print(group)
+        print(group.user_set.all())
+        for student in group.user_set.all():
+            for problem in request.POST.getlist('problem'):
+                assign_task = Assignment(person=student, problem=Problem.objects.get(id=int(problem)), date_deadline=date_deadline, assigned_by=request.user).save()
     return redirect('index')
 
 def submit(request):

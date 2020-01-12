@@ -1,0 +1,13 @@
+{% for alert in submits %}
+    <a class="dropdown-item d-flex align-items-center" href="{% url 'check' alert.id %}">
+      <div class="mr-3">
+        <div class="icon-circle bg-primary">
+          <i class="fas fa-file-alt text-white"></i>
+        </div>
+      </div>
+      <div>
+        <div class="small text-gray-500">{{ alert.submit_datetime }}</div>
+        <span class="font-weight-bold">{{ alert.assignment.person.last_name }} {{ alert.assignment.person.first_name}}: {{ alert.assignment.problem.name}}</span>
+      </div>
+    </a>
+{% endfor %}

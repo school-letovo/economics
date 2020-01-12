@@ -46,9 +46,9 @@
       <!-- Sidebar - Brand -->
       <a class="sidebar-brand d-flex align-items-center justify-content-center" href="/">
         <div class="sidebar-brand-icon rotate-n-15">
-          <i class="fas fa-laugh-wink"></i>
+          <i class="fas">$</i>&nbsp;
         </div>
-        <div>VEconomics</div>
+        <div style="text-transform:none;">VEconomics</div>
       </a>
 
       <!-- Divider -->
@@ -109,7 +109,22 @@
 
 
             <div class="topbar-divider d-none d-sm-block"></div>
-
+<!-- Nav Item - Alerts -->
+            <li class="nav-item dropdown no-arrow mx-1">
+              <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="fas fa-bell fa-fw"></i>
+                <!-- Counter - Alerts -->
+                <span class="badge badge-danger badge-counter">{{ submits|length }}</span>
+              </a>
+              <!-- Dropdown - Alerts -->
+              <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="alertsDropdown">
+                <h6 class="dropdown-header">
+                  Сданные решения
+                </h6>
+                {% include 'problems/alerts.html' %}
+                <!--a class="dropdown-item text-center small text-gray-500" href="#">Show All Alerts</a-->
+              </div>
+            </li>
             <!-- Nav Item - User Information -->
             <li class="nav-item dropdown no-arrow">
               <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -143,7 +158,7 @@
         <!-- End of Topbar -->
 
         <!-- Begin Page Content -->
-          <form method="POST" action="assign">
+          <form method="POST" action="{% url 'assign' %}">
             {% csrf_token %}
             <div class="container-fluid">
                   <div class="row">
@@ -188,6 +203,10 @@
                           <h3>Ученики</h3>
                           <div id="students">
                               {% include "problems/student_list.html" %}
+                          </div>
+                          <p></p><h3>Группы</h3>
+                          <div id="groups">
+                              {% include "problems/group_list.html" %}
                           </div>
                       </div>
                   </div>
