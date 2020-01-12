@@ -7,7 +7,15 @@
       </div>
       <div>
         <div class="small text-gray-500">{{ alert.submit_datetime }}</div>
-        <span class="font-weight-bold">{{ alert.assignment.person.last_name }} {{ alert.assignment.person.first_name}}: {{ alert.assignment.problem.name}}</span>
+        <span class="font-weight-bold">{{ alert.assignment.person.last_name }} {{ alert.assignment.person.first_name}}:
+          #{{alert.assignment.problem.id}}&nbsp;
+              {% if alert.assignment.problem.name %}
+                {{ alert.assignment.problem.name }}&nbsp;
+              {% endif %}
+              {% if alert.assignment.problem.source_set.all %}
+          [<i>{% for source in alert.assignment.problem.source_set.all %}{% if forloop.last %}{{ source }}{% else %}{{ source }},{% endif %}{% endfor %}</i>]
+              {% endif %}
+        </span>
       </div>
     </a>
 {% endfor %}
