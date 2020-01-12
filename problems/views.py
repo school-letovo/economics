@@ -25,7 +25,7 @@ def index(request):
                    'groups': groups,}
         return render(request, 'problems/sb/index_teacher.html', context)
     elif request.user.groups.filter(name='students').exists():
-        assigned_problems = Assignment.objects.filter(person=request.user).order_by('date_deadline')
+        assigned_problems = Assignment.objects.filter(person=request.user).order_by('status', 'date_deadline')
         form = SubmitForm()
         context = {'assigned_problems': assigned_problems, 'form': form}
         return render(request, 'problems/sb/index_student.html', context)
