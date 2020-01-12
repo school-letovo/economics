@@ -2,9 +2,8 @@ from django.contrib import admin
 
 # Register your models here.
 
-from .models import Problem, Assignment, Topic, Submit
+from .models import Problem, Assignment, Topic, Submit, Source
 
-admin.site.register(Problem)
 
 class AssignmentAdmin(admin.ModelAdmin):
     fields = ['person', 'problem', 'date_deadline', 'status']
@@ -24,5 +23,7 @@ class AssignmentAdmin(admin.ModelAdmin):
 
 admin.site.register(Assignment, AssignmentAdmin)
 
+admin.site.register(Problem)
 admin.site.register(Topic)
 admin.site.register(Submit)
+admin.site.register(Source)

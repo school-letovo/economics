@@ -5,7 +5,10 @@
         <!-- Card Header - Accordion -->
         <a class="d-block card-header py-3" role="button" aria-expanded="true" aria-controls="collapseCardExample">
           <nobr><h6 class="m-0 font-weight-bold text-primary">
-              {{ assigned.problem.name }}
+              #{{ assigned.problem.id }}&nbsp;
+              {% if assigned.problem.name %}
+                {{ assigned.problem.name }}
+              {% endif %}
           </h6>
               {% if assigned.date_deadline %}
                 Срок сдачи: {{ assigned.date_deadline|date:"d-m-Y" }}.

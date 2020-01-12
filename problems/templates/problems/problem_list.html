@@ -5,7 +5,21 @@
         <a class="d-block card-header py-3" role="button" aria-expanded="true" aria-controls="collapse">
           <h6 class="m-0 font-weight-bold text-primary">
               <input type="checkbox" name="problem" value="{{ problem.id }}">
-              {{ problem.name }}
+              #{{problem.id}}&nbsp;
+              {% if problem.name %}
+                {{ problem.name }}&nbsp;
+              {% endif %}
+              {% if problem.source_set.all %}
+                [{% for source in problem.source_set.all %}
+                    {% if forloop.last %}
+                        {{ source }}
+                    {% else %}
+                        {{ source }},
+                    {% endif %}
+                {% endfor %}]
+              {% endif %}
+
+
           </h6>
         </a>
         <!-- Card Content - Collapse -->

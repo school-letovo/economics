@@ -19,7 +19,7 @@ class Topic(models.Model):
 
 
 class Problem(models.Model):
-    name = models.CharField('Название', max_length=200)
+    name = models.CharField('Название', max_length=200, blank=True, null=True)
     task = RichTextUploadingField('Условие')
     short_answer = models.CharField('Ответ (для автоматической проверки)', max_length=200, blank=True)
     # TODO long_answer =
@@ -48,13 +48,33 @@ class Problem(models.Model):
 
     assignments = models.ManyToManyField(User, through='Assignment', through_fields=['problem', 'person'])
 
-
-
     def __str__(self):
-        return "{}. {}. {}...".format(self.id, self.name, self.task[:30])
+        result = "#" + str(self.id)
+        if self.source_set.all():
+            result += ". " + ", ".join(map(str, self.source_set.all()))
+        if self.name:
+            result += ". " + self.name
+        return result + ". " + self.task[:30] + "..."
 
     class Meta:
         ordering = ['id']
+
+
+class Source(models.Model):
+    name = models.CharField('Название', max_length=200)
+    parent = models.ForeignKey('Source', on_delete=models.CASCADE, verbose_name="Предок", related_name='children',
+                               blank=True, null=True)
+    order = models.IntegerField('Порядковый номер')
+    problem = models.ForeignKey(Problem, on_delete=models.CASCADE, blank=True, null=True)
+
+    def __str__(self):
+        if self.parent:
+            return "{} - {}".format(self.parent, self.name)
+        else:
+            return self.name
+
+    class Meta:
+        ordering = ['order']
 
 
 STATUS_CHOICES = {
@@ -96,3 +116,4 @@ class Submit(models.Model):
 
     def __str__(self):
         return '{} {} {}'.format(self.assignment, self.submit_datetime, self.get_verdict_display())
+
