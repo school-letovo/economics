@@ -2,7 +2,7 @@
 <div class="container-fluid">
     <div class="row">
         <div class="col-10">
-            <h4>Задача {{ submit.assignment.problem.id }}. {{ submit.assignment.problem.name }}</h4>
+            <h4>Задача {{ submit.assignment.problem.id }}. {{ submit.assignment.problem.name }}, решение – {{ submit.assignment.person.last_name }} {{ submit.assignment.person.first_name }}</h4>
             <p>{{ submit.assignment.problem.task }}
             <hr>
             <table border="1">
@@ -24,11 +24,12 @@
             <p>Решение ученика:
             <p>{{ submit.solution }}
             <p>
-            <form action="problems/save_verdict" method="POST">
+            <form action="{% url 'save_verdict' %}" method="POST">
                 {% csrf_token %}
                 <table>
                     {{ form }}
                 </table>
+                <input type="hidden" name="submit_id" value="{{ submit.id}}">
                 <input type="submit" value="Оценить">
             </form>
 

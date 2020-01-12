@@ -17,7 +17,7 @@ def index(request):
         for topic in topics:
             problems[topic.id] = topic.problems.all()
         topic = Topic.objects.get(id=1)
-        submits = Submit.objects.filter(assignment__assigned_by=request.user)
+        submits = Submit.objects.filter(assignment__assigned_by=request.user).filter(verdict=-1) # solution not checked
         context = {'problems': problems,
                    'students': students,
                    'topic': topic,
@@ -64,3 +64,14 @@ def check_solution(request, submit_id):
         return render(request, 'problems/sb/index_temp.html', context)
     else:
         return redirect('index')
+
+def save_verdict(request):
+    verdict = request.POST['verdict']
+    teacher_comment = request.POST['teacher_comment']
+    submit_id = request.POST['submit_id']
+    submit = Submit.objects.get(id=submit_id)
+    submit.verdict = verdict
+    submit.teacher_comment = teacher_comment
+    submit.assignment.status = 2 # assignment solution checked
+    submit.save()
+    return redirect('index')
