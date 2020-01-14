@@ -1,0 +1,6 @@
+<form action="source_list" method="POST">
+    {% csrf_token %}
+    {% include "problems/source_level.html" %}
+    <input type="submit" value="Обновить список задач">
+
+</form>

@@ -4,7 +4,6 @@ from django.contrib import admin
 
 from .models import Problem, Assignment, Topic, Submit, Source
 
-
 class AssignmentAdmin(admin.ModelAdmin):
     fields = ['person', 'problem', 'date_deadline', 'status']
     def save_model(self, request, obj, form, change):

@@ -3,7 +3,7 @@ from datetime import datetime
 from django.shortcuts import render, redirect
 from django.contrib.auth.models import User, Group
 
-from .models import Assignment, Problem, Topic, Submit
+from .models import Assignment, Problem, Topic, Submit, Source
 from .forms import SubmitForm, CheckForm
 
 # Create your views here.
@@ -74,4 +74,21 @@ def save_verdict(request):
     submit.teacher_comment = teacher_comment
     submit.assignment.status = 2 # assignment solution checked
     submit.save()
+    submit.assignment.save()
     return redirect('index')
+
+def test(request):
+    topic = Source.objects.get(id=22)
+    return render(request, 'problems/test.html', {'topic_list':{topic}})
+
+def source_list(request):
+    source_ids = list(map(int, request.POST.getlist('source')))
+    for source_id in source_ids:
+        for child in Source.objects.get(id=source_id).children.all():
+            source_ids.append(child.id)
+        if not Source.objects.get(id=source_id).children.all():
+            print(Source.objects.get(id=source_id).problem)
+    print(source_ids)
+    print(request.POST.getlist('source'))
+    return render(request, 'problems/test.html', {})
+

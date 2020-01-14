@@ -1,0 +1,9 @@
+    <ul>
+    {% for topic in topic_list %}
+        <li><input type="checkbox" name="source" value="{{ topic.id }}">{{ topic.name }}
+        {% if topic.children %}
+            <ul>{% include 'problems/source_level.html' with topic_list=topic.children.all %}</ul>
+        {% endif %}
+        </li>
+    {% endfor %}
+    </ul>
