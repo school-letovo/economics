@@ -25,7 +25,7 @@ SECRET_KEY = '!ab43jy^1)x-f$a7c+ov2ql&1(imp&p9fdc6ot!ep(6=5u*vp)'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['veconomics.ru', 'veconomics.letovo.ru', '127.0.0.1']
 
 
 # Application definition
@@ -121,7 +121,8 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
-STATIC_URL = '/static/'
+STATIC_URL = '/veconomics/static/'
+STATIC_ROOT = '/home/h33347c/www/veconomics/static/'
 
 MEDIA_URL = '/media/'
 
