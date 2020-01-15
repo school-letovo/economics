@@ -14,8 +14,8 @@
                 <tr>
                     <td>{{ submit.assignment.problem.short_answer }}</td>
                     <td>{{ submit.short_answer }}</td>
-                    <td>{% if submit__answer_autoverdict == 0 %}–
-                        {% elif submit__answer_autoverdict == 1 %}+
+                    <td>{% if submit.answer_autoverdict == False %}–
+                        {% elif submit.answer_autoverdict == True %}+
                         {% endif %}
                     </td>
                 </tr>

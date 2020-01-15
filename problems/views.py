@@ -53,8 +53,22 @@ def assign(request):
     return redirect('index')
 
 def submit(request):
+
+    def clean(string):
+        string = string.replace(" ", "")
+        string = string.replace(",", ".")
+        return string
+
+    def autocheck_answer(student, author):
+        for answer in author.split(';'): # several correct answers could be separated by ;
+            if clean(answer) == clean(student):
+                return True
+        return False
+
     assignment = Assignment.objects.get(id=request.POST["assignment_id"])
-    Submit(assignment=assignment, short_answer=request.POST[request.POST["assignment_id"] + "-short_answer"], solution=request.POST[request.POST["assignment_id"] + "-solution"]).save()
+    student_short_answer = request.POST[request.POST["assignment_id"] + "-short_answer"]
+    answer_autoverdict = autocheck_answer(student_short_answer, assignment.problem.short_answer)
+    Submit(assignment=assignment, short_answer=request.POST[request.POST["assignment_id"] + "-short_answer"], solution=request.POST[request.POST["assignment_id"] + "-solution"], answer_autoverdict=answer_autoverdict).save()
     assignment.status = 1
     assignment.save()
     return redirect("index")

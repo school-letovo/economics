@@ -29,6 +29,7 @@
                             <th>ID</th>
                             <th>Время сдачи</th>
                             <th>Результат проверки</th>
+                            <th>Результат автопроверки ответа</th>
                             <th>Комментарий учителя</th>
                         </tr>
                         {% for submit in assigned.submits.all %}
@@ -36,6 +37,9 @@
                                 <td>{{ submit.id }}</td>
                                 <td>{{ submit.submit_datetime }}</td>
                                 <td>{{ submit.get_verdict_display }}</td>
+                                <td>{% if submit.answer_autoverdict == False %}–
+                                    {% elif submit.answer_autoverdict == True %}+
+                                    {% endif %}</td>
                                 <td>{{ submit.teacher_comment }}</td>
                             </tr>
                         {% endfor %}
