@@ -2,6 +2,8 @@ from datetime import datetime
 
 from django.shortcuts import render, redirect
 from django.contrib.auth.models import User, Group
+from django.views.generic.detail import DetailView
+
 
 from .models import Assignment, Problem, Topic, Submit, Source
 from .forms import SubmitForm, CheckForm
@@ -92,3 +94,5 @@ def source_list(request):
     print(request.POST.getlist('source'))
     return render(request, 'problems/test.html', {})
 
+class ProblemDetailView(DetailView):
+    model = Problem
