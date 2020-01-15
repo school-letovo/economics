@@ -28,8 +28,9 @@ def index(request):
         return render(request, 'problems/sb/index_teacher.html', context)
     elif request.user.groups.filter(name='students').exists():
         assigned_problems = Assignment.objects.filter(person=request.user).order_by('status', 'date_deadline')
-        form = SubmitForm()
-        context = {'assigned_problems': assigned_problems, 'form': form}
+        for assignment in assigned_problems:
+            assignment.form = SubmitForm(prefix=str(assignment.id))
+        context = {'assigned_problems': assigned_problems}
         return render(request, 'problems/sb/index_student.html', context)
     else:
         return render(request, 'problems/sb/login.html', {})
@@ -53,7 +54,7 @@ def assign(request):
 
 def submit(request):
     assignment = Assignment.objects.get(id=request.POST["assignment_id"])
-    Submit(assignment=assignment, short_answer=request.POST["short_answer"], solution=request.POST["solution"]).save()
+    Submit(assignment=assignment, short_answer=request.POST[request.POST["assignment_id"] + "-short_answer"], solution=request.POST[request.POST["assignment_id"] + "-solution"]).save()
     assignment.status = 1
     assignment.save()
     return redirect("index")

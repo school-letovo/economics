@@ -55,8 +55,8 @@
                     <form method="post" action="{% url 'submit' %}">
                         {% csrf_token %}
                         <table>
-                        {{ form }}
-                        {{ form.media }}
+                        {{ assigned.form }}
+                        {{ assigned.form.media }}
                         </table>
                         <input type="hidden" name="assignment_id" value="{{ assigned.id }}">
                         <input type="submit" value="Сдать на проверку">

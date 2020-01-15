@@ -28,6 +28,7 @@
                 {% csrf_token %}
                 <table>
                     {{ form }}
+                    {{ form.media }}
                 </table>
                 <input type="hidden" name="submit_id" value="{{ submit.id}}">
                 <input type="submit" value="Оценить">
