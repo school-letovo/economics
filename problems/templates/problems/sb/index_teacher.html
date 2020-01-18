@@ -53,48 +53,55 @@
 {% endblock %}
 {% block content %}
         <!-- Begin Page Content -->
-          <form method="POST" action="{% url 'assign' %}">
-            {% csrf_token %}
             <div class="container-fluid">
+                  <form action="{{ action }}" method="POST">
+                      {% csrf_token %}
                   <div class="row">
-                      <div class="col">
+                      <div class="col-2">
+                          <h4>ТЕМЫ:</h4>
+                          {% with field="topic" %}
+                            {% include 'problems/object_filter.html' with object_list=topic_list %}
+                          {% endwith %}
+                      </div>
+                      <div class="col-6">
+                          <h4>ИСТОЧНИКИ:</h4>
+                          {% with field='source' %}
+                            {% include 'problems/object_filter.html' with object_list=source_list %}
+                          {% endwith %}
+                      </div>
+                  </div>
+                  <div class="row">
+                      <div class="col-8">
+                          <h4><input type="submit" value="Обновить список задач"></h4>
+                      </div>
+                  </div>
+
+                </form>
+                <div class="row">
+                    <div class="col-8">
+                          <form method="POST" action="{% url 'assign' %}">
+                        {% csrf_token %}
                         <div  class="alert alert-primary" role="alert">
                           <b>Назначить задачи ученикам</b>
                           <br><br>Срок сдачи:
                           <input type="date" name="date_deadline">&nbsp;&nbsp;&nbsp;
                           <input type="submit" value="Назначить">
                         </div>
-                    </div>
-                  </div>
-                  <div class="row">
-                      <div class="col-10">
                           <h3>Задачи</h3>
                           <div id="problems">
-                              {% autoescape off %}
                               <div class="card shadow mb-4">
-                                <!-- Card Header - Accordion -->
-                                <a href="#collapseCardExample" class="d-block card-header py-3" data-toggle="collapse" role="button" aria-expanded="true" aria-controls="collapseCardExample">
-                                  <h6 class="m-0 font-weight-bold text-primary">{{ topic.name }}</h6>
-                                </a>
-                                <!-- Card Content - Collapse -->
-                                <div class="collapse show" id="collapseCardExample">
-                                  <div class="card-body">
-                                    {% for element in topic.children.all %}
-                                            {% if element.children %}
-                                                {% with topic=element template_name="problems/tree_level.html" %}
-                                                   {% include template_name %}
-                                                {% endwith %}
-                                            {% endif %}
-                                    {% endfor %}
+                                 <div class="card-body">
+                                      {% autoescape off %}
+                                          {% include 'problems/problem_list.html' %}
+                                      {% endautoescape %}
                                   </div>
                                 </div>
-                              </div>
-
-
-                              {% endautoescape %}
                           </div>
+
+
+
                       </div>
-                      <div class="col">
+                      <div class="col-4">
                           <h3>Ученики</h3>
                           <div id="students">
                               {% include "problems/student_list.html" %}

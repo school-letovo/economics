@@ -1,0 +1,11 @@
+    <ul>
+        <li style="list-style-type:none;"><input type="checkbox" name="{{ field }}" value="{{ object_list.object.id }}">{{ object_list.object.name }}
+        {% if object_list.children %}
+            <ul>
+                {% for object in object_list.children %}
+                    {% include 'problems/object_level.html' with object_list=object %}
+                {% endfor %}
+            </ul>
+        {% endif %}
+        </li>
+    </ul>

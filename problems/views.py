@@ -10,28 +10,38 @@ from .forms import SubmitForm, CheckForm
 
 # Create your views here.
 
+SOURCE_ROOT = 22
+TOPIC_ROOT = 1
+
 def index(request):
     if request.user.groups.filter(name='teachers').exists():
         students = User.objects.filter(groups__name='students')
-        topics = Topic.objects.all()
-        problems = dict()
+        problems = Problem.objects.all()
         groups = Group.objects.all()
-        for topic in topics:
-            problems[topic.id] = topic.problems.all()
-        topic = Topic.objects.get(id=1)
+        topic = Topic.objects.get(id=TOPIC_ROOT)
+        topic_list = Tree2List(topic)
+
+
+        source = Source.objects.get(id=SOURCE_ROOT)
+        source_list = Tree2List(source)
+
         submits = Submit.objects.filter(assignment__assigned_by=request.user).filter(verdict=-1) # solution not checked
         context = {'problems': problems,
                    'students': students,
-                   'topic': topic,
+                   'topic_list': topic_list,
+                   'source_list': source_list,
                    'submits': submits,
-                   'groups': groups,}
+                   'groups': groups,
+                   }
         return render(request, 'problems/sb/index_teacher.html', context)
+
     elif request.user.groups.filter(name='students').exists():
         assigned_problems = Assignment.objects.filter(person=request.user).order_by('status', 'date_deadline')
         for assignment in assigned_problems:
             assignment.form = SubmitForm(prefix=str(assignment.id))
         context = {'assigned_problems': assigned_problems}
         return render(request, 'problems/sb/index_student.html', context)
+
     else:
         return render(request, 'problems/sb/login.html', {})
 
@@ -45,8 +55,6 @@ def assign(request):
             assign_task = Assignment(person=User.objects.get(id=int(student)), problem=Problem.objects.get(id=int(problem)), date_deadline=date_deadline, assigned_by=request.user).save()
     for group_id in request.POST.getlist('group'):
         group = Group.objects.get(id=group_id)
-        print(group)
-        print(group.user_set.all())
         for student in group.user_set.all():
             for problem in request.POST.getlist('problem'):
                 assign_task = Assignment(person=student, problem=Problem.objects.get(id=int(problem)), date_deadline=date_deadline, assigned_by=request.user).save()
@@ -95,19 +103,33 @@ def save_verdict(request):
     return redirect('index')
 
 def test(request):
-    topic = Source.objects.get(id=22)
-    return render(request, 'problems/test.html', {'topic_list':{topic}})
+    # object = Source.objects.get(id=SOURCE_ROOT)
+    object = Topic.objects.get(id=TOPIC_ROOT)
+    object_list = Tree2List(object)
+    return render(request, 'problems/object_filter.html', {'object_list':object_list})
 
-def source_list(request):
+def source_list(request): # generate source_list of all children
     source_ids = list(map(int, request.POST.getlist('source')))
     for source_id in source_ids:
         for child in Source.objects.get(id=source_id).children.all():
             source_ids.append(child.id)
         if not Source.objects.get(id=source_id).children.all():
-            print(Source.objects.get(id=source_id).problem)
-    print(source_ids)
-    print(request.POST.getlist('source'))
-    return render(request, 'problems/test.html', {})
+            pass
+    return source_ids
 
 class ProblemDetailView(DetailView):
     model = Problem
+
+def Tree2List(root):
+    # children should be referenced as children in model class
+    result = {'object': root, 'children': []}
+    children = root.children.all()
+    if children:
+        for child in children:
+            result['children'].append(Tree2List(child))
+    print(result)
+    return result
+
+
+
+

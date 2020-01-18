@@ -67,5 +67,7 @@
           </ul>
 {% endblock topbar %}
 {% block content %}
-                              {% include "problems/check_solution.html" %}
+  {% autoescape off %}
+    {% include "problems/check_solution.html" %}
+  {% endautoescape %}
 {% endblock content %}
