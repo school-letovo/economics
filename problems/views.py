@@ -106,7 +106,7 @@ def test(request):
     # object = Source.objects.get(id=SOURCE_ROOT)
     object = Topic.objects.get(id=TOPIC_ROOT)
     object_list = Tree2List(object)
-    return render(request, 'problems/object_filter.html', {'object_list':object_list})
+    return render(request, 'problems/object_level.html', {'object_list':object_list})
 
 def source_list(request): # generate source_list of all children
     source_ids = list(map(int, request.POST.getlist('source')))
@@ -126,7 +126,9 @@ def Tree2List(root):
     children = root.children.all()
     if children:
         for child in children:
-            result['children'].append(Tree2List(child))
+            if not 'Задача ' in child.name: # don't show sources like "Задача #16'
+                result['children'].append(Tree2List(child))
+
     print(result)
     return result
 

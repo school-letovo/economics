@@ -1,11 +1,11 @@
     <ul>
-        <li style="list-style-type:none;"><input type="checkbox" name="{{ field }}" value="{{ object_list.object.id }}">{{ object_list.object.name }}
+        <li class="collapsible" style="list-style-type:none;"><nobr>{% if object_list.children %}<i class="fas fa-plus-square"></i>{% endif %} <input type="checkbox" name="{{ field }}" value="{{ object_list.object.id }}">{{ object_list.object.name }}</nobr>
         {% if object_list.children %}
-            <ul>
+            <ul><div class="content">
                 {% for object in object_list.children %}
                     {% include 'problems/object_level.html' with object_list=object %}
                 {% endfor %}
-            </ul>
+            </div></ul>
         {% endif %}
         </li>
     </ul>

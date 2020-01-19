@@ -52,21 +52,34 @@
           </ul>
 {% endblock %}
 {% block content %}
+<style>
+.collapsible {
+  cursor: pointer;
+  outline: none;
+}
+
+.active, .collapsible:hover {
+}
+
+.content {
+  display: none;
+}
+</style>
         <!-- Begin Page Content -->
             <div class="container-fluid">
                   <form action="{{ action }}" method="POST">
                       {% csrf_token %}
                   <div class="row">
-                      <div class="col-2">
+                      <div class="col-md-auto">
                           <h4>ТЕМЫ:</h4>
                           {% with field="topic" %}
-                            {% include 'problems/object_filter.html' with object_list=topic_list %}
+                            {% include 'problems/object_level.html' with object_list=topic_list %}
                           {% endwith %}
                       </div>
-                      <div class="col-6">
+                      <div class="col-md-auto">
                           <h4>ИСТОЧНИКИ:</h4>
                           {% with field='source' %}
-                            {% include 'problems/object_filter.html' with object_list=source_list %}
+                            {% include 'problems/object_level.html' with object_list=source_list %}
                           {% endwith %}
                       </div>
                   </div>
@@ -116,5 +129,28 @@
               </div>
               <!-- /.container-fluid -->
   </form>
+<script>
+var coll = document.getElementsByClassName("collapsible");
+var i;
 
+for (i = 0; i < coll.length; i++) {
+  coll[i].addEventListener("click", function(event) {
+    this.classList.toggle("active");
+    if(this.children[1]) {
+        var content = this.children[1].firstChild; // li -> nobr, ul -> div
+        if (content.style.display === "block") {
+            content.style.display = "none";
+            this.firstChild.firstChild.classList.remove('fa-minus-square');
+            this.firstChild.firstChild.classList.add('fa-plus-square');
+        } else {
+            content.style.display = "block";
+            this.firstChild.firstChild.classList.remove('fa-plus-square');
+            this.firstChild.firstChild.classList.add('fa-minus-square');
+        }
+    }
+    event.stopPropagation();
+  });
+}
+</script>
 {% endblock %}
+
