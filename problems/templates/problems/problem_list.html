@@ -8,19 +8,16 @@
               #{{problem.id}}&nbsp;
               {% if problem.name %}
                 {{ problem.name }}&nbsp;
-              {% endif %}
+              {% endif %}</h6>
               {% if problem.source_set.all %}
-                [{% for source in problem.source_set.all %}
+                {% for source in problem.source_set.all %}
                     {% if forloop.last %}
                         {{ source }}
                     {% else %}
-                        {{ source }},
+                        {{ source }},<br>
                     {% endif %}
-                {% endfor %}]
+                {% endfor %}
               {% endif %}
-
-
-          </h6>
         </a>
         <!-- Card Content - Collapse -->
         <div class="collapse show" id="collapseCardExample">
