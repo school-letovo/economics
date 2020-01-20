@@ -15,8 +15,8 @@ TOPIC_ROOT = 1
 
 def index(request):
     if request.user.groups.filter(name='teachers').exists():
+        problems = filter_problems(request)
         students = User.objects.filter(groups__name='students')
-        problems = Problem.objects.all()
         groups = Group.objects.all()
         topic = Topic.objects.get(id=TOPIC_ROOT)
         topic_list = tree2List(topic)
@@ -141,3 +141,24 @@ def tree2List(root):
                 result['children'].append(tree2List(child))
 
     return result
+
+def filter_problems(request):
+    filter_topics = list(map(int, request.POST.getlist('topic')))
+    filter_sources = list(map(int, request.POST.getlist('source')))
+    problems = Problem.objects.all()
+    result = []
+    for problem in problems:
+        for source in problem.source_set.all():
+            while source.id not in filter_sources and source.id != SOURCE_ROOT:
+                source = source.parent
+            if source.id in filter_sources:
+                for topic in problem.topics.all():
+                    while topic.id not in filter_topics and topic.id != TOPIC_ROOT:
+                        topic = topic.parent
+                    if topic.id in filter_topics:
+                        result.append(problem)
+                        break
+                break
+
+    return result
+
