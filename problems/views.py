@@ -142,6 +142,7 @@ def tree2List(root):
 
     return result
 
+
 def filter_problems(request):
     filter_topics = list(map(int, request.POST.getlist('topic'))) or [TOPIC_ROOT]
     filter_sources = list(map(int, request.POST.getlist('source'))) or [SOURCE_ROOT]
@@ -161,4 +162,3 @@ def filter_problems(request):
                 break
 
     return result
-
