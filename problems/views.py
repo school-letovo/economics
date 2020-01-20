@@ -140,5 +140,4 @@ def tree2List(root):
             if not 'Задача ' in child.name:  # don't show sources like "Задача #16'
                 result['children'].append(tree2List(child))
 
-    print(result)
     return result
