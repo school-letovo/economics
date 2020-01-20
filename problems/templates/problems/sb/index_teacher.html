@@ -1,55 +1,57 @@
 {% extends "problems/sb/base.html" %}
 {% block topbar %}
-          <!-- Topbar Navbar -->
-          <ul class="navbar-nav ml-auto">
+<!-- Topbar Navbar -->
+<ul class="navbar-nav ml-auto">
 
 
+    <div class="topbar-divider d-none d-sm-block"></div>
+    <!-- Nav Item - Alerts -->
+    <li class="nav-item dropdown no-arrow mx-1">
+        <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button" data-toggle="dropdown"
+           aria-haspopup="true" aria-expanded="false">
+            <i class="fas fa-bell fa-fw"></i>
+            <!-- Counter - Alerts -->
+            <span class="badge badge-danger badge-counter">{{ submits|length }}</span>
+        </a>
+        <!-- Dropdown - Alerts -->
+        <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in"
+             aria-labelledby="alertsDropdown">
+            <h6 class="dropdown-header">
+                Сданные решения
+            </h6>
+            {% include 'problems/alerts.html' %}
+            <!--a class="dropdown-item text-center small text-gray-500" href="#">Show All Alerts</a-->
+        </div>
+    </li>
+    <!-- Nav Item - User Information -->
+    <li class="nav-item dropdown no-arrow">
+        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown"
+           aria-haspopup="true" aria-expanded="false">
+            <span class="mr-2 d-none d-lg-inline text-gray-600 small">{{ request.user.first_name }} {{ request.user.last_name }}</span>
+        </a>
+        <!-- Dropdown - User Information -->
+        <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
+            <a class="dropdown-item" href="#">
+                <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
+                Профиль
+            </a>
+            <a class="dropdown-item" href="#">
+                <i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i>
+                Настройки
+            </a>
+            <a class="dropdown-item" href="#">
+                <i class="fas fa-list fa-sm fa-fw mr-2 text-gray-400"></i>
+                Список активностей
+            </a>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item" href="{% url 'logout' %}">
+                <i class="fas fa-list fa-sm fa-fw mr-2 text-gray-400"></i>
+                Выход
+            </a>
+        </div>
+    </li>
 
-            <div class="topbar-divider d-none d-sm-block"></div>
-<!-- Nav Item - Alerts -->
-            <li class="nav-item dropdown no-arrow mx-1">
-              <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                <i class="fas fa-bell fa-fw"></i>
-                <!-- Counter - Alerts -->
-                <span class="badge badge-danger badge-counter">{{ submits|length }}</span>
-              </a>
-              <!-- Dropdown - Alerts -->
-              <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="alertsDropdown">
-                <h6 class="dropdown-header">
-                  Сданные решения
-                </h6>
-                {% include 'problems/alerts.html' %}
-                <!--a class="dropdown-item text-center small text-gray-500" href="#">Show All Alerts</a-->
-              </div>
-            </li>
-            <!-- Nav Item - User Information -->
-            <li class="nav-item dropdown no-arrow">
-              <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                <span class="mr-2 d-none d-lg-inline text-gray-600 small">{{ request.user.first_name }} {{ request.user.last_name }}</span>
-              </a>
-              <!-- Dropdown - User Information -->
-              <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
-                <a class="dropdown-item" href="#">
-                  <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
-                  Профиль
-                </a>
-                <a class="dropdown-item" href="#">
-                  <i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i>
-                  Настройки
-                </a>
-                <a class="dropdown-item" href="#">
-                  <i class="fas fa-list fa-sm fa-fw mr-2 text-gray-400"></i>
-                  Список активностей
-                </a>
-                <div class="dropdown-divider"></div>
-                <a class="dropdown-item" href="{% url 'logout' %}">
-                  <i class="fas fa-list fa-sm fa-fw mr-2 text-gray-400"></i>
-                  Выход
-                </a>
-              </div>
-            </li>
-
-          </ul>
+</ul>
 {% endblock %}
 {% block content %}
 <style>
@@ -64,71 +66,73 @@
 .content {
   display: none;
 }
+
 </style>
-        <!-- Begin Page Content -->
-            <div class="container-fluid">
-                  <form action="{{ action }}" method="POST">
-                      {% csrf_token %}
-                  <div class="row">
-                      <div class="col-md-auto">
-                          <h4>ТЕМЫ:</h4>
-                          {% with field="topic" %}
-                            {% include 'problems/object_level.html' with object_list=topic_list %}
-                          {% endwith %}
-                      </div>
-                      <div class="col-md-auto">
-                          <h4>ИСТОЧНИКИ:</h4>
-                          {% with field='source' %}
-                            {% include 'problems/object_level.html' with object_list=source_list %}
-                          {% endwith %}
-                      </div>
-                  </div>
-                  <div class="row">
-                      <div class="col-8">
-                          <h4><input type="submit" value="Обновить список задач"></h4>
-                      </div>
-                  </div>
+<!-- Begin Page Content -->
+<div class="container-fluid">
+    <form action="{{ action }}" method="POST">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col-md-auto">
+                <h4>ТЕМЫ:</h4>
+                {% with field="topic" %}
+                {% include 'problems/object_level.html' with object_list=topic_list %}
+                {% endwith %}
+            </div>
+            <div class="col-md-auto">
+                <h4>ИСТОЧНИКИ:</h4>
+                {% with field='source' %}
+                {% include 'problems/object_level.html' with object_list=source_list %}
+                {% endwith %}
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-8">
+                <h4><input type="submit" value="Обновить список задач"></h4>
+            </div>
+        </div>
 
-                </form>
-                <div class="row">
-                    <div class="col-8">
-                          <form method="POST" action="{% url 'assign' %}">
-                        {% csrf_token %}
-                        <div  class="alert alert-primary" role="alert">
-                          <b>Назначить задачи ученикам</b>
-                          <br><br>Срок сдачи:
-                          <input type="date" name="date_deadline">&nbsp;&nbsp;&nbsp;
-                          <input type="submit" value="Назначить">
+    </form>
+    <form method="POST" action="{% url 'assign' %}">
+        {% csrf_token %}
+        <div class="row">
+            <div class="col-10  ">
+
+                <div class="alert alert-primary" role="alert">
+                    <b>Назначить задачи ученикам</b>
+                    <br><br>Срок сдачи:
+                    <input type="date" name="date_deadline">&nbsp;&nbsp;&nbsp;
+                    <input type="submit" value="Назначить">
+                </div>
+                <h3>Задачи</h3>
+                <div id="problems">
+                    <div class="card shadow mb-4">
+                        <div class="card-body">
+                            {% autoescape off %}
+                            {% include 'problems/problem_list.html' %}
+                            {% endautoescape %}
                         </div>
-                          <h3>Задачи</h3>
-                          <div id="problems">
-                              <div class="card shadow mb-4">
-                                 <div class="card-body">
-                                      {% autoescape off %}
-                                          {% include 'problems/problem_list.html' %}
-                                      {% endautoescape %}
-                                  </div>
-                                </div>
-                          </div>
+                    </div>
+                </div>
+            </div>
 
+                <div class="col-md-auto">
+                    <h3>Ученики</h3>
+                    <div id="students">
+                        {% include "problems/student_list.html" %}
+                    </div>
+                    <p></p>
+                    <h3>Группы</h3>
+                    <div id="groups">
+                        {% include "problems/group_list.html" %}
+                    </div>
+                </div>
 
+        </div>
 
-                      </div>
-                      <div class="col-4">
-                          <h3>Ученики</h3>
-                          <div id="students">
-                              {% include "problems/student_list.html" %}
-                          </div>
-                          <p></p><h3>Группы</h3>
-                          <div id="groups">
-                              {% include "problems/group_list.html" %}
-                          </div>
-                      </div>
-                  </div>
-
-              </div>
-              <!-- /.container-fluid -->
-  </form>
+    </form>
+</div>
+<!-- /.container-fluid -->
 <script>
 var coll = document.getElementsByClassName("collapsible");
 var i;
@@ -151,6 +155,7 @@ for (i = 0; i < coll.length; i++) {
     event.stopPropagation();
   });
 }
+
 </script>
 {% endblock %}
 
