@@ -11,5 +11,6 @@ urlpatterns = [
     path('test', views.test, name='test'),
     path('source_list', views.source_list, name='source_list'),
     path('check/<int:submit_id>', views.check_solution, name="check"),
-    path('<int:pk>', views.ProblemDetailView.as_view(), name='problem-detail')
+    path('<int:pk>', views.ProblemDetailView.as_view(), name='problem-detail'),
+    path('bulk_users', views.bulk_create_users, name='bulk_users'),
 ]

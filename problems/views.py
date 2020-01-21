@@ -3,6 +3,10 @@ from datetime import datetime
 from django.shortcuts import render, redirect
 from django.contrib.auth.models import User, Group
 from django.views.generic.detail import DetailView
+from django.contrib.auth.hashers import make_password
+
+import economics.settings
+
 
 from .models import Assignment, Problem, Topic, Submit, Source
 from .forms import SubmitForm, CheckForm
@@ -162,3 +166,29 @@ def filter_problems(request):
                 break
 
     return result
+
+def bulk_create_users(request):
+    # csv file format: usernamme;password;email;last_name;firstname;
+    if request.method == 'POST':
+        result = []
+        students = Group.objects.get(name='students')
+        text =  request.FILES['csvfile'].read().decode('utf=8').split()
+        for line in text:
+            try:
+                username, password, email, last_name, first_name, *_ = line.split(';')
+            except:
+                username, password, email, last_name, first_name, *_ = line.split(';')
+            user=User(
+                username=username,
+                email=email,
+                password=make_password(password),
+                last_name=last_name,
+                first_name=first_name,
+                is_active=True,
+            )
+            user.save()
+            user.groups.add(students)
+            user.save()
+
+    return render(request, 'problems/bulk_users.html', {})
+
