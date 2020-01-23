@@ -19,7 +19,7 @@ TOPIC_ROOT = 1
 
 def index(request):
     if request.user.groups.filter(name='teachers').exists():
-        problems = filter_problems(request)
+        probs, tests, cases = filter_problems(request)
         students = User.objects.filter(groups__name='students')
         groups = Group.objects.all()
         topic = Topic.objects.get(id=TOPIC_ROOT)
@@ -27,7 +27,9 @@ def index(request):
         source = Source.objects.get(id=SOURCE_ROOT)
         source_list = tree2List(source, count_problems_by_source())
         submits = Submit.objects.filter(assignment__assigned_by=request.user).filter(verdict=-1)  # solution not checked
-        context = {'problems': problems,
+        context = {'problems': probs,
+                   'tests': tests,
+                   'cases': cases,
                    'students': students,
                    'topic_list': topic_list,
                    'source_list': source_list,
@@ -153,7 +155,7 @@ def filter_problems(request):
     filter_topics = list(map(int, request.POST.getlist('topic'))) or [TOPIC_ROOT]
     filter_sources = list(map(int, request.POST.getlist('source'))) or [SOURCE_ROOT]
     problems = Problem.objects.all()
-    result = []
+    probs, tests, cases = [], [], []
     for problem in problems:
         for source in problem.source_set.all():
             while source.id not in filter_sources and source.id != SOURCE_ROOT:
@@ -163,11 +165,16 @@ def filter_problems(request):
                     while topic.id not in filter_topics and topic.id != TOPIC_ROOT:
                         topic = topic.parent
                     if topic.id in filter_topics:
-                        result.append(problem)
+                        if problem.problem_type == 0:
+                            probs.append(problem)
+                        elif problem.problem_type == 4:
+                            cases.append(problem)
+                        else:
+                            tests.append(problem)
                         break
                 break
 
-    return result
+    return (probs, tests, cases)
 
 def bulk_create_users(request):
     # csv file format: usernamme;password;email;last_name;firstname;
