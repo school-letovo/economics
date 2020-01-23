@@ -17,11 +17,27 @@ class Topic(models.Model):
     class Meta:
         ordering = ['order']
 
+YESNO_CHOICES = {
+    (0, '---'),
+    (1, 'Да'),
+    (2, 'Нет'),
+}
+
+TYPE_CHOICES = {
+    (0, 'C открытым ответом'),
+    (1, 'Да/нет'),
+    (2, 'Один из нескольких'),
+    (3, 'Несколько из нескольких'),
+}
+
 
 class Problem(models.Model):
     name = models.CharField('Название', max_length=200, blank=True, null=True)
     task = RichTextUploadingField('Условие')
+    problem_type = models.IntegerField('Тип задачи', choices=TYPE_CHOICES, blank=False, null=False, default=0)
     short_answer = models.CharField('Ответ (для автоматической проверки)', max_length=200, blank=True)
+    yesno_answer = models.IntegerField('Ответ ДА/НЕТ', choices=YESNO_CHOICES, blank=False, null=False, default=0)
+
     # TODO long_answer =
     # TODO subproblem_answers
 
@@ -40,7 +56,7 @@ class Problem(models.Model):
     # TODO yes/no question
     # TODO ABCD answers (radiobuttons)
     # TODO checkboxes
-    # TODO problem_type - стандартные, олимпиадные
+
 
     hint = RichTextUploadingField('Подсказка', blank=True)
 
@@ -58,6 +74,13 @@ class Problem(models.Model):
 
     class Meta:
         ordering = ['id']
+
+
+class Variant(models.Model):
+    text = RichTextUploadingField('Вариант ответа', blank=False)
+    right = models.IntegerField('Верный ответ', choices=YESNO_CHOICES, blank=False, null=False, default=0)
+    problem = models.ForeignKey(Problem, verbose_name="Задача", on_delete=models.CASCADE, blank=True, null=True, related_name='variants')
+    order = models.IntegerField('Порядковый номер', blank=False, null=False, default=0)
 
 
 class Source(models.Model):
