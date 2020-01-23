@@ -22,7 +22,13 @@ class AssignmentAdmin(admin.ModelAdmin):
 
 admin.site.register(Assignment, AssignmentAdmin)
 
-admin.site.register(Problem)
+class VariantInline(admin.TabularInline):
+    model = Variant
+
+class ProblemAdmin(admin.ModelAdmin):
+    inlines = [VariantInline]
+
+admin.site.register(Problem, ProblemAdmin)
 admin.site.register(Topic)
 admin.site.register(Submit)
 admin.site.register(Source)
