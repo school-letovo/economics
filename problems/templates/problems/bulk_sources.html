@@ -1,0 +1,5 @@
+<form action="{% url 'bulk_sources' %}" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <input name='csvfile' type="file">
+    <input type="submit" value="Загрузить">
+</form>

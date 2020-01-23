@@ -23,11 +23,9 @@ def index(request):
         students = User.objects.filter(groups__name='students')
         groups = Group.objects.all()
         topic = Topic.objects.get(id=TOPIC_ROOT)
-        topic_list = tree2List(topic)
-
+        topic_list = tree2List(topic, count_problems_by_topic())
         source = Source.objects.get(id=SOURCE_ROOT)
-        source_list = tree2List(source)
-
+        source_list = tree2List(source, count_problems_by_source())
         submits = Submit.objects.filter(assignment__assigned_by=request.user).filter(verdict=-1)  # solution not checked
         context = {'problems': problems,
                    'students': students,
@@ -135,14 +133,18 @@ class ProblemDetailView(DetailView):
     model = Problem
 
 
-def tree2List(root):
+def tree2List(root, counter):
     # children should be referenced as children in model class
-    result = {'object': root, 'children': []}
+    try:
+        result = {'object': root, 'children': [], 'count': counter[root.id]}
+    except:
+        result = {'object': root, 'children': [], 'count': -1}
+
     children = root.children.all()
     if children:
         for child in children:
             if not 'Задача ' in child.name:  # don't show sources like "Задача #16'
-                result['children'].append(tree2List(child))
+                result['children'].append(tree2List(child, counter))
 
     return result
 
@@ -192,3 +194,64 @@ def bulk_create_users(request):
 
     return render(request, 'problems/bulk_users.html', {})
 
+def bulk_create_sources(request):
+    # csv file format: existing_source_name;new_source_name;new_subsource_nams;...;
+    if request.method == 'POST':
+        text =  request.FILES['csvfile'].read().decode('utf=8').split("\r\n")
+        print(text)
+        for line in text:
+            if not line:
+                break   # empty line in the end of file
+            sources = line.split(';')
+            parent_source = Source.objects.get(name=sources[0])
+            print(type(parent_source))
+            for source in sources[1:]:
+                if not source:
+                    break   # empty field in the end of line
+                if Source.objects.filter(name=source, parent=parent_source).count() == 1:
+                    parent_source = Source.objects.get(name=source, parent=parent_source)
+                    print('***')
+                    print(parent_source.children.all())
+                else:
+                    if parent_source.children.all():
+                        order = int(list(parent_source.children.all())[-1].order) + 1
+                    else:
+                        order = 1
+                    new_source = Source(name=source, parent=parent_source, order=order)
+                    new_source.save()
+                    parent_source=new_source
+                    print(order)
+
+    return render(request, 'problems/bulk_sources.html', {})
+
+def count_problems_by_source():
+    counter = dict()
+    source = Source.objects.get(id=SOURCE_ROOT)
+    count_problems_by_source_dfs(source, counter)
+    return counter
+
+def count_problems_by_topic():
+    counter = dict()
+    topic = Topic.objects.get(id=TOPIC_ROOT)
+    count_problems_by_topic_dfs(topic, counter)
+    return counter
+
+def count_problems_by_source_dfs(source, counter):
+    if source.problem:
+        counter[source.id] = 1
+    else:
+        counter[source.id] = 0
+        for child in source.children.all():
+            counter[source.id] += count_problems_by_source_dfs(child, counter)
+
+    return counter[source.id]
+
+def count_problems_by_topic_dfs(topic, counter):
+    if topic.leaf:
+        counter[topic.id] = len(topic.problems.all())
+    else:
+        counter[topic.id] = 0
+        for child in topic.children.all():
+            counter[topic.id] += count_problems_by_topic_dfs(child, counter)
+
+    return counter[topic.id]
