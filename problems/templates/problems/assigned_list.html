@@ -1,3 +1,4 @@
+{% autoescape off %}
 {% for assigned in assigned_problems %}
 
 <div class="problem_in_list">
@@ -18,9 +19,7 @@
         <!-- Card Content - Collapse -->
         <div class="collapse show" id="collapseCardExample">
           <div class="card-body">
-            <div class="task">
-                {{ assigned.problem.task }}
-            </div>
+            {% include 'problems/problem_task.html' with problem=assigned.problem %}
             <div class="problem_links">
                 <br>
                 {% if assigned.submits.all %}
@@ -46,16 +45,19 @@
                     </table>
                     <p></p>
                 {% endif %}
-                <a class="btn btn-primary" data-toggle="collapse" href="#hint-{{ assigned.id }}" role="button" aria-expanded="false" aria-controls="collapseExample">Подсказка</a>
+                {% if problem.hint %}
+                    <a class="btn btn-primary" data-toggle="collapse" href="#hint-{{ problem.id }}" role="button" aria-expanded="false" aria-controls="collapseExample">Подсказка</a>
+                {% endif %}
                 {% if assigned.status != 1 %}
-                    <a class="btn btn-primary" data-toggle="collapse" href="#submit-{{ assigned.id }}" role="button" aria-expanded="false" aria-controls="collapseExample">Сдать решение</a>
+                    <a class="btn btn-primary" data-toggle="collapse" href="#submit-{{ assigned.id }}" role="button" aria-expanded="false" aria-controls="collapseExample">Решать</a>
                 {% endif %}
                 <p>
-                <div class="collapse" id="hint-{{ assigned.id }}">
-                    <p><b>Подсказка.</b> {{ assigned.problem.hint }}
-                </div>
+                {% if problem.hint %}
+                    <div class="collapse" id="hint-{{ assigned.id }}">
+                        <p><b>Подсказка.</b> {{ assigned.problem.hint }}
+                    </div>
+                {% endif %}
                 <div class="collapse" id="submit-{{ assigned.id }}">
-                    <p><h4>Решение</h4>
                     <form method="post" action="{% url 'submit' %}">
                         {% csrf_token %}
                         <table>
@@ -73,3 +75,4 @@
 </div>
 
 {% endfor %}
+{% endautoescape %}

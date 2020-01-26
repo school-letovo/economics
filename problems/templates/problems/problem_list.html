@@ -22,20 +22,23 @@
         <!-- Card Content - Collapse -->
         <div class="collapse show" id="collapseCardExample">
           <div class="card-body">
-            <div class="task">
-                {{ problem.task }}
-            </div>
+            {% include 'problems/problem_task.html' %}
             <div class="problem_links">
                 <br>
-                <a class="btn btn-primary" data-toggle="collapse" href="#hint-{{ problem.id }}" role="button" aria-expanded="false" aria-controls="collapseExample">Подсказка</a>
-                <a class="btn btn-primary" data-toggle="collapse" href="#solution-{{ problem.id }}" role="button" aria-expanded="false" aria-controls="collapseExample">Решение</a>
+                {% if problem.hint %}
+                    <a class="btn btn-primary" data-toggle="collapse" href="#hint-{{ problem.id }}" role="button" aria-expanded="false" aria-controls="collapseExample">Подсказка</a>
+                {% endif %}
+                {% if problem.solution or problem.variants or problem.short_answer or problem.yesno_answer %}
+                    <a class="btn btn-primary" data-toggle="collapse" href="#solution-{{ problem.id }}" role="button" aria-expanded="false" aria-controls="collapseExample">Решение</a>
+                {% endif %}
                 <p>
-                <div class="collapse" id="hint-{{ problem.id }}">
-                    <p><b>Подсказка.</b> {{ problem.hint }}
-                </div>
+                {% if problem.hint %}
+                    <div class="collapse" id="hint-{{ problem.id }}">
+                        <p><b>Подсказка.</b> {{ problem.hint }}
+                    </div>
+                {% endif %}
                 <div class="collapse" id="solution-{{ problem.id }}">
-                    <p><b>Ответ.</b> {{ problem.short_answer }}
-                    <p><b>Решение.</b> {{ problem.solution }}
+                  {% include 'problems/problem_solution.html' %}
                 </div>
             </div>
           </div>

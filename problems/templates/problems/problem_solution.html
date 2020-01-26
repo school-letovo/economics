@@ -1,0 +1,30 @@
+{% if problem.solution or problem.variants or problem.short_answer or problem.yesno_answer %}
+        {% if problem.short_answer %}
+            <p><b>Ответ.</b> {{ problem.short_answer }}
+        {% endif %}
+
+        {% if problem.yesno_answer %}
+            <p><b>Ответ.</b> {{ problem.get_yesno_answer_display }}
+        {% endif %}
+        {% if problem.variants %}
+            <table>
+                {% for variant in problem.variants.all %}
+                    <tr valign="top">
+                        <td>
+                            {% if variant.right %}
+                                <i class="far fa-check-circle fa-fw" style="color:green;"></i>
+                            {% else %}
+                                <i class="far fa-times-circle fa-fw" style="color:red;"></i>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {{ variant.text }}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </table>
+        {% endif %}
+        {% if problem.solution %}
+            <p><b>Решение.</b> {{ problem.solution }}
+        {% endif %}
+{% endif %}

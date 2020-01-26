@@ -26,7 +26,7 @@ def index(request):
         topic_list = tree2List(topic, count_problems_by_topic())
         source = Source.objects.get(id=SOURCE_ROOT)
         source_list = tree2List(source, count_problems_by_source())
-        submits = Submit.objects.filter(assignment__assigned_by=request.user).filter(verdict=-1)  # solution not checked
+        submits = Submit.objects.filter(assignment__assigned_by=request.user).filter(assignment__status=1)  # solution not checked
         context = {'problems': probs,
                    'tests': tests,
                    'cases': cases,
@@ -41,7 +41,7 @@ def index(request):
     elif request.user.groups.filter(name='students').exists():
         assigned_problems = Assignment.objects.filter(person=request.user).order_by('status', 'date_deadline')
         for assignment in assigned_problems:
-            assignment.form = SubmitForm(prefix=str(assignment.id))
+            assignment.form = SubmitForm(prefix=str(assignment.id), problem=assignment.problem)
         context = {'assigned_problems': assigned_problems}
         return render(request, 'problems/sb/index_student.html', context)
 
@@ -80,14 +80,49 @@ def submit(request):
                 return True
         return False
 
-    assignment = Assignment.objects.get(id=request.POST["assignment_id"])
-    student_short_answer = request.POST[request.POST["assignment_id"] + "-short_answer"]
-    answer_autoverdict = autocheck_answer(student_short_answer, assignment.problem.short_answer)
-    Submit(assignment=assignment, short_answer=request.POST[request.POST["assignment_id"] + "-short_answer"],
-           solution=request.POST[request.POST["assignment_id"] + "-solution"],
-           answer_autoverdict=answer_autoverdict).save()
-    assignment.status = 1
+    def check_yesno_answer(student, author):
+        return int(student) == author
+
+    def check_single_choice(student, author):
+        correct = author.get(right=True).id
+        return int(student) == correct
+
+    def check_multiple_choice(student, author):
+        correct = author.filter(right=True).values_list('id', flat=True)
+        print(set(student), set(correct))
+        return set(map(int, student)) == set(correct)
+
+
+    id = request.POST["assignment_id"]
+    assignment = Assignment.objects.get(id=id)
+
+    submit = Submit(assignment=assignment)
+
+
+    if assignment.problem.problem_type == 0:
+        student_short_answer = submit.short_answer = request.POST[id + "-short_answer"]
+        submit.solution = request.POST[id + "-solution"],
+        submit.answer_autoverdict = autocheck_answer(student_short_answer, assignment.problem.short_answer)
+        assignment.status = 1
+    elif assignment.problem.problem_type == 1:
+        student_yesno_answer = submit.yesno_answer = request.POST[id + "-yesno_answer"]
+        submit.answer_autoverdict = check_yesno_answer(student_yesno_answer, assignment.problem.yesno_answer)
+        assignment.status = 3
+    elif assignment.problem.problem_type == 2:
+        student_single_answer = submit.multiplechoice_answer = request.POST[id + "-variants"]
+        submit.answer_autoverdict = check_single_choice(student_single_answer, assignment.problem.variants.all())
+        assignment.status = 3
+    elif assignment.problem.problem_type == 3:
+        student_multiple_answer = submit.multiplechoice_answer=request.POST.getlist(id + "-variants")
+        submit.answer_autoverdict = check_multiple_choice(student_multiple_answer, assignment.problem.variants)
+        assignment.status = 3
+    elif assignment.problem.problem_type == 4:
+        submit.solution = request.POST[id + "-solution"],
+        assignment.status = 1
+
+    submit.save()
     assignment.save()
+
     return redirect("index")
 
 
@@ -112,13 +147,6 @@ def save_verdict(request):
     submit.save()
     submit.assignment.save()
     return redirect('index')
-
-
-def test(request):
-    # object = Source.objects.get(id=SOURCE_ROOT)
-    object = Topic.objects.get(id=TOPIC_ROOT)
-    object_list = tree2List(object)
-    return render(request, 'problems/object_level.html', {'object_list': object_list})
 
 
 def source_list(request):  # generate source_list of all children
@@ -176,6 +204,7 @@ def filter_problems(request):
 
     return (probs, tests, cases)
 
+
 def bulk_create_users(request):
     # csv file format: usernamme;password;email;last_name;firstname;
     if request.method == 'POST':
@@ -201,24 +230,22 @@ def bulk_create_users(request):
 
     return render(request, 'problems/bulk_users.html', {})
 
+
 def bulk_create_sources(request):
     # csv file format: existing_source_name;new_source_name;new_subsource_nams;...;
     if request.method == 'POST':
         text =  request.FILES['csvfile'].read().decode('utf=8').split("\r\n")
-        print(text)
         for line in text:
             if not line:
                 break   # empty line in the end of file
             sources = line.split(';')
             parent_source = Source.objects.get(name=sources[0])
-            print(type(parent_source))
             for source in sources[1:]:
                 if not source:
                     break   # empty field in the end of line
                 if Source.objects.filter(name=source, parent=parent_source).count() == 1:
                     parent_source = Source.objects.get(name=source, parent=parent_source)
-                    print('***')
-                    print(parent_source.children.all())
+
                 else:
                     if parent_source.children.all():
                         order = int(list(parent_source.children.all())[-1].order) + 1
@@ -227,9 +254,9 @@ def bulk_create_sources(request):
                     new_source = Source(name=source, parent=parent_source, order=order)
                     new_source.save()
                     parent_source=new_source
-                    print(order)
 
     return render(request, 'problems/bulk_sources.html', {})
+
 
 def count_problems_by_source():
     counter = dict()
@@ -237,11 +264,13 @@ def count_problems_by_source():
     count_problems_by_source_dfs(source, counter)
     return counter
 
+
 def count_problems_by_topic():
     counter = dict()
     topic = Topic.objects.get(id=TOPIC_ROOT)
     count_problems_by_topic_dfs(topic, counter)
     return counter
+
 
 def count_problems_by_source_dfs(source, counter):
     if source.problem:
@@ -252,6 +281,7 @@ def count_problems_by_source_dfs(source, counter):
             counter[source.id] += count_problems_by_source_dfs(child, counter)
 
     return counter[source.id]
+
 
 def count_problems_by_topic_dfs(topic, counter):
     if topic.leaf:

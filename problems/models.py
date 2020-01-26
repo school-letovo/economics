@@ -81,10 +81,16 @@ class Problem(models.Model):
 
 class Variant(models.Model):
     text = RichTextUploadingField('Вариант ответа', blank=False)
-    right = models.IntegerField('Верный ответ', choices=YESNO_CHOICES, blank=False, null=False, default=0)
+    right = models.BooleanField('Верный ответ', blank=False, null=False, default=False)
     problem = models.ForeignKey(Problem, verbose_name="Задача", on_delete=models.CASCADE, blank=True, null=True, related_name='variants')
     order = models.IntegerField('Порядковый номер', blank=False, null=False, default=0)
 
+    class Meta:
+        verbose_name = 'Ответ'
+        verbose_name_plural = 'Ответы'
+
+    def __str__(self):
+        return self.text
 
 class Source(models.Model):
     name = models.CharField('Название', max_length=200)
@@ -105,8 +111,9 @@ class Source(models.Model):
 
 STATUS_CHOICES = {
     (0, 'Решение не сдано'),
-    (1, 'Решение не проверено'),
-    (2, 'Решение проверено'),
+    (1, 'Ожидает проверки'),
+    (2, 'Проверено учителем'),
+    (3, 'Проверено автоматически'),
 }
 
 class Assignment(models.Model):
@@ -124,7 +131,7 @@ class Assignment(models.Model):
         ordering = ['status', 'date_deadline']
 
 VERDICT_CHOICES = [
-    (-1, 'Решение не проверено'),
+    (-1, 'Не проверено учителем'),
     (0, 'Неверное решение'),
     (1, 'Частично верное решение'),
     (2, 'Верное решение с недочетами'),
@@ -134,10 +141,12 @@ VERDICT_CHOICES = [
 class Submit(models.Model):
     assignment = models.ForeignKey(Assignment, on_delete=models.CASCADE, verbose_name='Назначенная задача', related_name='submits')
     short_answer = models.CharField('Ответ (для автоматической проверки)', max_length=200, blank=True)
-    solution = RichTextUploadingField('Решение', blank=True)
+    yesno_answer = models.IntegerField('Ответ ДА/НЕТ', choices=YESNO_CHOICES, blank=False, null=False, default=0)
+    multiplechoice_answer = models.CharField('Выбор ответов', max_length=200, blank=True, null=True)
+    solution = RichTextUploadingField('Решение', blank=True, null=True)
     submit_datetime = models.DateTimeField('Время и дата сдачи решения', auto_now_add=True, blank=False)
-    answer_autoverdict = models.BooleanField('Результат автоматической проверки ответа', blank=True, null=True)
-    verdict = models.IntegerField('Результат проверки', choices=VERDICT_CHOICES, blank=False, null=False, default=-1)
+    answer_autoverdict = models.BooleanField('Результат автоматической проверки', blank=True, null=True)
+    verdict = models.IntegerField('Результат проверки учителем', choices=VERDICT_CHOICES, blank=False, null=False, default=-1)
     teacher_comment = RichTextUploadingField('Комментарий учителя', blank=True)
 
     def __str__(self):

@@ -3,10 +3,10 @@
     {% autoescape off %}
         <p>{{ problem.id }}
         <p>{{ problem.name }}
-        <p>{{ problem.task }}
+        {% include 'problems/problem_task.html' %}
         <p>{{ problem.short_answer }}
         <p>{{ problem.hint }}
-        <p>{{ problem.solution }}
+        {% include 'problems/problem_solution.html' %}
 
     {% endautoescape %}
 {% endblock %}
