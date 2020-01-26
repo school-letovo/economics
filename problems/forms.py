@@ -3,7 +3,7 @@ from django import forms
 from .models import Submit, Variant
 
 class SubmitForm(forms.ModelForm):
-    variants = forms.ModelMultipleChoiceField(queryset=None, label="Варианты ответа")
+    variants = forms.ModelMultipleChoiceField(queryset=None)
 
     class Meta:
         model = Submit
@@ -16,6 +16,7 @@ class SubmitForm(forms.ModelForm):
                 self.fields['variants'] = forms.ModelMultipleChoiceField(widget=forms.CheckboxSelectMultiple(), queryset=Variant.objects.filter(problem=problem))
             elif problem.problem_type == 2:
                 self.fields['variants'] = forms.ModelChoiceField(widget=forms.RadioSelect(), queryset=Variant.objects.filter(problem=problem), empty_label=None)
+            self.fields['variants'].label = 'Варианты ответа'
         else:
             del self.fields['variants']
 
