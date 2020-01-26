@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.utils.safestring import mark_safe
 
 from ckeditor_uploader.fields import RichTextUploadingField
 
@@ -19,7 +20,7 @@ class Topic(models.Model):
 
 
 YESNO_CHOICES = {
-    (0, '---'),
+    # (0, '---'),
     (1, 'Да'),
     (2, 'Нет'),
 }
@@ -39,7 +40,7 @@ class Problem(models.Model):
     task = RichTextUploadingField('Условие')
     problem_type = models.IntegerField('Тип задачи', choices=TYPE_CHOICES, blank=False, null=False, default=0)
     short_answer = models.CharField('Ответ (для автоматической проверки)', max_length=200, blank=True)
-    yesno_answer = models.IntegerField('Ответ ДА/НЕТ', choices=YESNO_CHOICES, blank=False, null=False, default=0)
+    yesno_answer = models.IntegerField('Ответ ДА/НЕТ', choices=YESNO_CHOICES, blank=True, default=None)
 
     # TODO long_answer =
     # TODO subproblem_answers
@@ -80,7 +81,7 @@ class Problem(models.Model):
 
 
 class Variant(models.Model):
-    text = RichTextUploadingField('Вариант ответа', blank=False)
+    text = models.CharField('Вариант ответа', max_length=1000, blank=False)
     right = models.BooleanField('Верный ответ', blank=False, null=False, default=False)
     problem = models.ForeignKey(Problem, verbose_name="Задача", on_delete=models.CASCADE, blank=True, null=True, related_name='variants')
     order = models.IntegerField('Порядковый номер', blank=False, null=False, default=0)
@@ -90,7 +91,8 @@ class Variant(models.Model):
         verbose_name_plural = 'Ответы'
 
     def __str__(self):
-        return self.text
+        return mark_safe(self.text)
+
 
 class Source(models.Model):
     name = models.CharField('Название', max_length=200)

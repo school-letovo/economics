@@ -19,9 +19,7 @@
         <!-- Card Content - Collapse -->
         <div class="collapse show" id="collapseCardExample">
           <div class="card-body">
-            {% include 'problems/problem_task.html' with problem=assigned.problem %}
             <div class="problem_links">
-                <br>
                 {% if assigned.submits.all %}
                     <table border="1">
                         <tr>
@@ -45,11 +43,9 @@
                     </table>
                     <p></p>
                 {% endif %}
+                {% include 'problems/problem_task.html' with problem=assigned.problem %}
                 {% if problem.hint %}
                     <a class="btn btn-primary" data-toggle="collapse" href="#hint-{{ problem.id }}" role="button" aria-expanded="false" aria-controls="collapseExample">Подсказка</a>
-                {% endif %}
-                {% if assigned.status != 1 %}
-                    <a class="btn btn-primary" data-toggle="collapse" href="#submit-{{ assigned.id }}" role="button" aria-expanded="false" aria-controls="collapseExample">Решать</a>
                 {% endif %}
                 <p>
                 {% if problem.hint %}
@@ -57,17 +53,16 @@
                         <p><b>Подсказка.</b> {{ assigned.problem.hint }}
                     </div>
                 {% endif %}
-                <div class="collapse" id="submit-{{ assigned.id }}">
+                {% if assigned.status != 1 %}
                     <form method="post" action="{% url 'submit' %}">
                         {% csrf_token %}
-                        <table>
-                        {{ assigned.form }}
-                        {{ assigned.form.media }}
-                        </table>
+                            {{ assigned.form }}
+                            {{ assigned.form.media }}
                         <input type="hidden" name="assignment_id" value="{{ assigned.id }}">
-                        <input type="submit" value="Сдать на проверку">
+                        <p><input type="submit" value="Сдать на проверку"></p>
                     </form>
-                </div>
+                {% endif %}
+
             </div>
           </div>
         </div>

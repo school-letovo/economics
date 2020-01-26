@@ -1,15 +1,17 @@
 <div class="task">
     {{ problem.task }}
-    {% if problem.variants %}
-        <ul>
-            {% for variant in problem.variants.all %}
-                <li>
-                    {{ variant.text }}
-                </li>
-            {% endfor %}
-        </ul>
-    {% endif %}
-    {% if problem.problem_type == 1 %}
-        <p>ДА/НЕТ</p>
+    {% if not assigned %}
+        {% if problem.variants %}
+            <ul>
+                {% for variant in problem.variants.all %}
+                    <li>
+                        {{ variant.text }}
+                    </li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+        {% if problem.problem_type == 1 %}
+            <p>ДА/НЕТ</p>
+        {% endif %}
     {% endif %}
 </div>
