@@ -58,7 +58,7 @@
 
                     <form method="post" action="{% url 'submit' %}">
                         {% csrf_token %}
-                            {{ assigned.form }}
+                            {{ assigned.form.as_p }}
                             {{ assigned.form.media }}
                         <input type="hidden" name="assignment_id" value="{{ assigned.id }}">
                         <p><input type="submit" value="Сдать на проверку"></p>

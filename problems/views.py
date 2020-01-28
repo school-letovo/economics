@@ -101,7 +101,7 @@ def submit(request):
 
     if assignment.problem.problem_type == 0:
         student_short_answer = submit.short_answer = request.POST[id + "-short_answer"]
-        submit.solution = request.POST[id + "-solution"],
+        submit.solution = request.POST[id + "-solution"]
         submit.answer_autoverdict = autocheck_answer(student_short_answer, assignment.problem.short_answer)
         assignment.status = 1
     elif assignment.problem.problem_type == 1:
@@ -117,7 +117,7 @@ def submit(request):
         submit.answer_autoverdict = check_multiple_choice(student_multiple_answer, assignment.problem.variants)
         assignment.status = 3
     elif assignment.problem.problem_type == 4:
-        submit.solution = request.POST[id + "-solution"],
+        submit.solution = request.POST[id + "-solution"]
         assignment.status = 1
 
     submit.save()
@@ -292,3 +292,6 @@ def count_problems_by_topic_dfs(topic, counter):
             counter[topic.id] += count_problems_by_topic_dfs(child, counter)
 
     return counter[topic.id]
+
+class SubmitDetailView(DetailView):
+    model = Submit
