@@ -14,4 +14,5 @@ urlpatterns = [
     path('<int:pk>', views.ProblemDetailView.as_view(), name='problem-detail'),
     path('bulk_users', views.bulk_create_users, name='bulk_users'),
     path('bulk_sources', views.bulk_create_sources, name='bulk_sources'),
+    path('load_test', views.load_test, name='load_test'),
 ]

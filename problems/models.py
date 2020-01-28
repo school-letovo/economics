@@ -20,7 +20,7 @@ class Topic(models.Model):
 
 
 YESNO_CHOICES = {
-    # (0, '---'),
+    (0, '---'),
     (1, 'Да'),
     (2, 'Нет'),
 }

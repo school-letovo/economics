@@ -1,4 +1,5 @@
 from datetime import datetime
+import re
 
 from django.shortcuts import render, redirect
 from django.contrib.auth.models import User, Group
@@ -8,7 +9,7 @@ from django.contrib.auth.hashers import make_password
 import economics.settings
 
 
-from .models import Assignment, Problem, Topic, Submit, Source
+from .models import Assignment, Problem, Topic, Submit, Source, Variant
 from .forms import SubmitForm, CheckForm
 
 # Create your views here.
@@ -293,5 +294,83 @@ def count_problems_by_topic_dfs(topic, counter):
 
     return counter[topic.id]
 
+
 class SubmitDetailView(DetailView):
     model = Submit
+
+
+def load_test(request):
+    IN_TASK = 1
+    IN_VARIANT = 2
+    BEFORE = 3
+    problem_number = 0
+    state = BEFORE
+    variant_text = None
+    economics = Topic.objects.get(pk=TOPIC_ROOT)
+    if request.POST:
+        source_id = request.POST['source_id']
+        test_text = request.POST['test_text']
+        parent_source=Source.objects.get(id=source_id)
+        for line in test_text.split('\n'):
+            print(line)
+            line = line.lstrip()
+            if state == BEFORE:
+                print('BEFORE')
+                result = re.match(r'^(\d+)\. (.*)$', line)
+                if result:
+                    print('result')
+                    state = IN_TASK
+                    problem_number = int(result.group(1))
+                    text = result.group(2)
+            elif state == IN_TASK:
+                print('IN_TASK')
+                if line.startswith("а)") or line.startswith("б)") or line.startswith("в)") or line.startswith("г)") or line.startswith("А)") or line.startswith("Б)") or line.startswith("В)") or line.startswith("Г)")  or line.startswith("+"):
+                    print('problem save')
+                    problem = Problem(task=text, problem_type=3, yesno_answer=0)
+                    problem.save()
+                    problem.topics.add(economics)
+                    Source(name="Задача {}".format(problem_number), order=problem_number, parent = parent_source, problem=problem).save()
+                    text = None
+                    state = IN_VARIANT
+                    right = line.startswith('+')
+                    if line.startswith('+'):
+                        variant_text = line[4:]
+                        variant_order = (ord(line[1].lower()) - ord('a')) + 1
+                    else:
+                        variant_text = line[3:]
+                        variant_order = (ord(line[0].lower()) - ord('a')) + 1
+                else:
+                    text = text + line
+            elif state == IN_VARIANT:
+                print('IN_VARIANT')
+                result = re.match(r'^(\d+)\. (.*)$', line)
+                if line.startswith("a)") or line.startswith("б)") or line.startswith("в)") or line.startswith(
+                    "г)") or line.startswith("А)") or line.startswith("Б)") or line.startswith("В)") or line.startswith(
+                    "Г)") or line.startswith("+"):
+                    print('variant save')
+                    variant = Variant(text=variant_text, order = variant_order, problem=problem, right=right)
+                    variant.save()
+                    right = line.startswith('+')
+                    if line.startswith('+'):
+                        variant_text = line[4:]
+                        variant_order = (ord(line[1].lower()) - ord('a')) + 1
+                    else:
+                        variant_text = line[3:]
+                        variant_order = (ord(line[0].lower()) - ord('a')) + 1
+                elif result:
+                    print('result')
+                    variant = Variant(text=variant_text, order=variant_order, problem=problem, right=line.startswith('+'))
+                    variant.save()
+                    state = IN_TASK
+                    problem_number = int(result.group(1))
+                    text = result.group(2)
+                    print(text)
+                else:
+                    variant_text = variant_text + line
+
+        if variant_text:
+            variant = Variant(text=variant_text, order=variant_order, problem=problem, right=right)
+            variant.save()
+        return render(request, 'problems/load_test.html', {})
+    else:
+        return render(request, 'problems/load_test.html', {})
