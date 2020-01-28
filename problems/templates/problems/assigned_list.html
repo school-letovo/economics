@@ -32,7 +32,7 @@
                         </tr>
                         {% for submit in assigned.submits.all %}
                             <tr>
-                                <td>{{ submit.id }}</td>
+                                <td><a href="{% url 'submit-detail' submit.id %}">{{ submit.id }}</a></td>
                                 <td>{{ submit.submit_datetime }}</td>
                                 <td>{{ submit.get_verdict_display }}</td>
                                 <td>{% if submit.answer_autoverdict == False %}–
