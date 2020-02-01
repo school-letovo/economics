@@ -59,10 +59,11 @@
 
                   <div class="row">
                       <div class="col-10">
+                          {% include 'problems/assigned_testsets.html' %}
                           <h3>Назначенные задачи</h3>
                           <div id="problems">
                               {% autoescape off %}
-                              {% include "problems/assigned_list.html" %}
+                              {% include "problems/testset_result.html" %}
                               {% endautoescape %}
                           </div>
                       </div>

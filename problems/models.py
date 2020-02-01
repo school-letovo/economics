@@ -132,6 +132,28 @@ class Assignment(models.Model):
     class Meta:
         ordering = ['status', 'date_deadline']
 
+class TestSet(models.Model):
+    name = models.CharField('Название', max_length=200)
+    problems = models.ManyToManyField(Problem)
+
+    def __str__(self):
+        return self.name
+
+class TestSetAssignment(models.Model):
+    person = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Кому задано')
+    test_set = models.ForeignKey(TestSet, on_delete=models.CASCADE, verbose_name='Тест', related_name="assignments")
+    date_assigned = models.DateField('Когда задано', auto_now_add=True, blank=False)
+    date_deadline = models.DateField('Сдать до', blank=True, null=True)
+    assigned_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='testset_assigner', verbose_name='Кем задано')
+    status = models.IntegerField('Статус', choices=STATUS_CHOICES, null=False, blank=False, default=0)
+
+    def __str__(self):
+        return "{} -> {}. {} {}".format(self.test_set, self.person.id, self.person.last_name, self.person.first_name)
+
+    class Meta:
+        ordering = ['date_deadline']
+
+
 VERDICT_CHOICES = [
     (-1, 'Не проверено учителем'),
     (0, 'Неверное решение'),
@@ -153,4 +175,15 @@ class Submit(models.Model):
 
     def __str__(self):
         return '{} {} {}'.format(self.assignment, self.submit_datetime, self.get_verdict_display())
+
+class TestSubmit(models.Model):
+    assignment = models.ForeignKey(TestSetAssignment, on_delete=models.CASCADE, verbose_name='Назначенный тест', related_name='submits')
+    problem = models.ForeignKey(Problem, on_delete=models.CASCADE, verbose_name='Задача', related_name='test_submits')
+    yesno_answer = models.IntegerField('Ответ ДА/НЕТ', choices=YESNO_CHOICES, blank=False, null=False, default=0)
+    multiplechoice_answer = models.CharField('Выбор ответов', max_length=200, blank=True, null=True)
+    submit_datetime = models.DateTimeField('Время и дата сдачи решения', auto_now_add=True, blank=False)
+    answer_autoverdict = models.BooleanField('Результат автоматической проверки', blank=True, null=True)
+
+    def __str__(self):
+        return '{} {}: {}'.format(self.assignment, self.submit_datetime, self.problem)
 

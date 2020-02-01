@@ -1,0 +1,31 @@
+<table border="1">
+    <thead>
+        <tr>
+            <th></th>
+            {% for problem in problems %}
+                <th>#{{ problem.id }}.
+                     {% if problem.name %}
+                        {{ problem.name }}
+                     {% endif %}
+                </th>
+            {% endfor %}
+            <th>Итог</th>
+        </tr>
+        {% for result in results %}
+            <tr>
+            {% for item in result %}
+                <td>{% if item is True %}
+                        +
+                    {% elif item is None %}
+                        &nbsp;
+                    {% elif item is False %}
+                        -
+                    {% else %}
+                        {{ item }}
+                    {% endif %}
+                </td>
+            {% endfor %}
+            </tr>
+        {% endfor %}
+    </thead>
+</table>

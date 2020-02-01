@@ -1,0 +1,21 @@
+<h6>МОЕ РЕШЕНИЕ/ОТВЕТ</h6>
+        {% if object.short_answer != None %}
+            {{ object.short_answer }}
+        {% endif %}
+        {% if object.solution %}
+            {{ object.solution }}
+        {% endif%}
+        {% if object.yesno_answer != 0 %}
+            {{ object.get_yesno_answer_display }}
+        {% endif %}
+        <ul>
+        {% for variant in object.problem.variants.all %}
+            <li>{% if variant.id|slugify in object.multiplechoice_answer %}
+                +
+            {% else %}
+                -
+            {% endif %}
+            {{ variant.text }}
+            </li>
+        {% endfor %}
+        </ul>

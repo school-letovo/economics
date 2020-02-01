@@ -1,0 +1,6 @@
+{% autoescape off %}
+{% for test in tests %}
+    {% include 'problems/problem_task.html' with problem=test %}
+    {% include 'problems/student_answer.html' with object=test.submit %}
+{% endfor %}
+{% endautoescape %}

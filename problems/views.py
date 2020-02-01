@@ -9,7 +9,7 @@ from django.contrib.auth.hashers import make_password
 import economics.settings
 
 
-from .models import Assignment, Problem, Topic, Submit, Source, Variant
+from .models import Assignment, Problem, Topic, Submit, Source, Variant, TestSet, TestSetAssignment, TestSubmit
 from .forms import SubmitForm, CheckForm
 
 # Create your views here.
@@ -20,12 +20,14 @@ TOPIC_ROOT = 1
 
 def index(request):
     if request.user.groups.filter(name='teachers').exists():
+        # Teacher index
         probs, tests, cases = filter_problems(request)
         students = User.objects.filter(groups__name='students')
         groups = Group.objects.all()
         topic = Topic.objects.get(id=TOPIC_ROOT)
         topic_list = tree2List(topic, count_problems_by_topic())
         source = Source.objects.get(id=SOURCE_ROOT)
+        testsets = TestSet.objects.all()
         source_list = tree2List(source, count_problems_by_source())
         submits = Submit.objects.filter(assignment__assigned_by=request.user).filter(assignment__status=1)  # solution not checked
         context = {'problems': probs,
@@ -36,14 +38,19 @@ def index(request):
                    'source_list': source_list,
                    'submits': submits,
                    'groups': groups,
+                   'testsets': testsets,
                    }
         return render(request, 'problems/sb/index_teacher.html', context)
 
     elif request.user.groups.filter(name='students').exists():
+        # Student index
         assigned_problems = Assignment.objects.filter(person=request.user).order_by('status', 'date_deadline')
         for assignment in assigned_problems:
             assignment.form = SubmitForm(prefix=str(assignment.id), problem=assignment.problem)
-        context = {'assigned_problems': assigned_problems}
+        assigned_testsets = TestSetAssignment.objects.filter(person=request.user, status=0)
+        solved_testsets = TestSetAssignment.objects.filter(person=request.user, status=3)
+
+        context = {'assigned_problems': assigned_problems, 'assigned_testsets': assigned_testsets, 'solved_testsets': solved_testsets}
         return render(request, 'problems/sb/index_student.html', context)
 
     else:
@@ -51,22 +58,91 @@ def index(request):
 
 
 def assign(request):
-    if request.POST['date_deadline']:
-        date_deadline = datetime.strptime(request.POST['date_deadline'], "%Y-%m-%d")
-    else:
-        date_deadline = None
-    for student in request.POST.getlist('student'):
-        for problem in request.POST.getlist('problem'):
-            assign_task = Assignment(person=User.objects.get(id=int(student)),
-                                     problem=Problem.objects.get(id=int(problem)), date_deadline=date_deadline,
-                                     assigned_by=request.user).save()
-    for group_id in request.POST.getlist('group'):
-        group = Group.objects.get(id=group_id)
-        for student in group.user_set.all():
+    if request.POST['submit'] == 'Назначить задачи':
+        if request.POST['date_deadline']:
+            date_deadline = datetime.strptime(request.POST['date_deadline'], "%Y-%m-%d")
+        else:
+            date_deadline = None
+        for student in request.POST.getlist('student'):
             for problem in request.POST.getlist('problem'):
-                assign_task = Assignment(person=student, problem=Problem.objects.get(id=int(problem)),
-                                         date_deadline=date_deadline, assigned_by=request.user).save()
+                assign_task = Assignment(person=User.objects.get(id=int(student)),
+                                         problem=Problem.objects.get(id=int(problem)), date_deadline=date_deadline,
+                                         assigned_by=request.user).save()
+        for group_id in request.POST.getlist('group'):
+            group = Group.objects.get(id=group_id)
+            for student in group.user_set.all():
+                for problem in request.POST.getlist('problem'):
+                    assign_task = Assignment(person=student, problem=Problem.objects.get(id=int(problem)),
+                                             date_deadline=date_deadline, assigned_by=request.user).save()
+        return redirect('index')
+    else:
+        if request.POST['date_deadline']:
+            date_test_deadline = datetime.strptime(request.POST['date_deadline'], "%Y-%m-%d")
+        else:
+            date_test_deadline = None
+        # create TestSet
+        test_set = TestSet(name=request.POST["name"])
+        test_set.save()
+        for problem in request.POST.getlist('problem'):
+            test_set.problems.add(Problem.objects.get(id=int(problem)))
+
+        # create AssignTestSet
+        for student in request.POST.getlist('student'):
+            TestSetAssignment(person=User.objects.get(id=int(student)), test_set=test_set,
+                              date_deadline=date_test_deadline,
+                              assigned_by=request.user
+                              ).save()
+
+        return redirect('index')
+
+
+def clean(string):
+    string = string.replace(" ", "")
+    string = string.replace(",", ".")
+    return string
+
+
+def autocheck_answer(student, author):
+    for answer in author.split(';'):  # several correct answers could be separated by ;
+        if clean(answer) == clean(student):
+            return True
+    return False
+
+
+def check_yesno_answer(student, author):
+    return int(student) == author
+
+
+def check_single_choice(student, author):
+    correct = author.get(right=True).id
+    return int(student) == correct
+
+
+def check_multiple_choice(student, author):
+    correct = author.filter(right=True).values_list('id', flat=True)
+    return set(map(int, student)) == set(correct)
+
+
+def testset_submit(request):
+    assignment = TestSetAssignment.objects.get(pk=int(request.POST["assigned_id"]))
+    tests = assignment.test_set.problems.all()
+    for test in tests:
+        submit = TestSubmit(problem=test, assignment=assignment)
+        id = str(test.id)
+        if test.problem_type == 1:
+            student_yesno_answer = submit.yesno_answer = request.POST[id + "-yesno_answer"]
+            submit.answer_autoverdict = check_yesno_answer(student_yesno_answer, test.yesno_answer)
+        elif test.problem_type == 2:
+            student_single_answer = submit.multiplechoice_answer = request.POST[id + "-variants"]
+            submit.answer_autoverdict = check_single_choice(student_single_answer, test.variants.all())
+        elif test.problem_type == 3:
+            student_multiple_answer = submit.multiplechoice_answer = request.POST.getlist(id + "-variants")
+            submit.answer_autoverdict = check_multiple_choice(student_multiple_answer, test.variants)
+        submit.save()
+    assignment.status = 3
+    assignment.save()
     return redirect('index')
+
 
 
 def submit(request):
@@ -90,7 +166,6 @@ def submit(request):
 
     def check_multiple_choice(student, author):
         correct = author.filter(right=True).values_list('id', flat=True)
-        print(set(student), set(correct))
         return set(map(int, student)) == set(correct)
 
 
@@ -312,20 +387,15 @@ def load_test(request):
         test_text = request.POST['test_text']
         parent_source=Source.objects.get(id=source_id)
         for line in test_text.split('\n'):
-            print(line)
             line = line.lstrip()
             if state == BEFORE:
-                print('BEFORE')
                 result = re.match(r'^(\d+)\. (.*)$', line)
                 if result:
-                    print('result')
                     state = IN_TASK
                     problem_number = int(result.group(1))
                     text = result.group(2)
             elif state == IN_TASK:
-                print('IN_TASK')
                 if line.startswith("а)") or line.startswith("б)") or line.startswith("в)") or line.startswith("г)") or line.startswith("А)") or line.startswith("Б)") or line.startswith("В)") or line.startswith("Г)")  or line.startswith("+"):
-                    print('problem save')
                     problem = Problem(task=text, problem_type=3, yesno_answer=0)
                     problem.save()
                     problem.topics.add(economics)
@@ -342,12 +412,10 @@ def load_test(request):
                 else:
                     text = text + line
             elif state == IN_VARIANT:
-                print('IN_VARIANT')
                 result = re.match(r'^(\d+)\. (.*)$', line)
                 if line.startswith("a)") or line.startswith("б)") or line.startswith("в)") or line.startswith(
                     "г)") or line.startswith("А)") or line.startswith("Б)") or line.startswith("В)") or line.startswith(
                     "Г)") or line.startswith("+"):
-                    print('variant save')
                     variant = Variant(text=variant_text, order = variant_order, problem=problem, right=right)
                     variant.save()
                     right = line.startswith('+')
@@ -358,13 +426,11 @@ def load_test(request):
                         variant_text = line[3:]
                         variant_order = (ord(line[0].lower()) - ord('a')) + 1
                 elif result:
-                    print('result')
                     variant = Variant(text=variant_text, order=variant_order, problem=problem, right=line.startswith('+'))
                     variant.save()
                     state = IN_TASK
                     problem_number = int(result.group(1))
                     text = result.group(2)
-                    print(text)
                 else:
                     variant_text = variant_text + line
 
@@ -374,3 +440,41 @@ def load_test(request):
         return render(request, 'problems/load_test.html', {})
     else:
         return render(request, 'problems/load_test.html', {})
+
+def testset(request, pk):
+    result = []
+    assigned_testset = TestSetAssignment.objects.get(pk=pk)
+    for problem in assigned_testset.test_set.problems.all():
+        problem.form = SubmitForm(prefix=str(problem.id), problem=problem)
+        result.append(problem)
+    return render(request, 'problems/solve_testset.html', {'assigned_tests': result, 'assigned': assigned_testset})
+
+def test_result(request, test_assignment_id):
+    test_assignment = TestSetAssignment.objects.get(pk=test_assignment_id)
+    result = []
+    for problem in test_assignment.test_set.problems.all():
+        problem.submit =TestSubmit.objects.get(problem=problem, assignment=test_assignment)
+        result.append(problem)
+    return render(request, 'problems/testset_result.html', {'tests': result})
+
+def testset_all_results(request, testset_pk):
+    testset = TestSet.objects.get(pk=testset_pk)
+    results = []
+    students = set(testset.assignments.values_list('person', flat=True))
+    problem_list = testset.problems.all()
+
+    for student_id in students:
+        student = User.objects.get(pk=student_id)
+        results.append([student.last_name])
+        score = 0
+        for problem in problem_list:
+            submits = TestSubmit.objects.filter(problem=problem, assignment__person=student)
+            for submit in submits:
+                if submit.answer_autoverdict is True:
+                    results[-1].append(True)
+                    score += 1
+                    break
+            else:
+                results[-1].append(False)
+        results[-1].append(score)
+    return render(request, 'problems/testset_all_results.html', {'problems': problem_list, 'results':results})

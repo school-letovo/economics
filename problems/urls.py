@@ -15,4 +15,8 @@ urlpatterns = [
     path('bulk_users', views.bulk_create_users, name='bulk_users'),
     path('bulk_sources', views.bulk_create_sources, name='bulk_sources'),
     path('load_test', views.load_test, name='load_test'),
+    path('testset/<int:pk>', views.testset, name='testset'),
+    path('check_testset', views.testset_submit, name='check_testset'),
+    path('testset_result/<int:test_assignment_id>', views.test_result, name='testset_result'),
+    path('testset_result_all/<int:testset_pk>', views.testset_all_results, name='testset_result_all'),
 ]

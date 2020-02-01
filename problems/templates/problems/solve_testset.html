@@ -1,0 +1,34 @@
+{% extends "problems/sb/base.html" %}
+{% block content %}
+<style>ul {list-style:none;padding-inline-start: 0px;}</style>
+{% autoescape off %}
+   <form method="POST" action="{% url 'check_testset' %}">
+       {% csrf_token %}
+       <input type="hidden" name="assigned_id" value="{{ assigned.id}}"></input>
+       {% for test in assigned_tests %}
+<div class="problem_in_list">
+    <div class="card shadow mb-4">
+        <!-- Card Header - Accordion -->
+        <a class="d-block card-header py-3" role="button" aria-expanded="true" aria-controls="collapseCardExample">
+            {{ forloop.counter }}.
+            {% with assigned='True' %}
+                {% include 'problems/problem_task.html' with problem=test %}
+            {% endwith %}
+
+        </a>
+        <div class="collapse show" id="collapseCardExample">
+          <div class="card-body">
+            <div class="problem_links">
+                <p>{{ test.form.as_p }}
+                    {{ test.form.media }}
+                </p>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+        <p><input type="submit" value="Сдать"></p>
+    </div>
+</div>
+</form>
+{% endautoescape %}
+{% endblock %}

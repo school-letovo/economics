@@ -1,0 +1,10 @@
+<div class="alert alert-primary" role="alert">
+    <p><b>Назначенные тесты:</b></p>
+    {% for assigned in assigned_testsets %}
+    <p><a href="{% url 'testset' assigned.id %}">{{ assigned.test_set.name }}</a></p>
+    {% endfor %}
+    <p><b>Сданные тесты:</b></p>
+    {% for solved in solved_testsets %}
+    <p><a href="{% url 'testset_result' solved.id %}">{{ solved.test_set.name }}</a></p>
+    {% endfor %}
+</div>

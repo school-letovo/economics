@@ -98,15 +98,25 @@
         <div class="row">
             <div class="col-10  ">
 
+                <div class="tab-content">
+                    {% include 'problems/testsets.html' %}
+                </div>
+                <div class="alert alert-primary" role="alert">
+                    <b>Назначить тесты ученикам</b>
+                    <br><br>Название:
+                    <input type="text" name="name">&nbsp;&nbsp;&nbsp;
+                    <br>Срок сдачи:<input type="date" name="date_test_deadline">&nbsp;&nbsp;&nbsp;
+                    <input type="submit" name="submit" value="Создать и назначить тест">
+                </div>
                 <div class="alert alert-primary" role="alert">
                     <b>Назначить задачи ученикам</b>
                     <br><br>Срок сдачи:
                     <input type="date" name="date_deadline">&nbsp;&nbsp;&nbsp;
-                    <input type="submit" value="Назначить">
+                    <input type="submit" name="submit" value="Назначить задачи">
                 </div>
                 <ul class="nav nav-tabs">
                     <li class="nav-item active"><a class="nav-link active" data-toggle="tab" href="#problems">Задачи ({{ problems|length}})</a></li>
-                    <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#tests">Тесты ({{ tests|length}})</a></li>
+                    <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#tests">Тестовые вопросы ({{ tests|length}})</a></li>
                     <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#cases">Качественные задачи ({{ cases|length}})</a></li>
                 </ul>
                 <div class="tab-content">
