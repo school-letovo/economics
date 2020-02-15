@@ -1,12 +1,4 @@
 {% extends "problems/sb/base.html" %}
 {% block content %}
-    {% autoescape off %}
-        <p>{{ problem.id }}
-        <p>{{ problem.name }}
-        {% include 'problems/problem_task.html' %}
-        <p>{{ problem.short_answer }}
-        <p>{{ problem.hint }}
-        {% include 'problems/problem_solution.html' %}
-
-    {% endautoescape %}
+        {% include 'problems/problem.html' %}
 {% endblock %}

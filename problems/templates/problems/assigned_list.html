@@ -1,75 +1,12 @@
-{% autoescape off %}
 <style>form > ul {list-style:none;padding-inline-start: 0px;}</style>
-{% for assigned in assigned_problems %}
-
-<div class="problem_in_list">
-    <div class="card shadow mb-4">
-        <!-- Card Header - Accordion -->
-        <a class="d-block card-header py-3" role="button" aria-expanded="true" aria-controls="collapseCardExample">
-          <nobr><h6 class="m-0 font-weight-bold text-primary">
-              #{{ assigned.problem.id }}&nbsp;
-              {% if assigned.problem.name %}
-                {{ assigned.problem.name }}
-              {% endif %}
-          </h6>
-              {% if assigned.date_deadline %}
-                Срок сдачи: {{ assigned.date_deadline|date:"d-m-Y" }}.
-              {% endif %}
-              Задано: {{ assigned.date_assigned|date:"d-m-Y" }} учителем {{ assigned.assigned_by.last_name }} {{ assigned.assigned_by.first_name }}</nobr>
-        </a>
-        <!-- Card Content - Collapse -->
-        <div class="collapse show" id="collapseCardExample">
-          <div class="card-body">
-            <div class="problem_links">
-                {% if assigned.submits.all %}
-                    <table border="1">
-                        <tr>
-                            <th>ID</th>
-                            <th>Время сдачи</th>
-                            <th>Результат проверки</th>
-                            <th>Результат автопроверки ответа</th>
-                            <th>Комментарий учителя</th>
-                        </tr>
-                        {% for submit in assigned.submits.all %}
-                            <tr>
-                                <td><a href="{% url 'submit-detail' submit.id %}">{{ submit.id }}</a></td>
-                                <td>{{ submit.submit_datetime }}</td>
-                                <td>{{ submit.get_verdict_display }}</td>
-                                <td>{% if submit.answer_autoverdict == False %}–
-                                    {% elif submit.answer_autoverdict == True %}+
-                                    {% endif %}</td>
-                                <td>{{ submit.teacher_comment }}</td>
-                            </tr>
-                        {% endfor %}
-                    </table>
-                    <p></p>
-                {% endif %}
-                {% include 'problems/problem_task.html' with problem=assigned.problem %}
-                {% if problem.hint %}
-                    <a class="btn btn-primary" data-toggle="collapse" href="#hint-{{ problem.id }}" role="button" aria-expanded="false" aria-controls="collapseExample">Подсказка</a>
-                {% endif %}
-                <p>
-                {% if problem.hint %}
-                    <div class="collapse" id="hint-{{ assigned.id }}">
-                        <p><b>Подсказка.</b> {{ assigned.problem.hint }}
-                    </div>
-                {% endif %}
-                {% if assigned.status != 1 %}
-
-                    <form method="post" action="{% url 'submit' %}">
-                        {% csrf_token %}
-                            {{ assigned.form.as_p }}
-                            {{ assigned.form.media }}
-                        <input type="hidden" name="assignment_id" value="{{ assigned.id }}">
-                        <p><input type="submit" value="Сдать на проверку"></p>
-                    </form>
-                {% endif %}
-
-            </div>
-          </div>
-        </div>
-    </div>
-</div>
+{% for problem in assigned_problems %}
+    <form method="post" action="{% url 'submit' %}">
+        {% csrf_token %}
+        {% include 'problems/problem.html' %}
+        {% if problem.assignment.status != 1 %}
+            <input type="hidden" name="assignment_id" value="{{ problem.assignment.id }}">
+            <p><input type="submit" value="Сдать на проверку"></p>
+        {% endif %}
+    </form>
 
 {% endfor %}
-{% endautoescape %}

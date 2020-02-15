@@ -1,29 +1,4 @@
 {% extends "problems/sb/base.html" %}
 {% block content %}
-    {% autoescape off %}
-        {{ object }}
-        <p>#{{ object.id }}
-        {% include 'problems/problem_task.html' with problem=object.assignment.problem%}
-        <h6>МОЕ РЕШЕНИЕ/ОТВЕТ</h6>
-        {% if object.short_answer != None %}
-            {{ object.short_answer }}
-        {% endif %}
-        {% if object.solution %}
-            {{ object.solution }}
-        {% endif%}
-        {% if object.yesno_answer != 0 %}
-            {{ object.get_yesno_answer_display }}
-        {% endif %}
-        <ul>
-        {% for variant in object.assignment.problem.variants.all %}
-            <li>{% if variant.id|slugify == object.multiplechoice_answer %}
-                +
-            {% else %}
-                -
-            {% endif %}
-            {{ variant.text }}
-            </li>
-        {% endfor %}
-        </ul>
-    {% endautoescape %}
+    {% include 'problems/problem.html' %}
 {% endblock %}

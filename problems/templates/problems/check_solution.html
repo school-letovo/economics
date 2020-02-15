@@ -1,43 +1,4 @@
-{% autoescape off %}
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-10">
-            <h4>Задача {{ submit.assignment.problem.id }}. {{ submit.assignment.problem.name }}, решение – {{ submit.assignment.person.last_name }} {{ submit.assignment.person.first_name }}</h4>
-            <p>{{ submit.assignment.problem.task }}
-            <hr>
-            <table border="1">
-                <tr>
-                    <td>Правильный ответ</td>
-                    <td>Ответ ученика</td>
-                    <td>Результат автопроверки</td>
-                </tr>
-                <tr>
-                    <td>{{ submit.assignment.problem.short_answer }}</td>
-                    <td>{{ submit.short_answer }}</td>
-                    <td>{% if submit.answer_autoverdict == False %}–
-                        {% elif submit.answer_autoverdict == True %}+
-                        {% endif %}
-                    </td>
-                </tr>
-            </table>
-            <hr>
-            <p>Решение ученика:
-            <p>{{ submit.solution }}
-            <p>
-            <form action="{% url 'save_verdict' %}" method="POST">
-                {% csrf_token %}
-                <table>
-                    {{ form }}
-                    {{ form.media }}
-                </table>
-                <input type="hidden" name="submit_id" value="{{ submit.id}}">
-                <input type="submit" value="Оценить">
-            </form>
-
-            <p>Правильное решение:
-            <p>{{ submit.assignment.problem.solution }}
-
-        </div>
-    </div>
-</div>
-{% endautoescape %}
+{% extends "problems/sb/base.html" %}
+{% block content %}
+{% include 'problems/problem.html' %}
+{% endblock %}

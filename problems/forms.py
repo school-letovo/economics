@@ -16,7 +16,7 @@ class SubmitForm(forms.ModelForm):
                 self.fields['variants'] = forms.ModelMultipleChoiceField(widget=forms.CheckboxSelectMultiple(), queryset=Variant.objects.filter(problem=problem))
             elif problem.problem_type == 2:
                 self.fields['variants'] = forms.ModelChoiceField(widget=forms.RadioSelect(), queryset=Variant.objects.filter(problem=problem), empty_label=None)
-            self.fields['variants'].label = 'Варианты ответа'
+            self.fields['variants'].label = ''
         else:
             del self.fields['variants']
 
@@ -26,7 +26,7 @@ class SubmitForm(forms.ModelForm):
         if not problem.yesno_answer:
             del self.fields['yesno_answer']
         else:
-            self.fields['yesno_answer'].empty_label=None
+            self.fields['yesno_answer'].empty_label = None
 
 
         if problem.problem_type in [1, 2, 3]:

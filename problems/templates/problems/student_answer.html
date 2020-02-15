@@ -1,21 +1,39 @@
-<h6>МОЕ РЕШЕНИЕ/ОТВЕТ</h6>
-        {% if object.short_answer != None %}
-            {{ object.short_answer }}
-        {% endif %}
-        {% if object.solution %}
-            {{ object.solution }}
-        {% endif%}
+            <table border="1">
+                <tr>
+                    <td>Правильный ответ</td>
+                    <td>Ответ ученика</td>
+                    <td>Результат автопроверки</td>
+                </tr>
+                <tr>
+                    <td>{{ problem.submit.assignment.problem.short_answer }}</td>
+                    <td>{{ problem.submit.short_answer }}</td>
+                    <td>{% if problem.submit.answer_autoverdict == False %}–
+                        {% elif problem.submit.answer_autoverdict == True %}+
+                        {% endif %}
+                    </td>
+                </tr>
+            </table>
+
+{% if object.yesno_answer != 0 or object.multiplechoice_answer %}
+    <h6>СДАННЫЙ ОТВЕТ</h6>
+{% endif %}
         {% if object.yesno_answer != 0 %}
             {{ object.get_yesno_answer_display }}
         {% endif %}
-        <ul>
-        {% for variant in object.problem.variants.all %}
-            <li>{% if variant.id|slugify in object.multiplechoice_answer %}
-                +
-            {% else %}
-                -
-            {% endif %}
-            {{ variant.text }}
-            </li>
-        {% endfor %}
-        </ul>
+        <div class="problem-student-form">
+            <ul>
+            {% for variant in problem.variants.all %}
+                <li>{% if variant.id|slugify in object.multiplechoice_answer %}
+                    +
+                {% else %}
+                    -
+                {% endif %}
+                {{ variant }}
+                </li>
+            {% endfor %}
+            </ul>
+        </div>
+{% if object.solution %}
+    <h6>СДАННОЕ РЕШЕНИЕ</h6>
+    {{ object.solution }}
+{% endif %}

@@ -1,6 +1,16 @@
 <form action="{% url 'load_test' %}" method="POST">
     {% csrf_token %}
     <p>ID источника: <input type="text" name="source_id" value=""></input>
+    <p>ID темы: <input type="text" name="topic_id" value=""></input>
+    <p>
+        <select name="problem_type">
+            <option value="2">Выбор одного ответа</option>
+            <option value="3">Множественный выбор</option>
+            <option value="1">Да/Нет</option>
+        </select>
+    </p>
     <p>Текст:<textarea cols=200 rows=60 name="test_text" value=""></textarea>
+
     <p><input type="submit" value="Загрузить">
+
 </form>

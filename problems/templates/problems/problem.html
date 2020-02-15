@@ -1,0 +1,170 @@
+<!--
+    problem - задача
+    Для ученика должно быть определено ровно одно из:
+        problem.submit - привязанная к данной задаче посылка школьника (для режима просмотра конкретной посылки)
+        problem.assignment - привязанное к задаче и ученику назначение (чтобы показывать таблицу посылок) (для режима списка назначенных задач)
+        problem.form - для тестовых наборов - форма, привязанная к тесту
+    решение показывается только учителю
+    обертка формы пишется каждый раз вручную, потому что форма может быть как с одной задачей, так и с тестом
+-->
+{% autoescape off%}
+<div class="problem">
+    <div class="card shadow mb-4">
+        <div class="problem-header">
+            <a class="d-block card-header py-3" role="button" aria-expanded="true" aria-controls="collapse">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        {% if 'teacher' in user.groups.all.0.name %}
+                            <div class="problem-checkbox">
+                                 <input type="checkbox" name="problem" value="{{ problem.id }}">
+                            </div>
+                        {% endif %}
+                        <div class="problem-id">
+                            #{{ problem.id }}.&nbsp;
+                        </div>
+                        {% if problem.name %}
+                            <div class="problem-name">
+                                {{ problem.name }}&nbsp;
+                            </div>
+                        {% endif %}
+                    </h6>
+                    {% if problem.assignment %}
+                        <nobr>
+                            {% if problem.assignment.date_deadline %}
+                                Срок сдачи: {{ problem.assignment.date_deadline|date:"d-m-Y" }}.
+                            {% endif %}
+                            Задано: {{ problem.assignment.date_assigned|date:"d-m-Y" }} учителем {{ problem.assignment.assigned_by.last_name }} {{ problem.assignment.assigned_by.first_name }}
+                        </nobr>
+                    {% endif %}
+                {% if 'teacher' in user.groups.all.0.name %}
+                    <div class="problem-subtitle">
+                        {% if problem.source_set.all %}
+                            <div class="problem-sources">
+                                {% for source in problem.source_set.all %}
+                                    {% if forloop.last %}
+                                        {{ source }}
+                                    {% else %}
+                                        {{ source }},<br>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        <div class="problem-topics"><p>
+                            {% for topic in problem.topics.all %}
+                                {% if forloop.last %}
+                                    {{ topic }}
+                                {% else %}
+                                    {{ topic }},<br>
+                                {% endif %}
+                            {% endfor %}
+                        </p></div>
+                    </div>
+                {% endif %}
+            </a>
+        </div>
+        <div class="collapse show" id="problem-{{ problem.id }}">
+            <div class="problem-statistics">
+                {% if problem.assignment.submits.all %}
+                    <table border="1">
+                        <tr>
+                            <th>ID</th>
+                            <th>Время сдачи</th>
+                            <th>Результат проверки</th>
+                            <th>Результат автопроверки ответа</th>
+                            <th>Комментарий учителя</th>
+                        </tr>
+                        {% for submit in problem.assignment.submits.all %}
+                            <tr>
+                                <td><a href="{% url 'submit-detail' submit.id %}">{{ submit.id }}</a></td>
+                                <td>{{ submit.submit_datetime }}</td>
+                                <td>{{ submit.get_verdict_display }}</td>
+                                <td>{% if submit.answer_autoverdict == False %}–
+                                    {% elif submit.answer_autoverdict == True %}+
+                                    {% endif %}</td>
+                                <td>{{ submit.teacher_comment }}</td>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                {% endif %}
+
+            </div>
+            <div class="problem-task">
+                {{ problem.task }}
+                {% if not problem.submit and not problem.assignment and not problem.form %} <!-- не перечисляем варианты, если они будут перечислены в форме или в решении школьника -->
+                    {% if problem.variants %}
+                        <ul>
+                            {% for variant in problem.variants.all %}
+                                <li>
+                                    {{ variant.text }}
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                    {% if problem.problem_type == 1 %}
+                        <p>ДА/НЕТ</p>
+                    {% endif %}
+                {% endif %}
+            </div>
+            <div class="problem-buttons">
+                {% if problem.hint %}
+                    <a class="btn btn-primary" data-toggle="collapse" href="#hint-{{ problem.id }}" role="button" aria-expanded="false" aria-controls="collapseExample">Подсказка</a>
+                {% endif %}
+                {% if 'teacher' in user.groups.all.0.name %}
+                    {% if problem.solution or problem.variants or problem.short_answer or problem.yesno_answer %}
+                        <a class="btn btn-primary" data-toggle="collapse" href="#solution-{{ problem.id }}" role="button" aria-expanded="false" aria-controls="collapseExample">Решение</a>
+                    {% endif %}
+                {% endif %}
+            </div>
+            <div class="problem-solution">
+                <div class="problem-student-solution">
+                    <p>
+                    {% if problem.hint %}
+                        <div class="collapse" id="hint-{{ problem.id }}">
+                            <p><b>Подсказка.</b> {{ problem.hint }}
+                        </div>
+                    {% endif %}
+                </div>
+                {% if 'teacher' in user.groups.all.0.name %}
+                    <div class="right-solution">
+                        <div class="collapse" id="solution-{{ problem.id }}">
+                          {% include 'problems/problem_solution.html' %}
+                        </div>
+                        {% if problem.submit %}
+                            <!-- показываем сданное учеником решение учителю -->
+                            {% include 'problems/student_answer.html' with object=problem.submit %}
+                        {% endif %}
+                    </div>
+                {% elif problem.assignment %}
+                    <div class="problem-student-form">
+                        {% if problem.assignment.status != 1 %}
+                            {{ problem.assignment.form.as_p }}
+                            {{ problem.assignment.form.media }}
+                        {% endif %}
+                    </div>
+                {% elif problem.form %}
+                    <div class="problem-student-form">
+                            {{ problem.form.as_p }}
+                            {{ problem.form.media }}
+
+                    </div>
+                {% elif problem.submit %}
+                    {% include 'problems/student_answer.html' with object=problem.submit %}
+                {% endif %}
+
+                <!- форма оценивания посылки по задаче учителем -->
+                {% if problem.submit.verdict == -1 and user == problem.submit.assignment.assigned_by %}
+                    <form action="{% url 'save_verdict' %}" method="POST">
+                        {% csrf_token %}
+                        <table>
+                            {{ form }}
+                            {{ form.media }}
+                        </table>
+                        <input type="hidden" name="submit_id" value="{{ submit.id}}">
+                        <input type="submit" value="Оценить">
+                    </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endautoescape %}
+

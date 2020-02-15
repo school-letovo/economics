@@ -45,12 +45,16 @@ def index(request):
     elif request.user.groups.filter(name='students').exists():
         # Student index
         assigned_problems = Assignment.objects.filter(person=request.user).order_by('status', 'date_deadline')
+        problems = []
         for assignment in assigned_problems:
-            assignment.form = SubmitForm(prefix=str(assignment.id), problem=assignment.problem)
+            problem = assignment.problem
+            problem.assignment = assignment
+            problem.assignment.form = SubmitForm(prefix=str(assignment.id), problem=assignment.problem)
+            problems.append(problem)
         assigned_testsets = TestSetAssignment.objects.filter(person=request.user, status=0)
         solved_testsets = TestSetAssignment.objects.filter(person=request.user, status=3)
 
-        context = {'assigned_problems': assigned_problems, 'assigned_testsets': assigned_testsets, 'solved_testsets': solved_testsets}
+        context = {'assigned_problems': problems, 'assigned_testsets': assigned_testsets, 'solved_testsets': solved_testsets}
         return render(request, 'problems/sb/index_student.html', context)
 
     else:
@@ -146,29 +150,6 @@ def testset_submit(request):
 
 
 def submit(request):
-    def clean(string):
-        string = string.replace(" ", "")
-        string = string.replace(",", ".")
-        return string
-
-    def autocheck_answer(student, author):
-        for answer in author.split(';'):  # several correct answers could be separated by ;
-            if clean(answer) == clean(student):
-                return True
-        return False
-
-    def check_yesno_answer(student, author):
-        return int(student) == author
-
-    def check_single_choice(student, author):
-        correct = author.get(right=True).id
-        return int(student) == correct
-
-    def check_multiple_choice(student, author):
-        correct = author.filter(right=True).values_list('id', flat=True)
-        return set(map(int, student)) == set(correct)
-
-
     id = request.POST["assignment_id"]
     assignment = Assignment.objects.get(id=id)
 
@@ -204,10 +185,12 @@ def submit(request):
 
 def check_solution(request, submit_id):
     submit = Submit.objects.get(id=submit_id)
+    problem = submit.assignment.problem
+    problem.submit = submit
     if request.user == submit.assignment.assigned_by:
         form = CheckForm()
-        context = {'form': form, 'submit': submit}
-        return render(request, 'problems/sb/index_temp.html', context)
+        context = {'form': form, 'submit': submit, 'problem': problem}
+        return render(request, 'problems/check_solution.html', context)
     else:
         return redirect('index')
 
@@ -370,8 +353,11 @@ def count_problems_by_topic_dfs(topic, counter):
     return counter[topic.id]
 
 
-class SubmitDetailView(DetailView):
-    model = Submit
+def submit_detail(request, pk):
+    submit = Submit.objects.get(pk=pk)
+    problem = submit.assignment.problem
+    problem.submit = submit
+    return render(request, 'problems/submit_detail.html', {'problem': problem})
 
 
 def load_test(request):
@@ -385,20 +371,28 @@ def load_test(request):
     if request.POST:
         source_id = request.POST['source_id']
         test_text = request.POST['test_text']
-        parent_source=Source.objects.get(id=source_id)
+        parent_source = Source.objects.get(id=source_id)
+        problem_type = request.POST["problem_type"]
+        if request.POST['topic_id']:
+            topic_id = request.POST['topic_id']
+            parent_topic = Topic.objects.get(id=topic_id)
+
         for line in test_text.split('\n'):
             line = line.lstrip()
             if state == BEFORE:
                 result = re.match(r'^(\d+)\. (.*)$', line)
                 if result:
                     state = IN_TASK
-                    problem_number = int(result.group(1))
+                    problem_number = int(result.group(1)) or (problem_number + 1)
                     text = result.group(2)
             elif state == IN_TASK:
-                if line.startswith("а)") or line.startswith("б)") or line.startswith("в)") or line.startswith("г)") or line.startswith("А)") or line.startswith("Б)") or line.startswith("В)") or line.startswith("Г)")  or line.startswith("+"):
+                if problem_type != 1 and line.startswith("а)") or line.startswith("б)") or line.startswith("в)") or line.startswith("г)") or line.startswith("А)") or line.startswith("Б)") or line.startswith("В)") or line.startswith("Г)")  or line.startswith("+"):
                     problem = Problem(task=text, problem_type=3, yesno_answer=0)
                     problem.save()
-                    problem.topics.add(economics)
+                    if request.POST['topic_id']:
+                        problem.topics.add(topic_id)
+                    else:
+                        problem.topics.add(economics)
                     Source(name="Задача {}".format(problem_number), order=problem_number, parent = parent_source, problem=problem).save()
                     text = None
                     state = IN_VARIANT
@@ -409,9 +403,20 @@ def load_test(request):
                     else:
                         variant_text = line[3:]
                         variant_order = (ord(line[0].lower()) - ord('a')) + 1
+                elif problem_type == 1 and line == "":
+                    problem = Problem(task=text, problem_type=1, yesno_answer=0)
+                    problem.save()
+                    if request.POST['topic_id']:
+                        problem.topics.add(topic_id)
+                    else:
+                        problem.topics.add(economics)
+                    Source(name="Задача {}".format(problem_number), order=problem_number, parent=parent_source,
+                           problem=problem).save()
+                    text = None
+                    state = BEFORE
                 else:
                     text = text + line
-            elif state == IN_VARIANT:
+            elif problem_type != 1 and state == IN_VARIANT:
                 result = re.match(r'^(\d+)\. (.*)$', line)
                 if line.startswith("a)") or line.startswith("б)") or line.startswith("в)") or line.startswith(
                     "г)") or line.startswith("А)") or line.startswith("Б)") or line.startswith("В)") or line.startswith(
@@ -419,7 +424,7 @@ def load_test(request):
                     variant = Variant(text=variant_text, order = variant_order, problem=problem, right=right)
                     variant.save()
                     right = line.startswith('+')
-                    if line.startswith('+'):
+                    if right:
                         variant_text = line[4:]
                         variant_order = (ord(line[1].lower()) - ord('a')) + 1
                     else:
@@ -434,7 +439,7 @@ def load_test(request):
                 else:
                     variant_text = variant_text + line
 
-        if variant_text:
+        if problem_type == 1 and variant_text:
             variant = Variant(text=variant_text, order=variant_order, problem=problem, right=right)
             variant.save()
         return render(request, 'problems/load_test.html', {})
@@ -478,3 +483,11 @@ def testset_all_results(request, testset_pk):
                 results[-1].append(False)
         results[-1].append(score)
     return render(request, 'problems/testset_all_results.html', {'problems': problem_list, 'results':results})
+
+def test(request):
+    problem = Problem.objects.get(pk=23)
+    #problem.submit = Submit.objects.get(pk=1)
+    problem.assignment = Assignment.objects.get(pk=149)
+    problem.assignment.form = SubmitForm(prefix=str(problem.assignment.id), problem=problem)
+
+    return render(request, "problems/problem.html", {'problem': problem})
