@@ -40,7 +40,7 @@ class Problem(models.Model):
     task = RichTextUploadingField('Условие')
     problem_type = models.IntegerField('Тип задачи', choices=TYPE_CHOICES, blank=False, null=False, default=0)
     short_answer = models.CharField('Ответ (для автоматической проверки)', max_length=200, blank=True)
-    yesno_answer = models.IntegerField('Ответ ДА/НЕТ', choices=YESNO_CHOICES, blank=True, default=None)
+    yesno_answer = models.IntegerField('Ответ ДА/НЕТ', choices=YESNO_CHOICES, blank=False, default=0)
 
     # TODO long_answer =
     # TODO subproblem_answers
@@ -57,9 +57,6 @@ class Problem(models.Model):
     #   TODO edit_user =
     #   TODO pictures_quality : draft, final
     #   TODO text_quality: draft, final
-    # TODO yes/no question
-    # TODO ABCD answers (radiobuttons)
-    # TODO checkboxes
 
 
     hint = RichTextUploadingField('Подсказка', blank=True)
