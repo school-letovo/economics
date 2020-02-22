@@ -6,16 +6,13 @@ from django.contrib.auth.models import User, Group
 from django.views.generic.detail import DetailView
 from django.contrib.auth.hashers import make_password
 
-import economics.settings
+from economics.settings import TOPIC_ROOT, SOURCE_ROOT
 
 
 from .models import Assignment, Problem, Topic, Submit, Source, Variant, TestSet, TestSetAssignment, TestSubmit
 from .forms import SubmitForm, CheckForm
 
 # Create your views here.
-
-SOURCE_ROOT = 22
-TOPIC_ROOT = 1
 
 
 def index(request):
@@ -236,6 +233,7 @@ def tree2List(root, counter):
                 result['children'].append(tree2List(child, counter))
 
     return result
+
 
 
 def filter_problems(request):

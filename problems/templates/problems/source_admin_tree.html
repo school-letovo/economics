@@ -1,0 +1,13 @@
+ <li>{% if object_list.children %}<i class="fas fa-plus-square"></i>{% endif %}
+        <input type="radio" name="parent" value="{{ object_list.object.id }}"
+        {% if object_list.object.id|slugify == widget.value.0 %}
+        checked
+        {% endif %}> {{ object_list.object }}
+    {% if object_list.children %}
+        <ul style="display: block; margin-left: 10px; padding-left: 10px;">
+            {% for object in object_list.children %}
+                {% include 'problems/source_admin_tree.html' with object_list=object %}
+            {% endfor %}
+        </ul>
+    {% endif %}
+ </li>

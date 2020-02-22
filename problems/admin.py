@@ -3,6 +3,7 @@ from django.contrib import admin
 # Register your models here.
 
 from .models import Problem, Assignment, Topic, Submit, Source, Variant, TestSet, TestSetAssignment, TestSubmit
+from .forms import SourceAdminForm
 
 class AssignmentAdmin(admin.ModelAdmin):
     fields = ['person', 'problem', 'date_deadline', 'status']
@@ -28,10 +29,16 @@ class VariantInline(admin.TabularInline):
 class ProblemAdmin(admin.ModelAdmin):
     inlines = [VariantInline]
 
+class SourceAdmin(admin.ModelAdmin):
+    form = SourceAdminForm
+
+    def get_changelist_form(self, request, **kwargs):
+        return SourceAdminForm
+
 admin.site.register(Problem, ProblemAdmin)
 admin.site.register(Topic)
 admin.site.register(Submit)
-admin.site.register(Source)
+admin.site.register(Source, SourceAdmin)
 admin.site.register(Variant)
 admin.site.register(TestSet)
 admin.site.register(TestSetAssignment)

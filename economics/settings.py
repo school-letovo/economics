@@ -129,3 +129,7 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = 'media'
 
 CKEDITOR_UPLOAD_PATH = 'ckeditor/'
+
+#################################
+SOURCE_ROOT = 22
+TOPIC_ROOT = 1
