@@ -15,7 +15,7 @@
                     <h6 class="m-0 font-weight-bold text-primary">
                         {% if 'teacher' in user.groups.all.0.name %}
                             <div class="problem-checkbox">
-                                 <input type="checkbox" name="problem" value="{{ problem.id }}">
+                                 <input type="checkbox" name="problem" class="checkbox-check" value="{{ problem.id }}">
                             </div>
                         {% endif %}
                         <div class="problem-id">

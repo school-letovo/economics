@@ -114,6 +114,9 @@
                     <input type="date" name="date_deadline">&nbsp;&nbsp;&nbsp;
                     <input type="submit" name="submit" value="Назначить задачи">
                 </div>
+                <div class="alert alert-primary" role="alert">
+                    <b>Выбрано задач: <div class="counter" style="display:inline;"></div></b>
+                </div>
                 <ul class="nav nav-tabs">
                     <li class="nav-item active"><a class="nav-link active" data-toggle="tab" href="#problems">Задачи ({{ problems|length}})</a></li>
                     <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#tests">Тестовые вопросы ({{ tests|length}})</a></li>

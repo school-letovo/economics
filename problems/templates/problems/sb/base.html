@@ -1,5 +1,4 @@
 {% load static %}
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -148,6 +147,45 @@
   <script src="{% static 'problems/sb/js/demo/chart-pie-demo.js' %}"></script>
   -->
 
+<script>
+var counter = 0;
+var checkboxes = document.querySelectorAll('.checkbox-check');
+
+var check = function (checkbox) {
+	checkbox.onclick = function() {
+		if (checkbox.checked) {
+			counter++;
+		} else {
+			counter--;
+		}
+		span.textContent = counter;
+	}
+}
+
+var divs = document.querySelector('.counter');
+var clear = document.createElement('button');
+var span = document.createElement('span');
+clear.textContent = "Очистить";
+
+for (var i = 0; i < checkboxes.length; i++) {
+	check(checkboxes[i]);
+}
+
+divs.appendChild(span);
+divs.appendChild(clear);
+span.textContent = "0";
+
+clear.onclick = function(evt) {
+	evt.preventDefault();
+
+	for (var i = 0; i < checkboxes.length; i++) {
+		checkboxes[i].checked = false;
+	}
+
+	counter = 0;
+	span.textContent = counter;
+}
+</script>
 </body>
 
 </html>
