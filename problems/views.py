@@ -381,6 +381,7 @@ def load_test(request):
                 print('BEFORE')
                 yesno_answer = 0
                 choice = None
+                variant_counter = 0
                 result = re.match(r'^\s*([+-12345абвгдАБВГД]*)\s*(\d+)\. (.*)$', line)
                 if result:
                     answer = result.group(1)
@@ -444,9 +445,17 @@ def load_test(request):
                 print('IN VARIANT', line, "problem type:", problem_type, "$")
                 result = re.match(r'^(\d+)\. (.*)$', line)
                 if line.startswith("a)") or line.startswith("б)") or line.startswith("в)") or line.startswith(
-                    "г)") or line.startswith("А)") or line.startswith("Б)") or line.startswith("В)") or line.startswith(
-                    "Г)") or line.startswith("+"):
-                    variant = Variant(text=variant_text, order = variant_order, problem=problem, right=right)
+                    "г)") or line.startswith("д)") or line.startswith("А)") or line.startswith("Б)") or line.startswith("В)") or line.startswith(
+                    "Г)") or line.startswith("Д)") or line.startswith("+"):
+                    variant_counter += 1
+                    if choice:  # right answer before task number
+                        if variant_counter == choice:
+                            variant = Variant(text=variant_text, order=variant_order, problem=problem, right=True)
+                        else:
+                            variant = Variant(text=variant_text, order=variant_order, problem=problem, right=False)
+                    else:  # right answer before variant number
+                        variant = Variant(text=variant_text, order=variant_order, problem=problem,
+                                          right=line.startswith('+'))
                     variant.save()
                     right = line.startswith('+')
                     if right:
@@ -455,17 +464,29 @@ def load_test(request):
                     else:
                         variant_text = line[3:]
                         variant_order = (ord(line[0].lower()) - ord('a')) + 1
-                elif result:
-                    variant = Variant(text=variant_text, order=variant_order, problem=problem, right=line.startswith('+'))
+                elif line=="":
+                    variant_counter += 1
+                    if choice: # right answer before task number
+                        if variant_counter == choice:
+                            variant = Variant(text=variant_text, order=variant_order, problem=problem, right=True)
+                        else:
+                            variant = Variant(text=variant_text, order=variant_order, problem=problem, right=False)
+                    else: # right answer before variant number
+                        variant = Variant(text=variant_text, order=variant_order, problem=problem, right=line.startswith('+'))
                     variant.save()
-                    state = IN_TASK
-                    problem_number = int(result.group(1))
-                    text = result.group(2)
+                    state = BEFORE
                 else:
                     variant_text = variant_text + line
 
         if problem_type == 1 and variant_text:
-            variant = Variant(text=variant_text, order=variant_order, problem=problem, right=right)
+            variant_counter += 1
+            if choice:  # right answer before task number
+                if variant_counter == choice:
+                    variant = Variant(text=variant_text, order=variant_order, problem=problem, right=True)
+                else:
+                    variant = Variant(text=variant_text, order=variant_order, problem=problem, right=False)
+            else:  # right answer before variant number
+                variant = Variant(text=variant_text, order=variant_order, problem=problem, right=line.startswith('+'))
             variant.save()
         return render(request, 'problems/load_test.html', {})
     else:
