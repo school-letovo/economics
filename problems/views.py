@@ -370,7 +370,7 @@ def load_test(request):
         source_id = request.POST['source_id']
         test_text = request.POST['test_text']
         parent_source = Source.objects.get(id=source_id)
-        problem_type = request.POST["problem_type"]
+        problem_type = int(request.POST["problem_type"])
         if request.POST['topic_id']:
             topic_id = request.POST['topic_id']
             parent_topic = Topic.objects.get(id=topic_id)
@@ -378,14 +378,38 @@ def load_test(request):
         for line in test_text.split('\n'):
             line = line.lstrip()
             if state == BEFORE:
-                result = re.match(r'^(\d+)\. (.*)$', line)
+                print('BEFORE')
+                yesno_answer = 0
+                choice = None
+                result = re.match(r'^\s*([+-12345абвгдАБВГД]*)\s*(\d+)\. (.*)$', line)
                 if result:
+                    answer = result.group(1)
+                    if answer:
+                        print(result.group(1))
+                        if answer == '+':
+                            yesno_answer = 1
+                            print(1)
+                        if answer == '-':
+                            yesno_answer = 2
+                            print(2)
+                        if answer in '1аА':
+                            choice = 1
+                        if answer in '2бБ':
+                            choice = 2
+                        if answer in '3вВ':
+                            choice = 3
+                        if answer in '4гГ':
+                            choice = 4
+                        if answer in '5дД':
+                            choice = 5
                     state = IN_TASK
-                    problem_number = int(result.group(1)) or (problem_number + 1)
-                    text = result.group(2)
+                    problem_number = int(result.group(2)) or (problem_number + 1)
+                    text = result.group(3)
             elif state == IN_TASK:
-                if problem_type != 1 and line.startswith("а)") or line.startswith("б)") or line.startswith("в)") or line.startswith("г)") or line.startswith("А)") or line.startswith("Б)") or line.startswith("В)") or line.startswith("Г)")  or line.startswith("+"):
-                    problem = Problem(task=text, problem_type=3, yesno_answer=0)
+                print('IN_TASK type:', problem_type, line)
+                if problem_type != 1 and (line.startswith("а)") or line.startswith("б)") or line.startswith("в)") or line.startswith("г)") or line.startswith("А)") or line.startswith("Б)") or line.startswith("В)") or line.startswith("Г)")  or line.startswith("+")):
+                    print('Not type 1', problem_type)
+                    problem = Problem(task=text, problem_type=3, yesno_answer=yesno_answer)
                     problem.save()
                     if request.POST['topic_id']:
                         problem.topics.add(topic_id)
@@ -401,8 +425,9 @@ def load_test(request):
                     else:
                         variant_text = line[3:]
                         variant_order = (ord(line[0].lower()) - ord('a')) + 1
-                elif problem_type == 1 and line == "":
-                    problem = Problem(task=text, problem_type=1, yesno_answer=0)
+                elif problem_type == 1 and (line=="" or re.match(r'^\s*$', line) or re.match(r'^\s*([+-12345абвгдАБВГД]*)\s*(\d+)\. (.*)$', line)):
+                    print('IN YES/NO - END')
+                    problem = Problem(task=text, problem_type=1, yesno_answer=yesno_answer)
                     problem.save()
                     if request.POST['topic_id']:
                         problem.topics.add(topic_id)
@@ -413,8 +438,10 @@ def load_test(request):
                     text = None
                     state = BEFORE
                 else:
+                    print('append:', line, '$')
                     text = text + line
             elif problem_type != 1 and state == IN_VARIANT:
+                print('IN VARIANT', line, "problem type:", problem_type, "$")
                 result = re.match(r'^(\d+)\. (.*)$', line)
                 if line.startswith("a)") or line.startswith("б)") or line.startswith("в)") or line.startswith(
                     "г)") or line.startswith("А)") or line.startswith("Б)") or line.startswith("В)") or line.startswith(
