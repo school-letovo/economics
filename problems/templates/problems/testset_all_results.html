@@ -1,31 +1,40 @@
-<table border="1">
-    <thead>
-        <tr>
-            <th></th>
-            {% for problem in problems %}
-                <th>#{{ problem.id }}.
-                     {% if problem.name %}
-                        {{ problem.name }}
-                     {% endif %}
-                </th>
-            {% endfor %}
-            <th>Итог</th>
-        </tr>
-        {% for result in results %}
+{% extends "problems/sb/base.html" %}
+{% block content %}
+    <table border="1">
+        <thead>
             <tr>
-            {% for item in result %}
-                <td>{% if item is True %}
-                        +
-                    {% elif item is None %}
-                        &nbsp;
-                    {% elif item is False %}
-                        -
-                    {% else %}
-                        {{ item }}
-                    {% endif %}
-                </td>
-            {% endfor %}
+                <th></th>
+                {% for problem in problems %}
+                    <th><a href="#problem-{{ problem.id }}">
+                            {% if problem.name %}
+                                 #{{ problem.id }}. {{ problem.name }}
+                            {% else %}
+                                 #{{ problem.id }}
+                            {% endif %}
+                        </a>
+                    </th>
+                {% endfor %}
+                <th>Итог</th>
             </tr>
-        {% endfor %}
-    </thead>
-</table>
+            {% for result in results %}
+                <tr>
+                {% for item in result %}
+                    <td>{% if item is True %}
+                            +
+                        {% elif item is None %}
+                            &nbsp;
+                        {% elif item is False %}
+                            -
+                        {% else %}
+                            {{ item }}
+                        {% endif %}
+                    </td>
+                {% endfor %}
+                </tr>
+            {% endfor %}
+        </thead>
+    </table>
+    {% for problem in problems %}
+        {% include 'problems/problem.html' %}
+    {% endfor %}
+{% endblock %}

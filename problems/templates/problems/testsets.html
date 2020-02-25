@@ -1,6 +1,6 @@
 <div class="alert alert-primary" role="alert">
     <p><b>Тесты:</b></p>
     {% for testset in testsets %}
-    <p><a href="{% url 'testset_result_all' testset.id%}">{{ testset.name }}</a></li></p>
+    <p><input type="checkbox" name="testset" value="{{ testset.id }}"> <a href="{% url 'testset_result_all' testset.id%}">{{ testset.name }}</a></li></p>
     {% endfor %}
 </div>

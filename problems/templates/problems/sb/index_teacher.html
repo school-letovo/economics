@@ -102,14 +102,19 @@
                     {% include 'problems/testsets.html' %}
                 </div>
                 <div class="alert alert-primary" role="alert">
-                    <b>Назначить тесты ученикам</b>
-                    <br><br>Название:
+                    <b>Создать новый тест из выбранных задач</b>
+                    <br><br>Название теста:
                     <input type="text" name="name">&nbsp;&nbsp;&nbsp;
-                    <br>Срок сдачи:<input type="date" name="date_test_deadline">&nbsp;&nbsp;&nbsp;
-                    <input type="submit" name="submit" value="Создать и назначить тест">
+                    <input type="submit" name="submit" value="Создать тест">
                 </div>
                 <div class="alert alert-primary" role="alert">
-                    <b>Назначить задачи ученикам</b>
+                    <b>Назначить выбранные тесты выбранным ученикам/группам</b>
+                    <br><br>Срок сдачи:
+                    <input type="date" name="date_deadline">&nbsp;&nbsp;&nbsp;
+                    <input type="submit" name="submit" value="Назначить тесты">
+                </div>
+                <div class="alert alert-primary" role="alert">
+                    <b>Назначить выбранные задачи выбранным ученикам/группам</b>
                     <br><br>Срок сдачи:
                     <input type="date" name="date_deadline">&nbsp;&nbsp;&nbsp;
                     <input type="submit" name="submit" value="Назначить задачи">

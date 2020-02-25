@@ -11,7 +11,7 @@
 <div class="problem">
     <div class="card shadow mb-4">
         <div class="problem-header">
-            <a class="d-block card-header py-3" role="button" aria-expanded="true" aria-controls="collapse">
+            <a name="problem-{{ problem.id }}" class="d-block card-header py-3" role="button" aria-expanded="true" aria-controls="collapse">
                     <h6 class="m-0 font-weight-bold text-primary">
                         {% if 'teacher' in user.groups.all.0.name %}
                             <div class="problem-checkbox">
@@ -19,11 +19,11 @@
                             </div>
                         {% endif %}
                         <div class="problem-id">
-                            #{{ problem.id }}.&nbsp;
+                            #{{ problem.id }}
                         </div>
                         {% if problem.name %}
                             <div class="problem-name">
-                                {{ problem.name }}&nbsp;
+                                .&nbsp;{{ problem.name }}&nbsp;
                             </div>
                         {% endif %}
                     </h6>

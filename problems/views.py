@@ -76,25 +76,29 @@ def assign(request):
                     assign_task = Assignment(person=student, problem=Problem.objects.get(id=int(problem)),
                                              date_deadline=date_deadline, assigned_by=request.user).save()
         return redirect('index')
-    else:
-        if request.POST['date_deadline']:
-            date_test_deadline = datetime.strptime(request.POST['date_deadline'], "%Y-%m-%d")
-        else:
-            date_test_deadline = None
+
+    elif request.POST['submit'] == 'Создать тест':
         # create TestSet
         test_set = TestSet(name=request.POST["name"])
         test_set.save()
         for problem in request.POST.getlist('problem'):
             test_set.problems.add(Problem.objects.get(id=int(problem)))
 
+    elif request.POST['submit'] == 'Назначить тесты':
+        if request.POST['date_deadline']:
+            date_test_deadline = datetime.strptime(request.POST['date_deadline'], "%Y-%m-%d")
+        else:
+            date_test_deadline = None
         # create AssignTestSet
-        for student in request.POST.getlist('student'):
-            TestSetAssignment(person=User.objects.get(id=int(student)), test_set=test_set,
+        for test_set_id in request.POST.getlist('testset'):
+            test_set = TestSet.objects.get(id=int(test_set_id))
+            for student in request.POST.getlist('student'):
+                TestSetAssignment(person=User.objects.get(id=int(student)), test_set=test_set,
                               date_deadline=date_test_deadline,
                               assigned_by=request.user
                               ).save()
 
-        return redirect('index')
+    return redirect('index')
 
 
 def clean(string):
@@ -516,7 +520,7 @@ def testset_all_results(request, testset_pk):
 
     for student_id in students:
         student = User.objects.get(pk=student_id)
-        results.append([student.last_name])
+        results.append(["{} {}".format(student.last_name, student.first_name)])
         score = 0
         for problem in problem_list:
             submits = TestSubmit.objects.filter(problem=problem, assignment__person=student)
