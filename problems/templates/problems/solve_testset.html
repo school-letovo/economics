@@ -1,11 +1,16 @@
 {% extends "problems/sb/base.html" %}
 {% block content %}
-   <form method="POST" action="{% url 'check_testset' %}">
+    {% if assigned.date_deadline %}
+        <div class="deadline">
+            Срок сдачи: {{ assigned.date_deadline }}
+        </div>
+    {% endif %}
+    <form method="POST" action="{% url 'check_testset' %}">
        {% csrf_token %}
        <input type="hidden" name="assigned_id" value="{{ assigned.id}}"></input>
        {% for problem in assigned_tests %}
             {% include 'problems/problem.html' %}
        {% endfor %}
        <p><input type="submit" value="Сдать"></p>
-   </form>
+    </form>
 {% endblock %}

@@ -18,13 +18,15 @@
                                  <input type="checkbox" name="problem" class="checkbox-check" value="{{ problem.id }}">
                             </div>
                         {% endif %}
-                        <div class="problem-id">
-                            #{{ problem.id }}
-                        </div>
-                        {% if problem.name %}
-                            <div class="problem-name">
-                                .&nbsp;{{ problem.name }}&nbsp;
+                        <nobr>
+                            <div class="problem-id">
+                                #{{ problem.id }}
                             </div>
+                            {% if problem.name %}
+                                <div class="problem-name">
+                                    . {{ problem.name }}&nbsp;
+                                </div>
+                        </nobr>
                         {% endif %}
                     </h6>
                     {% if problem.assignment %}

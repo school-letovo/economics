@@ -85,8 +85,8 @@ def assign(request):
             test_set.problems.add(Problem.objects.get(id=int(problem)))
 
     elif request.POST['submit'] == 'Назначить тесты':
-        if request.POST['date_deadline']:
-            date_test_deadline = datetime.strptime(request.POST['date_deadline'], "%Y-%m-%d")
+        if request.POST['date_test_deadline']:
+            date_test_deadline = datetime.strptime(request.POST['date_test_deadline'], "%Y-%m-%d")
         else:
             date_test_deadline = None
         # create AssignTestSet
