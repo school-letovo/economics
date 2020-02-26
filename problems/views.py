@@ -371,12 +371,12 @@ def load_test(request):
     variant_text = None
     economics = Topic.objects.get(pk=TOPIC_ROOT)
     if request.POST:
-        source_id = request.POST['source_id']
+        source_id = int(request.POST['source_id'])
         test_text = request.POST['test_text']
         parent_source = Source.objects.get(id=source_id)
         problem_type = int(request.POST["problem_type"])
         if request.POST['topic_id']:
-            topic_id = request.POST['topic_id']
+            topic_id = int(request.POST['topic_id'])
             parent_topic = Topic.objects.get(id=topic_id)
 
         for line in test_text.split('\n'):
@@ -412,9 +412,10 @@ def load_test(request):
                     text = result.group(3)
             elif state == IN_TASK:
                 print('IN_TASK type:', problem_type, line)
-                if problem_type != 1 and (line.startswith("а)") or line.startswith("б)") or line.startswith("в)") or line.startswith("г)") or line.startswith("А)") or line.startswith("Б)") or line.startswith("В)") or line.startswith("Г)")  or line.startswith("+")):
+                if problem_type != 1 and (line.startswith("а)") or line.startswith("б)") or line.startswith("в)") or line.startswith("г)") or line.startswith("А)") or line.startswith("Б)") or line.startswith("В)") or line.startswith("Г)")  or line.startswith("+")
+                                                                or line.startswith("1.") or line.startswith("2.") or line.startswith("3.") or line.startswith("4.") or line.startswith("5.")):
                     print('Not type 1', problem_type)
-                    problem = Problem(task=text, problem_type=3, yesno_answer=yesno_answer)
+                    problem = Problem(task=text, problem_type=problem_type, yesno_answer=yesno_answer)
                     problem.save()
                     if request.POST['topic_id']:
                         problem.topics.add(topic_id)
@@ -426,10 +427,16 @@ def load_test(request):
                     right = line.startswith('+')
                     if line.startswith('+'):
                         variant_text = line[4:]
-                        variant_order = (ord(line[1].lower()) - ord('a')) + 1
+                        if line[1] in '12345':
+                            variant_order = int(line[1])
+                        else:
+                            variant_order = (ord(line[1].lower()) - ord('a')) + 1
                     else:
                         variant_text = line[3:]
-                        variant_order = (ord(line[0].lower()) - ord('a')) + 1
+                        if line[0] in '12345':
+                            variant_order = int(line[0])
+                        else:
+                            variant_order = (ord(line[0].lower()) - ord('a')) + 1
                 elif problem_type == 1 and (line=="" or re.match(r'^\s*$', line) or re.match(r'^\s*([+-12345абвгдАБВГД]*)\s*(\d+)\. (.*)$', line)):
                     print('IN YES/NO - END')
                     problem = Problem(task=text, problem_type=1, yesno_answer=yesno_answer)
@@ -448,9 +455,11 @@ def load_test(request):
             elif problem_type != 1 and state == IN_VARIANT:
                 print('IN VARIANT', line, "problem type:", problem_type, "$")
                 result = re.match(r'^(\d+)\. (.*)$', line)
-                if line.startswith("a)") or line.startswith("б)") or line.startswith("в)") or line.startswith(
-                    "г)") or line.startswith("д)") or line.startswith("А)") or line.startswith("Б)") or line.startswith("В)") or line.startswith(
-                    "Г)") or line.startswith("Д)") or line.startswith("+"):
+                if problem_type != 1 and (
+                        line.startswith("а)") or line.startswith("б)") or line.startswith("в)") or line.startswith(
+                        "г)") or line.startswith("А)") or line.startswith("Б)") or line.startswith(
+                        "В)") or line.startswith("Г)") or line.startswith("+")
+                        or line.startswith("1.") or line.startswith("2.") or line.startswith("3.") or line.startswith("4.") or line.startswith("5.")):
                     variant_counter += 1
                     if choice:  # right answer before task number
                         if variant_counter == choice:
@@ -464,10 +473,16 @@ def load_test(request):
                     right = line.startswith('+')
                     if right:
                         variant_text = line[4:]
-                        variant_order = (ord(line[1].lower()) - ord('a')) + 1
+                        if line[1] in '12345':
+                            variant_order = int(line[1])
+                        else:
+                            variant_order = (ord(line[1].lower()) - ord('a')) + 1
                     else:
                         variant_text = line[3:]
-                        variant_order = (ord(line[0].lower()) - ord('a')) + 1
+                        if line[0] in '12345':
+                            variant_order = int(line[0])
+                        else:
+                            variant_order = (ord(line[0].lower()) - ord('a')) + 1
                 elif line=="":
                     variant_counter += 1
                     if choice: # right answer before task number
