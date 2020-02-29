@@ -386,7 +386,7 @@ def load_test(request):
                 yesno_answer = 0
                 choice = None
                 variant_counter = 0
-                result = re.match(r'^\s*([+-12345абвгдАБВГД]*)\s*(\d+)\. (.*)$', line)
+                result = re.match(r'^\s*([+-12345абвгдАБВГД]*)\s*(\d+)\.\s(.*)$', line)
                 if result:
                     answer = result.group(1)
                     if answer:
@@ -438,7 +438,7 @@ def load_test(request):
                             variant_order = int(line[0])
                         else:
                             variant_order = (ord(line[0].lower()) - ord('a')) + 1
-                elif problem_type == 1 and (line=="" or re.match(r'^\s*$', line) or re.match(r'^\s*([+-12345абвгдАБВГД]*)\s*(\d+)\. (.*)$', line)):
+                elif problem_type == 1 and (line=="" or re.match(r'^\s*$', line) or re.match(r'^\s*([+-12345абвгдАБВГД]*)\s*(\d+)\.\s(.*)$', line)):
                     print('IN YES/NO - END')
                     problem = Problem(task=text, problem_type=1, yesno_answer=yesno_answer)
                     problem.save()
