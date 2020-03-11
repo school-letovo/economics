@@ -147,6 +147,8 @@
   <script src="{% static 'problems/sb/js/demo/chart-pie-demo.js' %}"></script>
   -->
 
+  <script src="{% static 'problems/script.js' %}"></script>
+
 <script>
 var counter = 0;
 var checkboxes = document.querySelectorAll('.checkbox-check');
@@ -165,6 +167,8 @@ var check = function (checkbox) {
 var divs = document.querySelector('.counter');
 var clear = document.createElement('button');
 var span = document.createElement('span');
+var selectAll = document.createElement('button');
+selectAll.textContent = "Выбрать всё";
 clear.textContent = "Очистить";
 
 for (var i = 0; i < checkboxes.length; i++) {
@@ -173,6 +177,7 @@ for (var i = 0; i < checkboxes.length; i++) {
 
 divs.appendChild(span);
 divs.appendChild(clear);
+divs.appendChild(selectAll);
 span.textContent = "0";
 
 clear.onclick = function(evt) {
@@ -185,6 +190,17 @@ clear.onclick = function(evt) {
 	counter = 0;
 	span.textContent = counter;
 }
+
+selectAll.addEventListener('click' , function(evt) {
+	evt.preventDefault();
+
+	for (var i = 0; i < checkboxes.length; i++) {
+		checkboxes[i].checked = true;
+	}
+
+	counter = checkboxes.length;
+	span.textContent = counter;
+});
 </script>
 </body>
 

@@ -130,7 +130,7 @@
                 <div class="tab-content">
                   <div id="problems" class="tab-pane in active">
                         <div class="card shadow mb-4">
-                            <div class="card-body">
+                            <div class="card-body paginator">
                                 {% autoescape off %}
                                 {% include 'problems/problem_list.html'  with problems=problems%}
                                 {% endautoescape %}
@@ -139,7 +139,7 @@
                   </div>
                   <div id="tests" class="tab-pane fade">
                         <div class="card shadow mb-4">
-                            <div class="card-body">
+                            <div class="card-body paginator">
                                 {% autoescape off %}
                                 {% include 'problems/problem_list.html'  with problems=tests%}
                                 {% endautoescape %}
