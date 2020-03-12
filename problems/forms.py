@@ -43,7 +43,8 @@ def source_admin_tree(root):
     children = root.children.all()
     if children:
         for child in children:
-            result['children'].append(source_admin_tree(child))
+            if "адача" not in child.name:
+                result['children'].append(source_admin_tree(child))
 
     return result
 

@@ -105,7 +105,7 @@ class Source(models.Model):
             return self.name
 
     class Meta:
-        ordering = ['order']
+        ordering = ['id']
 
 
 STATUS_CHOICES = {
