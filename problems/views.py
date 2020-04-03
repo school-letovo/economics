@@ -2,9 +2,11 @@ from datetime import datetime
 import re
 
 from django.shortcuts import render, redirect
+from django.http import HttpResponse
 from django.contrib.auth.models import User, Group
 from django.views.generic.detail import DetailView
 from django.contrib.auth.hashers import make_password
+from django.core import serializers
 
 from economics.settings import TOPIC_ROOT, SOURCE_ROOT
 
@@ -553,9 +555,22 @@ def testset_all_results(request, testset_pk):
     return render(request, 'problems/testset_all_results.html', {'problems': problem_list, 'results':results})
 
 def test(request):
-    problem = Problem.objects.get(pk=23)
+    problem = Problem.objects.get(pk=223)
     #problem.submit = Submit.objects.get(pk=1)
-    problem.assignment = Assignment.objects.get(pk=149)
-    problem.assignment.form = SubmitForm(prefix=str(problem.assignment.id), problem=problem)
+    #problem.assignment = Assignment.objects.get(pk=149)
+    #problem.assignment.form = SubmitForm(prefix=str(problem.assignment.id), problem=problem)
 
-    return render(request, "problems/problem.html", {'problem': problem})
+    return render(request, "problems/test.html", {'problem': problem})
+
+def ajax_problems(request, start, amount, problem_type):
+    if request.user.groups.filter(name='teachers').exists():
+        # Teacher index
+        probs, tests, cases = filter_problems(request)
+        if problem_type == 'prob':
+            data = probs[start:start+amount]
+        elif problem_type == 'test':
+            data = tests[start:start+amount]
+        else:
+            data = cases[start:start+amount]
+
+        return render(request, 'problems/problem_list.html', {'problems':data})

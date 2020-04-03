@@ -5,6 +5,7 @@ from . import views
 urlpatterns = [
     # ex: /polls/
     path('', views.index, name='index'),
+    path('<str:problem_type>/<int:start>/<int:amount>', views.ajax_problems, name='ajax_problems'),
     path('assign', views.assign, name='assign'),
     path('submit', views.submit, name='submit'),
     path('save_verdict', views.save_verdict, name='save_verdict'),
