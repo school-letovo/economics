@@ -2,7 +2,8 @@ from datetime import datetime
 import re
 
 from django.shortcuts import render, redirect
-from django.http import HttpResponse
+from django.template.loader import render_to_string
+from django.http import HttpResponse, JsonResponse
 from django.contrib.auth.models import User, Group
 from django.views.generic.detail import DetailView
 from django.contrib.auth.hashers import make_password
@@ -568,9 +569,13 @@ def ajax_problems(request, start, amount, problem_type):
         probs, tests, cases = filter_problems(request)
         if problem_type == 'prob':
             data = probs[start:start+amount]
+            length = len(probs)
         elif problem_type == 'test':
             data = tests[start:start+amount]
-        else:
+            length = len(tests)
+        else: # problem_type == 'case'
             data = cases[start:start+amount]
-
-        return render(request, 'problems/problem_list.html', {'problems':data})
+            length = len(cases)
+        # print(render(request, 'problems/problem_list.html', {'problems':data}))
+        result = {'length':length, 'html':render_to_string('problems/problem_list.html', {'problems':data, 'request':request})}
+        return JsonResponse(result)
