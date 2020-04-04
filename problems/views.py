@@ -243,10 +243,13 @@ def tree2List(root, counter):
 
 
 
-def filter_problems(request):
+def filter_problems(request, problem_type=None):
     filter_topics = list(map(int, request.POST.getlist('topic'))) or [TOPIC_ROOT]
     filter_sources = list(map(int, request.POST.getlist('source'))) or [SOURCE_ROOT]
-    problems = Problem.objects.all()
+    if problem_type is None:
+        problems = Problem.objects.all()
+    else:
+        problems = Problem.objects.filter(problem_type__in=problem_type)
     probs, tests, cases = [], [], []
     for problem in problems:
         for source in problem.source_set.all():
@@ -257,9 +260,16 @@ def filter_problems(request):
                     while topic.id not in filter_topics and topic.id != TOPIC_ROOT:
                         topic = topic.parent
                     if topic.id in filter_topics:
-                        if problem.problem_type == 0:
+                        if problem_type is None:
+                            if problem.problem_type == 0:
+                                probs.append(problem)
+                            elif problem.problem_type == 4:
+                                cases.append(problem)
+                            else:
+                                tests.append(problem)
+                        elif problem_type == [0]:
                             probs.append(problem)
-                        elif problem.problem_type == 4:
+                        elif problem_type == [4]:
                             cases.append(problem)
                         else:
                             tests.append(problem)
@@ -566,15 +576,18 @@ def test(request):
 def ajax_problems(request, start, amount, problem_type):
     if request.user.groups.filter(name='teachers').exists():
         # Teacher index
-        probs, tests, cases = filter_problems(request)
         if problem_type == 'prob':
-            data = probs[start:start+amount]
+            probs, tests, cases = filter_problems(request, [0])
+            data = probs[start-1:start+amount-1]
             length = len(probs)
         elif problem_type == 'test':
-            data = tests[start:start+amount]
+            probs, tests, cases = filter_problems(request, [1, 2, 3])
+            data = tests[start-1:start+amount-1]
             length = len(tests)
         else: # problem_type == 'case'
-            data = cases[start:start+amount]
+            probs, tests, cases = filter_problems(request, [4])
+            data = cases[start-1:start+amount-1]
+            print(data)
             length = len(cases)
         # print(render(request, 'problems/problem_list.html', {'problems':data}))
         result = {'length':length, 'html':render_to_string('problems/problem_list.html', {'problems':data, 'request':request})}
