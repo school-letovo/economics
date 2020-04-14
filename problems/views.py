@@ -399,7 +399,7 @@ def load_test(request):
                 yesno_answer = 0
                 choice = None
                 variant_counter = 0
-                result = re.match(r'^\s*([+-12345абвгдАБВГД]*)\s*(\d+)\.\s(.*)$', line)
+                result = re.match(r'^\s*([\+\-абвгдАБВГД]*)\s*(\d+)\.\s(.*)$', line)
                 if result:
                     answer = result.group(1)
                     if answer:
@@ -421,12 +421,13 @@ def load_test(request):
                         if answer in '5дД':
                             choice = 5
                     state = IN_TASK
-                    problem_number = int(result.group(2)) or (problem_number + 1)
+                    problem_number = (problem_number + 1)           ### int(result.group(2)) or
                     text = result.group(3)
             elif state == IN_TASK:
                 print('IN_TASK type:', problem_type, line)
                 if problem_type != 1 and (line.startswith("а)") or line.startswith("б)") or line.startswith("в)") or line.startswith("г)") or line.startswith("д)") or line.startswith("А)") or line.startswith("Б)") or line.startswith("В)") or line.startswith("Г)")  or line.startswith("Д)")  or line.startswith("+")
                                                                 or line.startswith("1.") or line.startswith("2.") or line.startswith("3.") or line.startswith("4.") or line.startswith("5.")
+                                                                or line.startswith("а.") or line.startswith("б.") or line.startswith("в.") or line.startswith("г.") or line.startswith("д.")
                                                               or line.startswith("1)") or line.startswith("2)") or line.startswith("3)") or line.startswith("4)") or line.startswith("5)")):
                     print('Not type 1', problem_type)
                     problem = Problem(task=text, problem_type=problem_type, yesno_answer=yesno_answer)
@@ -451,7 +452,7 @@ def load_test(request):
                             variant_order = int(line[0])
                         else:
                             variant_order = (ord(line[0].lower()) - ord('a')) + 1
-                elif problem_type == 1 and (line=="" or re.match(r'^\s*$', line) or re.match(r'^\s*([+-12345абвгдАБВГД]*)\s*(\d+)\.\s(.*)$', line)):
+                elif problem_type == 1 and (line=="" or re.match(r'^\s*$', line) or re.match(r'^\s*([+-абвгдАБВГД]*)\s*(\d+)\.\s(.*)$', line)):
                     print('IN YES/NO - END')
                     problem = Problem(task=text, problem_type=1, yesno_answer=yesno_answer)
                     problem.save()
@@ -475,6 +476,7 @@ def load_test(request):
                         "д)") or line.startswith("А)") or line.startswith("Б)") or line.startswith(
                         "В)") or line.startswith("Г)") or line.startswith("Д)") or line.startswith("+")
                         or line.startswith("1.") or line.startswith("2.") or line.startswith("3.") or line.startswith("4.") or line.startswith("5.")
+                        or line.startswith("а.") or line.startswith("б.") or line.startswith("в.") or line.startswith("г.") or line.startswith("д.")
                         or line.startswith("1)") or line.startswith("2)") or line.startswith("3)") or line.startswith("4)") or line.startswith("5)")):
                     variant_counter += 1
                     if choice:  # right answer before task number
@@ -526,6 +528,7 @@ def load_test(request):
         return render(request, 'problems/load_test.html', {})
     else:
         return render(request, 'problems/load_test.html', {})
+
 
 def testset(request, pk):
     result = []
