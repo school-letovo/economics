@@ -1,4 +1,4 @@
-<ul>
+<ul class="domList">
     <li class="collapsible" style="list-style-type:none;"><nobr>{% if object_list.children %}<i class="fas fa-plus-square"></i>{% endif %}
         <input type="checkbox" name="{{ field }}" value="{{ object_list.object.id }}"> {{ object_list.object.name }}
         ({{ object_list.count }}) </nobr>
