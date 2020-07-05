@@ -99,9 +99,12 @@ class Source(models.Model):
     problem = models.ForeignKey(Problem, on_delete=models.CASCADE, blank=True, null=True)
 
     def __str__(self):
-        if self.parent:
-            return "{} - {}".format(self.parent, self.name)
-        else:
+        try: # recursion could raise error
+            if self.parent:
+                return "{} - {}".format(self.parent, self.name)
+            else:
+                return self.name
+        except:
             return self.name
 
     class Meta:
