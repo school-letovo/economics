@@ -581,15 +581,15 @@ def ajax_problems(request, start, amount, problem_type):
         # Teacher index
         if problem_type == 'prob':
             probs, tests, cases = filter_problems(request, [0])
-            data = probs[(start-1) * amount:start * amount +amount-1]
+            data = probs[(start-1) * amount:start * amount]
             length = len(probs)
         elif problem_type == 'test':
             probs, tests, cases = filter_problems(request, [1, 2, 3])
-            data = tests[(start-1) * amount:start * amount +amount-1]
+            data = tests[(start-1) * amount:start * amount]
             length = len(tests)
         else: # problem_type == 'case'
             probs, tests, cases = filter_problems(request, [4])
-            data = cases[(start-1) * amount:start * amount+amount-1]
+            data = cases[(start-1) * amount:start * amount]
             print(data)
             length = len(cases)
         # print(render(request, 'problems/problem_list.html', {'problems':data}))
