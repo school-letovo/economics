@@ -1,2 +1,2 @@
 # economics
-Economics problems for high-schoolstudents
+Economics problems for tudents
