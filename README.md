@@ -1,2 +1,3 @@
 # economics
-Economics problems for tudents
+Economics problems for students
+
