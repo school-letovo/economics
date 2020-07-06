@@ -1,3 +1,3 @@
 # economics
-Economics problems for students
+Economics lems for students
 
