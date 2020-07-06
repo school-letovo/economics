@@ -21,7 +21,7 @@ from .forms import SubmitForm, CheckForm
 def index(request):
     if request.user.groups.filter(name='teachers').exists():
         # Teacher index
-        probs, tests, cases = filter_problems(request)
+        # probs, tests, cases = filter_problems(request)
         students = User.objects.filter(groups__name='students')
         groups = Group.objects.all()
         topic = Topic.objects.get(id=TOPIC_ROOT)
@@ -30,9 +30,9 @@ def index(request):
         testsets = TestSet.objects.all()
         source_list = tree2List(source, count_problems_by_source())
         submits = Submit.objects.filter(assignment__assigned_by=request.user).filter(assignment__status=1)  # solution not checked
-        context = {'problems': probs,
-                   'tests': tests,
-                   'cases': cases,
+        context = {#'problems': probs,
+                   #'tests': tests,
+                   #'cases': cases,
                    'students': students,
                    'topic_list': topic_list,
                    'source_list': source_list,
