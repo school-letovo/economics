@@ -1,4 +1,5 @@
 var paginators = document.querySelectorAll(".paginator");
+var amounts = document.querySelectorAll('.paginator-amount');
 var SHOWN_PAGES = 10;
 var SHOWN_NUMBER = 20;
 
@@ -148,12 +149,13 @@ var filterRecreate = function (paginator,resistor,SHOWN_NUMBER) {
         });
 };
 
-var createPaginator = async function (paginator,SHOWN_NUMBER) {
+var createPaginator = async function (paginator,SHOWN_NUMBER,amount) {
     await sendRequest('GET', createUrl(paginator.id,1,SHOWN_NUMBER))
         .then(data => {
             data = JSON.parse(data);
             paginator.innerHTML = data['html'];
             var curLen = data['length'];
+            amount.textContent = amount.textContent+curLen+')';
             var len = 0;
 	        if (curLen % SHOWN_NUMBER !== 0) {
                 len = Math.floor(curLen / SHOWN_NUMBER) + 1;
@@ -231,12 +233,12 @@ var createPaginator = async function (paginator,SHOWN_NUMBER) {
         });
 };
 
-var startFunction = async function(paginators) {
+var startFunction = async function(paginators,amounts) {
     for (var i = 0; i < paginators.length; i++) {
-        await createPaginator(paginators[i],SHOWN_NUMBER);
+        await createPaginator(paginators[i],SHOWN_NUMBER,amounts[i]);
     }
 };
 
 window.onload = function () {
-    startFunction(paginators);
+    startFunction(paginators,amounts);
 };
