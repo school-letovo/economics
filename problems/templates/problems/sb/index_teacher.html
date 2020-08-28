@@ -76,13 +76,17 @@
             <div class="col-md-auto">
                 <h4>ТЕМЫ:</h4>
                 {% with field="topic" %}
+                {% with checkedlist=checked_topics %}
                 {% include 'problems/object_level.html' with object_list=topic_list %}
+                {% endwith %}
                 {% endwith %}
             </div>
             <div class="col-md-auto">
                 <h4>ИСТОЧНИКИ:</h4>
                 {% with field='source' %}
+                {% with checkedlist=checked_sources %}
                 {% include 'problems/object_level.html' with object_list=source_list %}
+                {% endwith %}
                 {% endwith %}
             </div>
         </div>

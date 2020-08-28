@@ -26,6 +26,8 @@ def index(request):
         groups = Group.objects.all()
         topic = Topic.objects.get(id=TOPIC_ROOT)
         topic_list = tree2List(topic, count_problems_by_topic())
+        checked_topics = list(map(int, request.POST.getlist('topic'))) or [TOPIC_ROOT]
+        checked_sources = list(map(int, request.POST.getlist('source'))) or [TOPIC_ROOT]
         source = Source.objects.get(id=SOURCE_ROOT)
         testsets = TestSet.objects.all()
         source_list = tree2List(source, count_problems_by_source())
@@ -39,7 +41,9 @@ def index(request):
                    'submits': submits,
                    'groups': groups,
                    'testsets': testsets,
-                   }
+                   'checked_topics': checked_topics,
+                   'checked_sources': checked_sources,
+        }
         return render(request, 'problems/sb/index_teacher.html', context)
 
     elif request.user.groups.filter(name='students').exists():
@@ -246,7 +250,6 @@ def tree2List(root, counter):
 def filter_problems(request, problem_type=None):
     filter_topics = list(map(int, request.POST.getlist('topic'))) or [TOPIC_ROOT]
     filter_sources = list(map(int, request.POST.getlist('source'))) or [SOURCE_ROOT]
-    print(filter_topics, filter_sources)
     if problem_type is None:
         problems = Problem.objects.all()
     else:
@@ -578,7 +581,6 @@ def test(request):
     return render(request, "problems/test.html", {'problem': problem})
 
 def ajax_problems(request, start, amount, problem_type):
-    print(request.POST)
     if request.user.groups.filter(name='teachers').exists():
         # Teacher index
         if problem_type == 'prob':
