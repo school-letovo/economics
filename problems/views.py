@@ -592,6 +592,5 @@ def ajax_problems(request, start, amount, problem_type):
             data = cases[(start-1) * amount:start * amount]
             print(data)
             length = len(cases)
-        # print(render(request, 'problems/problem_list.html', {'problems':data}))
         result = {'length':length, 'html':render_to_string('problems/problem_list.html', {'problems':data, 'request':request})}
         return JsonResponse(result)

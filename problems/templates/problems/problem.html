@@ -4,7 +4,7 @@
         <div class="problem-header">
             <a name="problem-{{ problem.id }}" class="d-block card-header py-3" role="button" aria-expanded="true" aria-controls="collapse">
                     <h6 class="m-0 font-weight-bold text-primary">
-                        {% if 'teacher' in user.groups.all.0.name %}
+                        {% if 'teacher' in request.user.groups.all.0.name %}
                             <div class="problem-checkbox">
                                  <input type="checkbox" name="problem" class="checkbox-check" value="{{ problem.id }}">
                             </div>
