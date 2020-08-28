@@ -246,6 +246,7 @@ def tree2List(root, counter):
 def filter_problems(request, problem_type=None):
     filter_topics = list(map(int, request.POST.getlist('topic'))) or [TOPIC_ROOT]
     filter_sources = list(map(int, request.POST.getlist('source'))) or [SOURCE_ROOT]
+    print(filter_topics, filter_sources)
     if problem_type is None:
         problems = Problem.objects.all()
     else:
@@ -577,6 +578,7 @@ def test(request):
     return render(request, "problems/test.html", {'problem': problem})
 
 def ajax_problems(request, start, amount, problem_type):
+    print(request.POST)
     if request.user.groups.filter(name='teachers').exists():
         # Teacher index
         if problem_type == 'prob':
@@ -590,7 +592,6 @@ def ajax_problems(request, start, amount, problem_type):
         else: # problem_type == 'case'
             probs, tests, cases = filter_problems(request, [4])
             data = cases[(start-1) * amount:start * amount]
-            print(data)
             length = len(cases)
         result = {'length':length, 'html':render_to_string('problems/problem_list.html', {'problems':data, 'request':request})}
         return JsonResponse(result)

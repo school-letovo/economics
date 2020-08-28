@@ -3,7 +3,7 @@ var amounts = document.querySelectorAll('.paginator-amount');
 var SHOWN_PAGES = 10;
 var SHOWN_NUMBER = 20;
 
-var sendRequest = function(method , url) {
+var sendRequest = function(method , url, data) {
     return new Promise((resolve, reject) => {
         var xhr = new XMLHttpRequest();
 
@@ -23,8 +23,7 @@ var sendRequest = function(method , url) {
         xhr.onerror = () => {
             reject(xhr.response);
         };
-
-        xhr.send()
+        xhr.send(data);
     });
 };
 
@@ -40,7 +39,8 @@ var makeEl = function (tag, classX, txt = '') {
 };
 
 var recreatePaginator = function (curBtn,pag,numList,SHOWN_NUMBER) {
-    sendRequest('GET', createUrl(pag.id,curBtn,SHOWN_NUMBER))
+    let fdata = new FormData(document.getElementById('filters'));
+    sendRequest('POST', createUrl(pag.id,curBtn,SHOWN_NUMBER), fdata)
         .then(data => {
             data = JSON.parse(data);
             pag.innerHTML = data['html'];
@@ -68,7 +68,8 @@ var recreatePaginator = function (curBtn,pag,numList,SHOWN_NUMBER) {
 };
 
 var filterRecreate = function (paginator,resistor,SHOWN_NUMBER) {
-    sendRequest('GET', createUrl(paginator.id,1,SHOWN_NUMBER))
+    let fdata = new FormData(document.getElementById('filters'));
+    sendRequest('POST', createUrl(paginator.id,1,SHOWN_NUMBER), fdata)
         .then(data => {
             data = JSON.parse(data);
             paginator.innerHTML = data['html'];
@@ -150,7 +151,8 @@ var filterRecreate = function (paginator,resistor,SHOWN_NUMBER) {
 };
 
 var createPaginator = async function (paginator,SHOWN_NUMBER,amount) {
-    await sendRequest('GET', createUrl(paginator.id,1,SHOWN_NUMBER))
+        let fdata = new FormData(document.getElementById('filters'));
+        await sendRequest('POST', createUrl(paginator.id,1,SHOWN_NUMBER), fdata)
         .then(data => {
             data = JSON.parse(data);
             paginator.innerHTML = data['html'];
