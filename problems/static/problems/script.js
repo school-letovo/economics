@@ -51,6 +51,62 @@ var recreatePaginator = function (curBtn,pag,numList,SHOWN_NUMBER) {
             } else {
                 len = curLen / SHOWN_NUMBER;
             }
+
+	        var lastDivs = document.querySelector('.counter');
+            lastDivs.innerHTML = "";
+	        var counter = 0;
+            var checkboxes = document.querySelectorAll('.checkbox-check');
+            console.log(checkboxes);
+
+            var check = function (checkbox) {
+	            checkbox.onclick = function() {
+		            if (checkbox.checked) {
+			            counter++;
+		            } else {
+			            counter--;
+		            }
+		            span.textContent = counter;
+	            }
+            }
+
+            var divs = document.querySelector('.counter');
+            var clear = document.createElement('button');
+            var span = document.createElement('span');
+            var selectAll = document.createElement('button');
+            selectAll.textContent = "Выбрать всё";
+            clear.textContent = "Очистить";
+
+            for (var i = 0; i < checkboxes.length; i++) {
+	            check(checkboxes[i]);
+            }
+
+            divs.appendChild(span);
+            divs.appendChild(clear);
+            divs.appendChild(selectAll);
+            span.textContent = "0";
+
+            clear.onclick = function(evt) {
+	            evt.preventDefault();
+
+	            for (var i = 0; i < checkboxes.length; i++) {
+		            checkboxes[i].checked = false;
+	            }
+
+	            counter = 0;
+	            span.textContent = counter;
+            }
+
+            selectAll.addEventListener('click' , function(evt) {
+	            evt.preventDefault();
+
+	            for (var i = 0; i < checkboxes.length; i++) {
+		            checkboxes[i].checked = true;
+	            }
+
+	            counter = checkboxes.length;
+	            span.textContent = counter;
+            });
+
             numList.innerHTML = "";
             for (var i = Math.max(curBtn - SHOWN_PAGES/2 , 1); i <= Math.min(parseInt(curBtn) + SHOWN_PAGES/2 , len) ; i++) {
                 var newBtn = makeEl('button', 'pgn-btn', i);
@@ -81,6 +137,62 @@ var filterRecreate = function (paginator,resistor,SHOWN_NUMBER) {
             } else {
                 len = curLen / SHOWN_NUMBER;
             }
+
+	        var lastDivs = document.querySelector('.counter');
+            lastDivs.innerHTML = "";
+	        var counter = 0;
+            var checkboxes = document.querySelectorAll('.checkbox-check');
+            console.log(checkboxes);
+
+            var check = function (checkbox) {
+	            checkbox.onclick = function() {
+		            if (checkbox.checked) {
+			            counter++;
+		            } else {
+			            counter--;
+		            }
+		            span.textContent = counter;
+	            }
+            }
+
+            var divs = document.querySelector('.counter');
+            var clear = document.createElement('button');
+            var span = document.createElement('span');
+            var selectAll = document.createElement('button');
+            selectAll.textContent = "Выбрать всё";
+            clear.textContent = "Очистить";
+
+            for (var i = 0; i < checkboxes.length; i++) {
+	            check(checkboxes[i]);
+            }
+
+            divs.appendChild(span);
+            divs.appendChild(clear);
+            divs.appendChild(selectAll);
+            span.textContent = "0";
+
+            clear.onclick = function(evt) {
+	            evt.preventDefault();
+
+	            for (var i = 0; i < checkboxes.length; i++) {
+		            checkboxes[i].checked = false;
+	            }
+
+	            counter = 0;
+	            span.textContent = counter;
+            }
+
+            selectAll.addEventListener('click' , function(evt) {
+	            evt.preventDefault();
+
+	            for (var i = 0; i < checkboxes.length; i++) {
+		            checkboxes[i].checked = true;
+	            }
+
+	            counter = checkboxes.length;
+	            span.textContent = counter;
+            });
+
             var btnList = makeEl('div', 'inline');
             var numList = makeEl('div','inline');
             var filters = makeEl('div', 'inline');
@@ -239,6 +351,58 @@ var startFunction = async function(paginators,amounts) {
     for (var i = 0; i < paginators.length; i++) {
         await createPaginator(paginators[i],SHOWN_NUMBER,amounts[i]);
     }
+    var counter = 0;
+    var checkboxes = document.querySelectorAll('.checkbox-check');
+    console.log(checkboxes);
+
+    var check = function (checkbox) {
+        checkbox.onclick = function() {
+		    if (checkbox.checked) {
+			    counter++;
+		    } else {
+			    counter--;
+		    }
+		    span.textContent = counter;
+	    }
+    }
+
+    var divs = document.querySelector('.counter');
+    var clear = document.createElement('button');
+    var span = document.createElement('span');
+    var selectAll = document.createElement('button');
+    selectAll.textContent = "Выбрать всё";
+    clear.textContent = "Очистить";
+
+    for (var i = 0; i < checkboxes.length; i++) {
+	    check(checkboxes[i]);
+    }
+
+    divs.appendChild(span);
+    divs.appendChild(clear);
+    divs.appendChild(selectAll);
+    span.textContent = "0";
+
+    clear.onclick = function(evt) {
+	    evt.preventDefault();
+
+	    for (var i = 0; i < checkboxes.length; i++) {
+		    checkboxes[i].checked = false;
+	    }
+
+	    counter = 0;
+	    span.textContent = counter;
+    }
+
+    selectAll.addEventListener('click' , function(evt) {
+	    evt.preventDefault();
+
+	    for (var i = 0; i < checkboxes.length; i++) {
+		    checkboxes[i].checked = true;
+	    }
+
+	    counter = checkboxes.length;
+	    span.textContent = counter;
+    });
 };
 
 window.onload = function () {
