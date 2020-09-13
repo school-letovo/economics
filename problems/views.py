@@ -567,13 +567,15 @@ def testset_all_results(request, testset_pk):
         score = 0
         for problem in problem_list:
             submits = TestSubmit.objects.filter(problem=problem, assignment__person=student)
+            mark = None
             for submit in submits:
                 if submit.answer_autoverdict is True:
-                    results[-1].append(True)
+                    mark = True
                     score += 1
                     break
-            else:
-                results[-1].append(False)
+                elif mark is None:
+                    mark = False
+            results[-1].append(mark)
         results[-1].append(score)
     return render(request, 'problems/testset_all_results.html', {'problems': problem_list, 'results':results})
 
