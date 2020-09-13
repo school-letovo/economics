@@ -27,7 +27,7 @@ def index(request):
         topic = Topic.objects.get(id=TOPIC_ROOT)
         topic_list = tree2List(topic, count_problems_by_topic())
         checked_topics = list(map(int, request.POST.getlist('topic'))) or [TOPIC_ROOT]
-        checked_sources = list(map(int, request.POST.getlist('source'))) or [TOPIC_ROOT]
+        checked_sources = list(map(int, request.POST.getlist('source'))) or [SOURCE_ROOT]
         source = Source.objects.get(id=SOURCE_ROOT)
         testsets = TestSet.objects.all()
         source_list = tree2List(source, count_problems_by_source())
