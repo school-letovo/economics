@@ -563,7 +563,7 @@ def testset_all_results(request, testset_pk):
 
     for student_id in students:
         student = User.objects.get(pk=student_id)
-        results.append(["{} {}".format(student.last_name, student.first_name)])
+        results.append([student])
         score = 0
         for problem in problem_list:
             submits = TestSubmit.objects.filter(problem=problem, assignment__person=student)
@@ -577,7 +577,7 @@ def testset_all_results(request, testset_pk):
                     mark = False
             results[-1].append(mark)
         results[-1].append(score)
-    return render(request, 'problems/testset_all_results.html', {'problems': problem_list, 'results':results})
+    return render(request, 'problems/testset_all_results.html', {'problems': problem_list, 'results':results, 'testset_pk': testset_pk})
 
 def test(request):
     problem = Problem.objects.get(pk=223)
@@ -585,7 +585,6 @@ def test(request):
     #problem.assignment = Assignment.objects.get(pk=149)
     #problem.assignment.form = SubmitForm(prefix=str(problem.assignment.id), problem=problem)
 
-    return render(request, "problems/test.html", {'problem': problem})
 
 def ajax_problems(request, start, amount, problem_type):
     if request.user.groups.filter(name='teachers').exists():
@@ -604,3 +603,16 @@ def ajax_problems(request, start, amount, problem_type):
             length = len(cases)
         result = {'length':length, 'html':render_to_string('problems/problem_list.html', {'problems':data, 'request':request})}
         return JsonResponse(result)
+
+def failed_tests(request, student_id, testset_pk):
+    testset = TestSet.objects.get(pk=testset_pk)
+    student = User.objects.get(pk=student_id)
+    problem_list = testset.problems.all()
+    answer = []
+    for problem in problem_list:
+        negative_result = TestSubmit.objects.filter(assignment__person=student, problem=problem, answer_autoverdict=False).count()
+        positive_result = TestSubmit.objects.filter(assignment__person=student, problem=problem, answer_autoverdict=True).count()
+        if positive_result == 0 and negative_result > 0:
+            answer.append(problem)
+    print(answer)
+    return render(request, "problems/testset_result.html", {'tests': answer})

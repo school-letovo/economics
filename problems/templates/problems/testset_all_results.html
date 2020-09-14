@@ -19,17 +19,22 @@
             {% for result in results %}
                 <tr>
                 {% for item in result %}
-                    <td>{% if item is True %}
-                            +
-                        {% elif item is None %}
-                            &nbsp;
-                        {% elif item is False %}
-                            -
-                        {% else %}
-                            {{ item }}
-                        {% endif %}
-                    </td>
+                    {% if forloop.counter0 == 0 %}
+                        <td>{{ item.last_name }} {{ item.first_name }}</td>
+                    {% else %}
+                        <td>{% if item is True %}
+                                +
+                            {% elif item is None %}
+                                &nbsp;
+                            {% elif item is False %}
+                                -
+                            {% else %}
+                                {{ item }}
+                            {% endif %}
+                        </td>
+                    {% endif %}
                 {% endfor %}
+                    <td><a href="{% url 'failed' result.0.id testset_pk %}">Задачи, решенные неверно</a></td>
                 </tr>
             {% endfor %}
         </thead>
