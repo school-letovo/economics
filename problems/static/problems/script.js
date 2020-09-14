@@ -56,7 +56,6 @@ var recreatePaginator = function (curBtn,pag,numList,SHOWN_NUMBER) {
             lastDivs.innerHTML = "";
 	        var counter = 0;
             var checkboxes = document.querySelectorAll('.checkbox-check');
-            console.log(checkboxes);
 
             var check = function (checkbox) {
 	            checkbox.onclick = function() {
@@ -120,6 +119,10 @@ var recreatePaginator = function (curBtn,pag,numList,SHOWN_NUMBER) {
                 });
                 numList.appendChild(newBtn);
             }
+        MathJax.typesetPromise().then(() => {
+            MathJax.typesetPromise();
+          }).catch((err) => console.log(err.message));
+
         });
 };
 
@@ -142,7 +145,7 @@ var filterRecreate = function (paginator,resistor,SHOWN_NUMBER) {
             lastDivs.innerHTML = "";
 	        var counter = 0;
             var checkboxes = document.querySelectorAll('.checkbox-check');
-            console.log(checkboxes);
+
 
             var check = function (checkbox) {
 	            checkbox.onclick = function() {
@@ -259,7 +262,7 @@ var filterRecreate = function (paginator,resistor,SHOWN_NUMBER) {
             resistor.appendChild(btnList);
             resistor.appendChild(chooseFilter);
             resistor.appendChild(filters);
-        });
+      });
 };
 
 var createPaginator = async function (paginator,SHOWN_NUMBER,amount) {
@@ -344,7 +347,10 @@ var createPaginator = async function (paginator,SHOWN_NUMBER,amount) {
             resistor.appendChild(chooseFilter);
             resistor.appendChild(filters);
             paginator.parentElement.appendChild(resistor);
-        });
+            MathJax.typesetPromise().then(() => {
+                MathJax.typesetPromise();
+              }).catch((err) => console.log(err.message));
+            });
 };
 
 var startFunction = async function(paginators,amounts) {
@@ -353,7 +359,7 @@ var startFunction = async function(paginators,amounts) {
     }
     var counter = 0;
     var checkboxes = document.querySelectorAll('.checkbox-check');
-    console.log(checkboxes);
+
 
     var check = function (checkbox) {
         checkbox.onclick = function() {
