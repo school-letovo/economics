@@ -28,7 +28,7 @@
                             Задано: {{ problem.assignment.date_assigned|date:"d-m-Y" }} учителем {{ problem.assignment.assigned_by.last_name }} {{ problem.assignment.assigned_by.first_name }}
                         </nobr>
                     {% endif %}
-                {% if 'teacher' in user.groups.all.0.name %}
+                {% if 'teacher' in request.user.groups.all.0.name %}
                     <div class="problem-subtitle">
                         {% if problem.source_set.all %}
                             <div class="problem-sources">
@@ -101,7 +101,7 @@
                 {% if problem.hint %}
                     <a class="btn btn-primary" data-toggle="collapse" href="#hint-{{ problem.id }}" role="button" aria-expanded="false" aria-controls="collapseExample">Подсказка</a>
                 {% endif %}
-                {% if 'teacher' in user.groups.all.0.name %}
+                {% if 'teacher' in request.user.groups.all.0.name %}
                     {% if problem.solution or problem.variants or problem.short_answer or problem.yesno_answer %}
                         <a class="btn btn-primary" data-toggle="collapse" href="#solution-{{ problem.id }}" role="button" aria-expanded="false" aria-controls="collapseExample">Решение</a>
                     {% endif %}
@@ -116,7 +116,7 @@
                         </div>
                     {% endif %}
                 </div>
-                {% if 'teacher' in user.groups.all.0.name %}
+                {% if 'teacher' in request.user.groups.all.0.name %}
                     <div class="right-solution">
                         <div class="collapse" id="solution-{{ problem.id }}">
                           {% include 'problems/problem_solution.html' %}
@@ -144,7 +144,7 @@
                 {% endif %}
 
                 <!- форма оценивания посылки по задаче учителем -->
-                {% if problem.submit.verdict == -1 and user == problem.submit.assignment.assigned_by %}
+                {% if problem.submit.verdict == -1 and request.user == problem.submit.assignment.assigned_by %}
                     <form action="{% url 'save_verdict' %}" method="POST">
                         {% csrf_token %}
                         <table>
