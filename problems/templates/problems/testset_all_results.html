@@ -15,7 +15,7 @@
                 <tr>
                 {% for item in result %}
                     {% if forloop.counter0 == 0 %}
-                        <td>{{ item.last_name }} {{ item.first_name }}</td>
+                        <td>{{ item.last_name }}&nbsp;{{ item.first_name }}</td>
                     {% else %}
                         {% if item is True %}
                                 <td align='center' bgcolor="darkgreen"><font color="white"><b>+</b></font></td>
@@ -29,7 +29,7 @@
                         </td>
                     {% endif %}
                 {% endfor %}
-                    <td><a href="{% url 'failed' result.0.id testset_pk %}">Задачи, решенные неверно</a></td>
+                    <td><a href="{% url 'failed' result.0.id testset_pk %}"><nobr>Задачи, решенные неверно</nobr></a></td>
                 </tr>
             {% endfor %}
     </table>
