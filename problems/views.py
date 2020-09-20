@@ -549,6 +549,8 @@ def testset(request, pk):
 
 def test_result(request, test_assignment_id):
     test_assignment = TestSetAssignment.objects.get(pk=test_assignment_id)
+    if test_assignment.person != request.user:
+        return redirect('index')
     result = []
     for problem in test_assignment.test_set.problems.all():
         problem.submit =TestSubmit.objects.get(problem=problem, assignment=test_assignment)
