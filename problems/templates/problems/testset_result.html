@@ -1,5 +1,6 @@
 {% extends "problems/sb/base.html" %}
 {% block content %}
+    <b>РЕЗУЛЬТАТЫ ТЕСТА: {{ tests_ok }}/{{ test_problems.count }} </b>
     {% for problem in tests %}
         {% include 'problems/problem.html' %}
     {% endfor %}

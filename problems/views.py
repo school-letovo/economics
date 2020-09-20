@@ -131,7 +131,10 @@ def check_yesno_answer(student, author):
 
 
 def check_single_choice(student, author):
-    correct = author.get(right=True).id
+    try:
+        correct = author.get(right=True).id
+    except: # в базе забыли внести правильный ответ или внесли несколько - трактуем в пользу ученика
+        return True
     return int(student) == correct
 
 
@@ -549,11 +552,16 @@ def testset(request, pk):
 
 def test_result(request, test_assignment_id):
     test_assignment = TestSetAssignment.objects.get(pk=test_assignment_id)
+    if test_assignment.person != request.user:
+        return redirect('index')
     result = []
+    tests_ok = 0
     for problem in test_assignment.test_set.problems.all():
         problem.submit =TestSubmit.objects.get(problem=problem, assignment=test_assignment)
+        if problem.submit.answer_autoverdict:
+            tests_ok += 1
         result.append(problem)
-    return render(request, 'problems/testset_result.html', {'tests': result})
+    return render(request, 'problems/testset_result.html', {'tests': result, 'tests_ok': tests_ok, 'test_problems': test_assignment.test_set.problems})
 
 def testset_all_results(request, testset_pk):
     testset = TestSet.objects.get(pk=testset_pk)
@@ -563,7 +571,7 @@ def testset_all_results(request, testset_pk):
 
     for student_id in students:
         student = User.objects.get(pk=student_id)
-        results.append([student])
+        results.append([])
         score = 0
         for problem in problem_list:
             submits = TestSubmit.objects.filter(problem=problem, assignment__person=student)
@@ -576,7 +584,8 @@ def testset_all_results(request, testset_pk):
                 elif mark is None:
                     mark = False
             results[-1].append(mark)
-        results[-1].append(score)
+        results[-1] = [student, score] + results[-1]
+        results.sort(key=lambda x:-int(x[1]))
     return render(request, 'problems/testset_all_results.html', {'problems': problem_list, 'results':results, 'testset_pk': testset_pk})
 
 def test(request):
