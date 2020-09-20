@@ -555,10 +555,13 @@ def test_result(request, test_assignment_id):
     if test_assignment.person != request.user:
         return redirect('index')
     result = []
+    tests_ok = 0
     for problem in test_assignment.test_set.problems.all():
         problem.submit =TestSubmit.objects.get(problem=problem, assignment=test_assignment)
+        if problem.submit.answer_autoverdict:
+            tests_ok += 1
         result.append(problem)
-    return render(request, 'problems/testset_result.html', {'tests': result})
+    return render(request, 'problems/testset_result.html', {'tests': result, 'tests_ok': tests_ok, 'test_problems': test_assignment.test_set.problems})
 
 def testset_all_results(request, testset_pk):
     testset = TestSet.objects.get(pk=testset_pk)
