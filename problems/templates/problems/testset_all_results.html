@@ -1,20 +1,15 @@
 {% extends "problems/sb/base.html" %}
 {% block content %}
-    <table class="table-responsive" border="1">
-        <thead>
+    <table border="1">
             <tr>
-                <th></th>
+                <th>Ученик</th>
+                <th>Итог</th>
                 {% for problem in problems %}
                     <th><a href="#problem-{{ problem.id }}">
-                            {% if problem.name %}
-                                 #{{ problem.id }}. {{ problem.name }}
-                            {% else %}
-                                 #{{ problem.id }}
-                            {% endif %}
+                        <small>{{ problem.id }}</small>
                         </a>
                     </th>
                 {% endfor %}
-                <th>Итог</th>
             </tr>
             {% for result in results %}
                 <tr>
@@ -22,14 +17,14 @@
                     {% if forloop.counter0 == 0 %}
                         <td>{{ item.last_name }} {{ item.first_name }}</td>
                     {% else %}
-                        <td>{% if item is True %}
-                                +
+                        {% if item is True %}
+                                <td align='center' bgcolor="darkgreen"><font color="white"><b>+</b></font></td>
                             {% elif item is None %}
-                                &nbsp;
+                                <td>&nbsp;
                             {% elif item is False %}
-                                -
+                                <td align='center' bgcolor="darkred"><font color="white"><b>-</b></font></td>
                             {% else %}
-                                {{ item }}
+                                <td align="right">{{ item }}
                             {% endif %}
                         </td>
                     {% endif %}
@@ -37,7 +32,6 @@
                     <td><a href="{% url 'failed' result.0.id testset_pk %}">Задачи, решенные неверно</a></td>
                 </tr>
             {% endfor %}
-        </thead>
     </table>
     {% for problem in problems %}
         {% include 'problems/problem.html' %}

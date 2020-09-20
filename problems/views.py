@@ -571,7 +571,7 @@ def testset_all_results(request, testset_pk):
 
     for student_id in students:
         student = User.objects.get(pk=student_id)
-        results.append([student])
+        results.append([])
         score = 0
         for problem in problem_list:
             submits = TestSubmit.objects.filter(problem=problem, assignment__person=student)
@@ -584,7 +584,8 @@ def testset_all_results(request, testset_pk):
                 elif mark is None:
                     mark = False
             results[-1].append(mark)
-        results[-1].append(score)
+        results[-1] = [student, score] + results[-1]
+        results.sort(key=lambda x:-int(x[1]))
     return render(request, 'problems/testset_all_results.html', {'problems': problem_list, 'results':results, 'testset_pk': testset_pk})
 
 def test(request):
