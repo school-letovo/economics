@@ -137,6 +137,23 @@ def check_single_choice(student, author):
         return True
     return int(student) == correct
 
+def rejudge_test(request, test_id):
+    if request.user.is_superuser:
+        submits = TestSubmit.objects.filter(problem=test_id)
+        for submit in submits:
+            print(submit)
+            if submit.problem.problem_type == 1:
+                student_yesno_answer = submit.yesno_answer
+                submit.answer_autoverdict = check_yesno_answer(student_yesno_answer, submit.problem.yesno_answer)
+            elif submit.problem.problem_type == 2:
+                student_single_answer = submit.multiplechoice_answer
+                submit.answer_autoverdict = check_single_choice(student_single_answer, submit.problem.variants.all())
+            elif submit.problem.problem_type == 3:
+                student_multiple_answer = submit.multiplechoice_answer
+                submit.answer_autoverdict = check_multiple_choice(student_multiple_answer, submit.problem.variants)
+            submit.save()
+
+    return redirect('index')
 
 def check_multiple_choice(student, author):
     correct = author.filter(right=True).values_list('id', flat=True)
