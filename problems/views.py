@@ -131,7 +131,10 @@ def check_yesno_answer(student, author):
 
 
 def check_single_choice(student, author):
-    correct = author.get(right=True).id
+    try:
+        correct = author.get(right=True).id
+    except: # в базе забыли внести правильный ответ или внесли несколько - трактуем в пользу ученика
+        return True
     return int(student) == correct
 
 
