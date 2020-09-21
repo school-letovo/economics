@@ -135,9 +135,16 @@ def check_single_choice(student, author):
         correct = author.get(right=True).id
     except: # в базе забыли внести правильный ответ или внесли несколько - трактуем в пользу ученика
         return True
-    if type(student) == list: # костыль на случай, если вопрос переделали из вопроса с несколькими ответами
-        student = student[0]
-    return int(student) == correct
+    if '[' in student:
+        test = student
+        student = student[2:-2]
+
+    if student == '':
+        return False
+    try:
+        return int(student) == correct
+    except:
+        return False
 
 def rejudge_test(request, test_id):
     if request.user.is_superuser:
