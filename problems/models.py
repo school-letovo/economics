@@ -1,10 +1,18 @@
 from django.db import models
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from django.utils.safestring import mark_safe
 
 from ckeditor_uploader.fields import RichTextUploadingField
 
 # Create your models here.
+
+class GroupTeacher(models.Model):
+    group = models.OneToOneField(Group, on_delete=models.CASCADE)
+    teacher = models.OneToOneField(User, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return "{} ({})".format(self.group, self.teacher)
+
 
 class Topic(models.Model):
     name = models.CharField('Название', max_length=200)
