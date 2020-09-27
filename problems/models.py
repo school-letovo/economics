@@ -8,7 +8,7 @@ from ckeditor_uploader.fields import RichTextUploadingField
 
 class GroupTeacher(models.Model):
     group = models.OneToOneField(Group, on_delete=models.CASCADE, related_name='teacher')
-    teacher = models.OneToOneField(User, on_delete=models.CASCADE, related_name='teacher_group')
+    teacher = models.ForeignKey(User, on_delete=models.CASCADE, related_name='teacher_group')
 
     def __str__(self):
         return "{} ({})".format(self.group, self.teacher)
