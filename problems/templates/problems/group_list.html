@@ -1,5 +1,5 @@
 {% for group in groups %}
-    {% if group.name != 'admins' and group.name != 'students' and group.name != 'teachers' %}
+    {% if group.name != 'admins' and group.name != 'students' group.name != 'supervisor' and group.name != 'teachers' %}
     <div class="group">
         <input type="checkbox" name="group" value="{{ group.id }}">
         {{ group.name }}
