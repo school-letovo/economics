@@ -12,7 +12,7 @@ from django.core import serializers
 from economics.settings import TOPIC_ROOT, SOURCE_ROOT
 
 
-from .models import Assignment, Problem, Topic, Submit, Source, Variant, TestSet, TestSetAssignment, TestSubmit
+from .models import Assignment, Problem, Topic, Submit, Source, Variant, TestSet, TestSetAssignment, TestSubmit, GroupTeacher
 from .forms import SubmitForm, CheckForm
 
 # Create your views here.
@@ -22,8 +22,14 @@ def index(request):
     if request.user.groups.filter(name='teachers').exists():
         # Teacher index
         # probs, tests, cases = filter_problems(request)
-        students = User.objects.filter(groups__name='students')
-        groups = Group.objects.all()
+        if request.user.groups.filter(name='supervisor').exists():
+            students = User.objects.filter(groups__name='students')
+            groups = Group.objects.all()
+        else:
+            group_ids = GroupTeacher.objects.filter(teacher=request.user).values_list('group__id', flat=True)
+            students = User.objects.filter(groups__in=group_ids)
+            groups = Group.objects.filter(id__in=group_ids)
+
         topic = Topic.objects.get(id=TOPIC_ROOT)
         topic_list = tree2List(topic, count_problems_by_topic())
         checked_topics = list(map(int, request.POST.getlist('topic'))) or [TOPIC_ROOT]
