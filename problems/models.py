@@ -143,6 +143,7 @@ class Assignment(models.Model):
 class TestSet(models.Model):
     name = models.CharField('Название', max_length=200)
     problems = models.ManyToManyField(Problem)
+    assigned_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='tests_assigner', verbose_name='Кем задано')
 
     def __str__(self):
         return self.name

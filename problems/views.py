@@ -25,17 +25,18 @@ def index(request):
         if request.user.groups.filter(name='supervisor').exists():
             students = User.objects.filter(groups__name='students')
             groups = Group.objects.all()
+            testsets = TestSet.objects.all()
         else:
             group_ids = GroupTeacher.objects.filter(teacher=request.user).values_list('group__id', flat=True)
             students = User.objects.filter(groups__in=group_ids)
             groups = Group.objects.filter(id__in=group_ids)
+            testsets = TestSet.objects.filter(assigned_by=request.user)
 
         topic = Topic.objects.get(id=TOPIC_ROOT)
         topic_list = tree2List(topic, count_problems_by_topic())
         checked_topics = list(map(int, request.POST.getlist('topic'))) or [TOPIC_ROOT]
         checked_sources = list(map(int, request.POST.getlist('source'))) or [SOURCE_ROOT]
         source = Source.objects.get(id=SOURCE_ROOT)
-        testsets = TestSet.objects.all()
         source_list = tree2List(source, count_problems_by_source())
         submits = Submit.objects.filter(assignment__assigned_by=request.user).filter(assignment__status=1)  # solution not checked
         context = {#'problems': probs,
