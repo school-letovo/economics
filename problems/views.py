@@ -28,7 +28,7 @@ def index(request):
             testsets = TestSet.objects.all()
         else:
             group_ids = GroupTeacher.objects.filter(teacher=request.user).values_list('group__id', flat=True)
-            students = User.objects.filter(groups__in=group_ids)
+            students = User.objects.filter(groups__in=group_ids).order_by('last_name')
             groups = Group.objects.filter(id__in=group_ids)
             testsets = TestSet.objects.filter(assigned_by=request.user)
 
@@ -656,5 +656,4 @@ def failed_tests(request, student_id, testset_pk):
         positive_result = TestSubmit.objects.filter(assignment__person=student, problem=problem, answer_autoverdict=True).count()
         if positive_result == 0 and negative_result > 0:
             answer.append(problem)
-    print(answer)
     return render(request, "problems/testset_result.html", {'tests': answer})
