@@ -28,7 +28,7 @@ def index(request):
             testsets = TestSet.objects.all()
         else:
             group_ids = GroupTeacher.objects.filter(teacher=request.user).values_list('group__id', flat=True)
-            students = User.objects.filter(groups__in=group_ids)
+            students = User.objects.filter(groups__in=group_ids).order_by('last_name')
             groups = Group.objects.filter(id__in=group_ids)
             testsets = TestSet.objects.filter(assigned_by=request.user)
 
@@ -107,10 +107,13 @@ def assign(request):
         for test_set_id in request.POST.getlist('testset'):
             test_set = TestSet.objects.get(id=int(test_set_id))
             for student in request.POST.getlist('student'):
-                TestSetAssignment(person=User.objects.get(id=int(student)), test_set=test_set,
-                              date_deadline=date_test_deadline,
-                              assigned_by=request.user
-                              ).save()
+                try:
+                    TestSetAssignment.objects.get(person=User.objects.get(id=int(student)), test_set=test_set)
+                except: # тест еще не назначен
+                    TestSetAssignment(person=User.objects.get(id=int(student)), test_set=test_set,
+                                      date_deadline=date_test_deadline,
+                                      assigned_by=request.user
+                                      ).save()
             for group_id in request.POST.getlist('group'):
                 group = Group.objects.get(id=group_id)
                 for student in group.user_set.all():
@@ -656,5 +659,4 @@ def failed_tests(request, student_id, testset_pk):
         positive_result = TestSubmit.objects.filter(assignment__person=student, problem=problem, answer_autoverdict=True).count()
         if positive_result == 0 and negative_result > 0:
             answer.append(problem)
-    print(answer)
     return render(request, "problems/testset_result.html", {'tests': answer})
