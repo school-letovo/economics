@@ -93,7 +93,7 @@ def assign(request):
 
     elif request.POST['submit'] == 'Создать тест':
         # create TestSet
-        test_set = TestSet(name=request.POST["name"])
+        test_set = TestSet(name=request.POST["name"], assigned_by_id=request.user.id)
         test_set.save()
         for problem in request.POST.getlist('problem'):
             test_set.problems.add(Problem.objects.get(id=int(problem)))
@@ -178,25 +178,26 @@ def check_multiple_choice(student, author):
     correct = author.filter(right=True).values_list('id', flat=True)
     return set(map(int, student)) == set(correct)
 
-
+# @transaction.atomic - TODO потестить
 def testset_submit(request):
     assignment = TestSetAssignment.objects.get(pk=int(request.POST["assigned_id"]))
-    tests = assignment.test_set.problems.all()
-    for test in tests:
-        submit = TestSubmit(problem=test, assignment=assignment)
-        id = str(test.id)
-        if test.problem_type == 1:
-            student_yesno_answer = submit.yesno_answer = request.POST[id + "-yesno_answer"]
-            submit.answer_autoverdict = check_yesno_answer(student_yesno_answer, test.yesno_answer)
-        elif test.problem_type == 2:
-            student_single_answer = submit.multiplechoice_answer = request.POST[id + "-variants"]
-            submit.answer_autoverdict = check_single_choice(student_single_answer, test.variants.all())
-        elif test.problem_type == 3:
-            student_multiple_answer = submit.multiplechoice_answer = request.POST.getlist(id + "-variants")
-            submit.answer_autoverdict = check_multiple_choice(student_multiple_answer, test.variants)
-        submit.save()
-    assignment.status = 3
-    assignment.save()
+    if assignment.status == 0: # исключаем возможность сдать второй раз, но это не очень надежно - нужны транзакции по-хорошему
+        tests = assignment.test_set.problems.all()
+        for test in tests:
+            submit = TestSubmit(problem=test, assignment=assignment)
+            id = str(test.id)
+            if test.problem_type == 1:
+                student_yesno_answer = submit.yesno_answer = request.POST[id + "-yesno_answer"]
+                submit.answer_autoverdict = check_yesno_answer(student_yesno_answer, test.yesno_answer)
+            elif test.problem_type == 2:
+                student_single_answer = submit.multiplechoice_answer = request.POST[id + "-variants"]
+                submit.answer_autoverdict = check_single_choice(student_single_answer, test.variants.all())
+            elif test.problem_type == 3:
+                student_multiple_answer = submit.multiplechoice_answer = request.POST.getlist(id + "-variants")
+                submit.answer_autoverdict = check_multiple_choice(student_multiple_answer, test.variants)
+            submit.save()
+        assignment.status = 3
+        assignment.save()
     return redirect('index')
 
 
