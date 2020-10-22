@@ -660,4 +660,21 @@ def failed_tests(request, student_id, testset_pk):
         positive_result = TestSubmit.objects.filter(assignment__person=student, problem=problem, answer_autoverdict=True).count()
         if positive_result == 0 and negative_result > 0:
             answer.append(problem)
-    return render(request, "problems/testset_result.html", {'tests': answer})
+    c
+
+def create_user(request):
+    if request.POST:
+        # Create user and save to the database
+        user = User.objects.create_user(request.POST['login'], request.POST['email'], request.POST['password'])
+
+        # Update fields and then save again
+        user.first_name = request.POST['first_name']
+        user.last_name = request.POST['last_name']
+        user.save()
+
+        group = Group.objects.get(name='students')
+        group.user_set.add(user)
+
+        return redirect('index')
+    else:
+        return render(request, "problems/sb/register.html", {})

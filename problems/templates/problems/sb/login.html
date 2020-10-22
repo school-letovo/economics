@@ -44,7 +44,7 @@
                   <form class="user" method="post" action="{% url 'login' %}">
                     {% csrf_token %}
                     <div class="form-group">
-                      <input type="text" class="form-control form-control-user" name="username" id="exampleInputEmail" aria-describedby="emailHelp" placeholder="Enter Email Address...">
+                      <input type="text" class="form-control form-control-user" name="username" placeholder="Enter login">
                     </div>
                     <div class="form-group">
                       <input type="password" class="form-control form-control-user" id="exampleInputPassword" name="password" placeholder="Password">
@@ -56,11 +56,11 @@
 
                   </form>
                   <hr>
+                  <!--<div class="text-center">
+                    <a class="small" href="">Forgot Password?</a>
+                  </div>-->
                   <div class="text-center">
-                    <a class="small" href="forgot-password.html">Forgot Password?</a>
-                  </div>
-                  <div class="text-center">
-                    <a class="small" href="register.html">Create an Account!</a>
+                    <a class="small" href="/accounts/register">Create an Account!</a>
                   </div>
                 </div>
               </div>

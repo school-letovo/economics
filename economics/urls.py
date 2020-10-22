@@ -18,7 +18,7 @@ from django.urls import path, include, re_path
 from django.contrib.auth import views as auth_views
 from django.conf import settings
 from django.conf.urls.static import static
-from problems.views import index
+from problems.views import index, create_user
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -26,6 +26,8 @@ urlpatterns = [
     path('', index),
     path('accounts/login/', auth_views.LoginView.as_view(template_name='problems/sb/login.html'),
                        name='login'),
+    path('accounts/register/', create_user,
+                       name='register'),
     path('accounts/logout/', auth_views.LogoutView.as_view(template_name='problems/sb/login.html'),
                        name='logout'),
 
