@@ -23,7 +23,7 @@ def index(request):
         # Teacher index
         # probs, tests, cases = filter_problems(request)
         if request.user.groups.filter(name='supervisor').exists():
-            students = User.objects.filter(groups__name='students')
+            students = User.objects.filter(groups__name='students').order_by('last_name')
             groups = Group.objects.all()
             testsets = TestSet.objects.all()
         else:
