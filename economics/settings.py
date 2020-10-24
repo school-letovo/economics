@@ -25,7 +25,7 @@ SECRET_KEY = '!ab43jy^1)x-f$a7c+ov2ql&1(imp&p9fdc6ot!ep(6=5u*vp)'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['veconomics.ru', 'veconomics.letovo.ru', '127.0.0.1']
+ALLOWED_HOSTS = ['www.veconomics.ru', 'veconomics.ru', 'veconomics.letovo.ru', '127.0.0.1']
 
 
 # Application definition
