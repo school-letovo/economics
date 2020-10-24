@@ -445,10 +445,10 @@ def load_test(request):
             line = line.lstrip()
             if state == BEFORE:
                 print('BEFORE')
-                yesno_answer = 0
+                yesno_answer = 2
                 choice = None
                 variant_counter = 0
-                result = re.match(r'^\s*([\+\-абвгдАБВГД]*)\s*(\d+)\.\s(.*)$', line)
+                result = re.match(r'^\s*([\+\-aабвгдежзиAАБВГДЕЖЗИ]*)\s*(\d+)\.\s(.*)$', line)
                 if result:
                     answer = result.group(1)
                     if answer:
@@ -459,7 +459,7 @@ def load_test(request):
                         if answer == '-':
                             yesno_answer = 2
                             print(2)
-                        if answer in '1аА':
+                        if answer in '1aAаА':
                             choice = 1
                         if answer in '2бБ':
                             choice = 2
@@ -469,17 +469,28 @@ def load_test(request):
                             choice = 4
                         if answer in '5дД':
                             choice = 5
+                        if answer in '6eE':
+                            choice = 6
+                        if answer in '7жЖ':
+                            choice = 7
+                        if answer in '8зЗ':
+                            choice = 8
+                        if answer in '9иИ':
+                            choice = 9
                     state = IN_TASK
                     problem_number = (problem_number + 1)           ### int(result.group(2)) or
                     text = result.group(3)
             elif state == IN_TASK:
                 print('IN_TASK type:', problem_type, line)
-                if problem_type != 1 and (line.startswith("а)") or line.startswith("б)") or line.startswith("в)") or line.startswith("г)") or line.startswith("д)") or line.startswith("А)") or line.startswith("Б)") or line.startswith("В)") or line.startswith("Г)")  or line.startswith("Д)")  or line.startswith("+")
-                                                                or line.startswith("1.") or line.startswith("2.") or line.startswith("3.") or line.startswith("4.") or line.startswith("5.")
-                                                                or line.startswith("а.") or line.startswith("б.") or line.startswith("в.") or line.startswith("г.") or line.startswith("д.")
-                                                              or line.startswith("1)") or line.startswith("2)") or line.startswith("3)") or line.startswith("4)") or line.startswith("5)")):
+                if problem_type != 1 and (line.startswith("а)") or line.startswith("a)") or line.startswith("б)") or line.startswith("в)") or line.startswith("г)") or line.startswith("д)") or
+                                          line.startswith("e)") or line.startswith("ж)") or line.startswith("з)") or line.startswith("и)") or
+                                          line.startswith("A)") or line.startswith("Б)") or line.startswith("В)") or line.startswith("Г)") or line.startswith("Д)") or line.startswith("+")
+                                          or line.startswith("E)") or line.startswith("Ж)") or line.startswith("З)") or line.startswith("И)")
+                                    or line.startswith("1.") or line.startswith("2.") or line.startswith("3.") or line.startswith("4.") or line.startswith("5.")
+                                          or line.startswith("а.") or line.startswith("a.") or line.startswith("б.") or line.startswith("в.") or line.startswith("г.") or line.startswith("д.")
+                                          or line.startswith("1)") or line.startswith("2)") or line.startswith("3)") or line.startswith("4)") or line.startswith("5)")):
                     print('Not type 1', problem_type)
-                    problem = Problem(task=text, problem_type=problem_type, yesno_answer=yesno_answer)
+                    problem = Problem(task=text, problem_type=problem_type)
                     problem.save()
                     if request.POST['topic_id']:
                         problem.topics.add(topic_id)
@@ -501,7 +512,7 @@ def load_test(request):
                             variant_order = int(line[0])
                         else:
                             variant_order = (ord(line[0].lower()) - ord('a')) + 1
-                elif problem_type == 1 and (line=="" or re.match(r'^\s*$', line) or re.match(r'^\s*([+-абвгдАБВГД]*)\s*(\d+)\.\s(.*)$', line)):
+                elif problem_type == 1 and (line=="" or re.match(r'^\s*$', line) or re.match(r'^\s*([+-aабвгдежзиAАБВГДЕЖЗИ]*)\s*(\d+)\.\s(.*)$', line)):
                     print('IN YES/NO - END')
                     problem = Problem(task=text, problem_type=1, yesno_answer=yesno_answer)
                     problem.save()
@@ -520,12 +531,16 @@ def load_test(request):
                 print('IN VARIANT', line, "problem type:", problem_type, "$")
                 result = re.match(r'^(\d+)\. (.*)$', line)
                 if problem_type != 1 and (
-                        line.startswith("а)") or line.startswith("б)") or line.startswith("в)") or line.startswith(
-                        "г)") or line.startswith(
-                        "д)") or line.startswith("А)") or line.startswith("Б)") or line.startswith(
-                        "В)") or line.startswith("Г)") or line.startswith("Д)") or line.startswith("+")
+                        line.startswith("а)") or line.startswith("a)") or line.startswith("б)") or line.startswith("в)") or line.startswith("г)")
+                        or line.startswith("д)") or line.startswith("е)") or line.startswith("ж)") or line.startswith("з)")
+                        or line.startswith("и)") or line.startswith("А)") or line.startswith("A)") or line.startswith("Б)") or line.startswith(
+                        "В)") or line.startswith("Г)") or line.startswith("Д)")
+                        or line.startswith("Е)") or line.startswith("Ж)")
+                        or line.startswith("З)") or line.startswith("И)")
+                        or line.startswith("+")
                         or line.startswith("1.") or line.startswith("2.") or line.startswith("3.") or line.startswith("4.") or line.startswith("5.")
-                        or line.startswith("а.") or line.startswith("б.") or line.startswith("в.") or line.startswith("г.") or line.startswith("д.")
+                        or line.startswith("а.") or line.startswith("a.") or line.startswith("б.") or line.startswith("в.") or line.startswith("г.") or line.startswith("д.")
+                        or line.startswith("e.") or line.startswith("ж.") or line.startswith("з.") or line.startswith("и.")
                         or line.startswith("1)") or line.startswith("2)") or line.startswith("3)") or line.startswith("4)") or line.startswith("5)")):
                     variant_counter += 1
                     if choice:  # right answer before task number
@@ -587,6 +602,7 @@ def testset(request, pk):
         result.append(problem)
     return render(request, 'problems/solve_testset.html', {'assigned_tests': result, 'assigned': assigned_testset})
 
+
 def test_result(request, test_assignment_id):
     test_assignment = TestSetAssignment.objects.get(pk=test_assignment_id)
     if test_assignment.person != request.user:
@@ -625,6 +641,7 @@ def testset_all_results(request, testset_pk):
         results.sort(key=lambda x:-int(x[1]))
     return render(request, 'problems/testset_all_results.html', {'problems': problem_list, 'results':results, 'testset_pk': testset_pk})
 
+
 def test(request):
     problem = Problem.objects.get(pk=223)
     #problem.submit = Submit.objects.get(pk=1)
@@ -650,6 +667,7 @@ def ajax_problems(request, start, amount, problem_type):
         result = {'length':length, 'html':render_to_string('problems/problem_list.html', {'problems':data, 'request':request})}
         return JsonResponse(result)
 
+
 def failed_tests(request, student_id, testset_pk):
     testset = TestSet.objects.get(pk=testset_pk)
     student = User.objects.get(pk=student_id)
@@ -660,7 +678,7 @@ def failed_tests(request, student_id, testset_pk):
         positive_result = TestSubmit.objects.filter(assignment__person=student, problem=problem, answer_autoverdict=True).count()
         if positive_result == 0 and negative_result > 0:
             answer.append(problem)
-    c
+
 
 def create_user(request):
     if request.POST:
