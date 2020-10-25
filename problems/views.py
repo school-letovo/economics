@@ -448,7 +448,7 @@ def load_test(request):
                 yesno_answer = 2
                 choice = None
                 variant_counter = 0
-                result = re.match(r'^\s*([\+\-aабвгдежзиAАБВГДЕЖЗИ]*)\s*(\d+)\.\s(.*)$', line)
+                result = re.match(r'^\s*([\+\-aабвгдежзиAАБВГДЕЖЗИ]*)\s*(\d+)\.\s*(\(.+\))?(.*)$', line)
                 if result:
                     answer = result.group(1)
                     if answer:
@@ -479,7 +479,8 @@ def load_test(request):
                             choice = 9
                     state = IN_TASK
                     problem_number = (problem_number + 1)           ### int(result.group(2)) or
-                    text = result.group(3)
+                    text = result.group(4)
+                    print(result.group(3))
             elif state == IN_TASK:
                 print('IN_TASK type:', problem_type, line)
                 if problem_type != 1 and (line.startswith("а)") or line.startswith("a)") or line.startswith("б)") or line.startswith("в)") or line.startswith("г)") or line.startswith("д)") or
