@@ -448,7 +448,7 @@ def load_test(request):
                 yesno_answer = 2
                 choice = None
                 variant_counter = 0
-                result = re.match(r'^\s*([\+\-aабвгдежзиAАБВГДЕЖЗИ]*)\s*(\d+)\.\s*(\(.+\))?(.*)$', line)
+                result = re.match(r'^\s*([\+\-aабвгдежзиAАБВГДЕЖЗИ]*)\s*(\d+)\.\s*(\(.+?\)+)?(.*)$', line)
                 if result:
                     answer = result.group(1)
                     if answer:
