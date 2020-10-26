@@ -1,7 +1,12 @@
 {% extends "problems/sb/base.html" %}
 {% block content %}
+    {% if tests_ok %}
     <b>РЕЗУЛЬТАТЫ ТЕСТА: {{ tests_ok }}/{{ test_problems.count }} </b>
+    {% else %}
+        {{ student.last_name }} {{ student.first_name }}
+    {% endif %}
     {% for problem in tests %}
         {% include 'problems/problem.html' %}
     {% endfor %}
+
 {% endblock %}
