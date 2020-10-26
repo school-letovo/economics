@@ -671,7 +671,7 @@ def failed_tests(request, student_id, testset_pk):
         positive_result = TestSubmit.objects.filter(assignment__person=student, problem=problem, answer_autoverdict=True).count()
         if positive_result == 0 and negative_result > 0:
             answer.append(problem)
-
+    return render(request, "problems/testset_result.html", {'tests': answer})
 
 def create_user(request):
     if request.POST:
