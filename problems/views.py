@@ -71,54 +71,62 @@ def index(request):
     else:
         return render(request, 'problems/sb/login.html', {})
 
-
-def assign(request):
-    if request.POST['submit'] == 'Назначить задачи':
-        if request.POST['date_deadline']:
-            date_deadline = datetime.strptime(request.POST['date_deadline'], "%Y-%m-%d")
-        else:
-            date_deadline = None
-        for student in request.POST.getlist('student'):
+def assign_problems(request):
+    if request.POST['date_deadline']:
+        date_deadline = datetime.strptime(request.POST['date_deadline'], "%Y-%m-%d")
+    else:
+        date_deadline = None
+    for student in request.POST.getlist('student'):
+        for problem in request.POST.getlist('problem'):
+            assign_task = Assignment(person=User.objects.get(id=int(student)),
+                                     problem=Problem.objects.get(id=int(problem)), date_deadline=date_deadline,
+                                     assigned_by=request.user).save()
+    for group_id in request.POST.getlist('group'):
+        group = Group.objects.get(id=group_id)
+        for student in group.user_set.all():
             for problem in request.POST.getlist('problem'):
-                assign_task = Assignment(person=User.objects.get(id=int(student)),
-                                         problem=Problem.objects.get(id=int(problem)), date_deadline=date_deadline,
-                                         assigned_by=request.user).save()
+                assign_task = Assignment(person=student, problem=Problem.objects.get(id=int(problem)),
+                                         date_deadline=date_deadline, assigned_by=request.user).save()
+
+
+def create_test(request):
+    # create TestSet
+    test_set = TestSet(name=request.POST["name"], assigned_by_id=request.user.id)
+    test_set.save()
+    for problem in request.POST.getlist('problem'):
+        test_set.problems.add(Problem.objects.get(id=int(problem)))
+
+
+def assign_test(request):
+    if request.POST['date_test_deadline']:
+        date_test_deadline = datetime.strptime(request.POST['date_test_deadline'], "%Y-%m-%d")
+    else:
+        date_test_deadline = None
+    # create AssignTestSet
+    for test_set_id in request.POST.getlist('testset'):
+        test_set = TestSet.objects.get(id=int(test_set_id))
+        for student in request.POST.getlist('student'):
+            try:
+                TestSetAssignment.objects.get(person=User.objects.get(id=int(student)), test_set=test_set)
+            except:  # тест еще не назначен
+                TestSetAssignment(person=User.objects.get(id=int(student)), test_set=test_set,
+                                  date_deadline=date_test_deadline,
+                                  assigned_by=request.user
+                                  ).save()
         for group_id in request.POST.getlist('group'):
             group = Group.objects.get(id=group_id)
             for student in group.user_set.all():
-                for problem in request.POST.getlist('problem'):
-                    assign_task = Assignment(person=student, problem=Problem.objects.get(id=int(problem)),
-                                             date_deadline=date_deadline, assigned_by=request.user).save()
-        return redirect('index')
+                assign_task = TestSetAssignment(person=student, test_set=test_set,
+                                                date_deadline=date_test_deadline, assigned_by=request.user).save()
 
+
+def assign(request):
+    if request.POST['submit'] == 'Назначить задачи':
+        assign_problems(request)
     elif request.POST['submit'] == 'Создать тест':
-        # create TestSet
-        test_set = TestSet(name=request.POST["name"], assigned_by_id=request.user.id)
-        test_set.save()
-        for problem in request.POST.getlist('problem'):
-            test_set.problems.add(Problem.objects.get(id=int(problem)))
-
+        create_test(request)
     elif request.POST['submit'] == 'Назначить тесты':
-        if request.POST['date_test_deadline']:
-            date_test_deadline = datetime.strptime(request.POST['date_test_deadline'], "%Y-%m-%d")
-        else:
-            date_test_deadline = None
-        # create AssignTestSet
-        for test_set_id in request.POST.getlist('testset'):
-            test_set = TestSet.objects.get(id=int(test_set_id))
-            for student in request.POST.getlist('student'):
-                try:
-                    TestSetAssignment.objects.get(person=User.objects.get(id=int(student)), test_set=test_set)
-                except: # тест еще не назначен
-                    TestSetAssignment(person=User.objects.get(id=int(student)), test_set=test_set,
-                                      date_deadline=date_test_deadline,
-                                      assigned_by=request.user
-                                      ).save()
-            for group_id in request.POST.getlist('group'):
-                group = Group.objects.get(id=group_id)
-                for student in group.user_set.all():
-                    assign_task = TestSetAssignment(person=student, test_set=test_set,
-                                date_deadline=date_test_deadline, assigned_by=request.user).save()
+        assign_test(request)
 
     return redirect('index')
 
@@ -689,3 +697,9 @@ def create_user(request):
         return redirect('index')
     else:
         return render(request, "problems/sb/register.html", {})
+
+def student_page(request, pk):
+    student = User.objects.get(pk=pk)
+    testsets = TestSetAssignment.objects.filter(person=student)
+
+    return render(request, "problems/student_page.html", {'student': student, 'testsets': testsets})

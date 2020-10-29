@@ -14,6 +14,7 @@ class GroupTeacher(models.Model):
         return "{} ({})".format(self.group, self.teacher)
 
 
+
 class Topic(models.Model):
     name = models.CharField('Название', max_length=200)
     parent = models.ForeignKey('Topic', on_delete=models.CASCADE, related_name='children', verbose_name='Предок', null=True, blank=True)
