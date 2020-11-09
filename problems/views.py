@@ -432,6 +432,16 @@ def load_test(request):
     state = BEFORE
     variant_text = None
     economics = Topic.objects.get(pk=TOPIC_ROOT)
+
+    letters = ['a', 'б', 'в', 'г', 'д']
+    numbers = ['1', '2', '3', '4', '5']
+    numb_let = numbers + letters
+
+    symb_bracket = [symb + ')' for symb in numb_let]
+    upper_bracket = [letter.upper() + ')' for letter in letters]
+    symb_dot = [symb + '.' for symb in numb_let]
+    two_symb_filter = symb_bracket + upper_bracket + symb_dot
+
     if request.POST:
         source_id = int(request.POST['source_id'])
         test_text = request.POST['test_text']
@@ -474,10 +484,8 @@ def load_test(request):
                     text = result.group(3)
             elif state == IN_TASK:
                 print('IN_TASK type:', problem_type, line)
-                if problem_type != 1 and (line.startswith("а)") or line.startswith("б)") or line.startswith("в)") or line.startswith("г)") or line.startswith("д)") or line.startswith("А)") or line.startswith("Б)") or line.startswith("В)") or line.startswith("Г)")  or line.startswith("Д)")  or line.startswith("+")
-                                                                or line.startswith("1.") or line.startswith("2.") or line.startswith("3.") or line.startswith("4.") or line.startswith("5.")
-                                                                or line.startswith("а.") or line.startswith("б.") or line.startswith("в.") or line.startswith("г.") or line.startswith("д.")
-                                                              or line.startswith("1)") or line.startswith("2)") or line.startswith("3)") or line.startswith("4)") or line.startswith("5)")):
+
+                if problem_type != 1 and (line.startswith("+") or (line[:2] in two_symb_filter)):
                     print('Not type 1', problem_type)
                     problem = Problem(task=text, problem_type=problem_type, yesno_answer=yesno_answer)
                     problem.save()
@@ -519,14 +527,7 @@ def load_test(request):
             elif problem_type != 1 and state == IN_VARIANT:
                 print('IN VARIANT', line, "problem type:", problem_type, "$")
                 result = re.match(r'^(\d+)\. (.*)$', line)
-                if problem_type != 1 and (
-                        line.startswith("а)") or line.startswith("б)") or line.startswith("в)") or line.startswith(
-                        "г)") or line.startswith(
-                        "д)") or line.startswith("А)") or line.startswith("Б)") or line.startswith(
-                        "В)") or line.startswith("Г)") or line.startswith("Д)") or line.startswith("+")
-                        or line.startswith("1.") or line.startswith("2.") or line.startswith("3.") or line.startswith("4.") or line.startswith("5.")
-                        or line.startswith("а.") or line.startswith("б.") or line.startswith("в.") or line.startswith("г.") or line.startswith("д.")
-                        or line.startswith("1)") or line.startswith("2)") or line.startswith("3)") or line.startswith("4)") or line.startswith("5)")):
+                if problem_type != 1 and (line.startswith("+") or (line[:2] in two_symb_filter)):
                     variant_counter += 1
                     if choice:  # right answer before task number
                         if variant_counter == choice:
