@@ -433,8 +433,8 @@ def load_test(request):
     variant_text = None
     economics = Topic.objects.get(pk=TOPIC_ROOT)
 
-    letters = ['a', 'б', 'в', 'г', 'д']
-    numbers = ['1', '2', '3', '4', '5']
+    letters = ['a', 'б', 'в', 'г', 'д', 'е', 'ж', 'з', 'и']
+    numbers = ['1', '2', '3', '4', '5', '6', '7', '8', '9']
     numb_let = numbers + letters
 
     symb_bracket = [symb + ')' for symb in numb_let]
