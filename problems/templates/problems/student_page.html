@@ -1,0 +1,15 @@
+
+    {{ student.last_name }} {{ student.first_name }}
+    {% for group in student.groups.all %}
+        {% if group.name != 'students' %}
+            [{{ group.name }}]
+        {% endif %}
+    {% endfor %}
+    <table border="1">
+    {% for testset in testsets %}
+        <tr>
+            <td><a href="{% url 'testset_result_all' testset.test_set.id %}">{{ testset.test_set }}</a></td>
+            <td><tt>{{ testset.get_status_display }}</tt></td>
+        </tr>
+    {% endfor %}
+    </table>

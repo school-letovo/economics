@@ -23,7 +23,7 @@ def index(request):
         # Teacher index
         # probs, tests, cases = filter_problems(request)
         if request.user.groups.filter(name='supervisor').exists():
-            students = User.objects.filter(groups__name='students')
+            students = User.objects.filter(groups__name='students').order_by('last_name')
             groups = Group.objects.all()
             testsets = TestSet.objects.all()
         else:
@@ -71,54 +71,62 @@ def index(request):
     else:
         return render(request, 'problems/sb/login.html', {})
 
-
-def assign(request):
-    if request.POST['submit'] == 'Назначить задачи':
-        if request.POST['date_deadline']:
-            date_deadline = datetime.strptime(request.POST['date_deadline'], "%Y-%m-%d")
-        else:
-            date_deadline = None
-        for student in request.POST.getlist('student'):
+def assign_problems(request):
+    if request.POST['date_deadline']:
+        date_deadline = datetime.strptime(request.POST['date_deadline'], "%Y-%m-%d")
+    else:
+        date_deadline = None
+    for student in request.POST.getlist('student'):
+        for problem in request.POST.getlist('problem'):
+            assign_task = Assignment(person=User.objects.get(id=int(student)),
+                                     problem=Problem.objects.get(id=int(problem)), date_deadline=date_deadline,
+                                     assigned_by=request.user).save()
+    for group_id in request.POST.getlist('group'):
+        group = Group.objects.get(id=group_id)
+        for student in group.user_set.all():
             for problem in request.POST.getlist('problem'):
-                assign_task = Assignment(person=User.objects.get(id=int(student)),
-                                         problem=Problem.objects.get(id=int(problem)), date_deadline=date_deadline,
-                                         assigned_by=request.user).save()
+                assign_task = Assignment(person=student, problem=Problem.objects.get(id=int(problem)),
+                                         date_deadline=date_deadline, assigned_by=request.user).save()
+
+
+def create_test(request):
+    # create TestSet
+    test_set = TestSet(name=request.POST["name"], assigned_by_id=request.user.id)
+    test_set.save()
+    for problem in request.POST.getlist('problem'):
+        test_set.problems.add(Problem.objects.get(id=int(problem)))
+
+
+def assign_test(request):
+    if request.POST['date_test_deadline']:
+        date_test_deadline = datetime.strptime(request.POST['date_test_deadline'], "%Y-%m-%d")
+    else:
+        date_test_deadline = None
+    # create AssignTestSet
+    for test_set_id in request.POST.getlist('testset'):
+        test_set = TestSet.objects.get(id=int(test_set_id))
+        for student in request.POST.getlist('student'):
+            try:
+                TestSetAssignment.objects.get(person=User.objects.get(id=int(student)), test_set=test_set)
+            except:  # тест еще не назначен
+                TestSetAssignment(person=User.objects.get(id=int(student)), test_set=test_set,
+                                  date_deadline=date_test_deadline,
+                                  assigned_by=request.user
+                                  ).save()
         for group_id in request.POST.getlist('group'):
             group = Group.objects.get(id=group_id)
             for student in group.user_set.all():
-                for problem in request.POST.getlist('problem'):
-                    assign_task = Assignment(person=student, problem=Problem.objects.get(id=int(problem)),
-                                             date_deadline=date_deadline, assigned_by=request.user).save()
-        return redirect('index')
+                assign_task = TestSetAssignment(person=student, test_set=test_set,
+                                                date_deadline=date_test_deadline, assigned_by=request.user).save()
 
+
+def assign(request):
+    if request.POST['submit'] == 'Назначить задачи':
+        assign_problems(request)
     elif request.POST['submit'] == 'Создать тест':
-        # create TestSet
-        test_set = TestSet(name=request.POST["name"], assigned_by_id=request.user.id)
-        test_set.save()
-        for problem in request.POST.getlist('problem'):
-            test_set.problems.add(Problem.objects.get(id=int(problem)))
-
+        create_test(request)
     elif request.POST['submit'] == 'Назначить тесты':
-        if request.POST['date_test_deadline']:
-            date_test_deadline = datetime.strptime(request.POST['date_test_deadline'], "%Y-%m-%d")
-        else:
-            date_test_deadline = None
-        # create AssignTestSet
-        for test_set_id in request.POST.getlist('testset'):
-            test_set = TestSet.objects.get(id=int(test_set_id))
-            for student in request.POST.getlist('student'):
-                try:
-                    TestSetAssignment.objects.get(person=User.objects.get(id=int(student)), test_set=test_set)
-                except: # тест еще не назначен
-                    TestSetAssignment(person=User.objects.get(id=int(student)), test_set=test_set,
-                                      date_deadline=date_test_deadline,
-                                      assigned_by=request.user
-                                      ).save()
-            for group_id in request.POST.getlist('group'):
-                group = Group.objects.get(id=group_id)
-                for student in group.user_set.all():
-                    assign_task = TestSetAssignment(person=student, test_set=test_set,
-                                date_deadline=date_test_deadline, assigned_by=request.user).save()
+        assign_test(request)
 
     return redirect('index')
 
@@ -455,10 +463,11 @@ def load_test(request):
             line = line.lstrip()
             if state == BEFORE:
                 print('BEFORE')
-                yesno_answer = 0
+                yesno_answer = 2
                 choice = None
                 variant_counter = 0
-                result = re.match(r'^\s*([\+\-абвгдАБВГД]*)\s*(\d+)\.\s(.*)$', line)
+                variant_order = 0
+                result = re.match(r'^\s*([\+\-aабвгдежзиAАБВГДЕЖЗИ]*)\s*(\d+)\.\s*(\(.+?\)+)?(.*)$', line)
                 if result:
                     answer = result.group(1)
                     if answer:
@@ -469,7 +478,7 @@ def load_test(request):
                         if answer == '-':
                             yesno_answer = 2
                             print(2)
-                        if answer in '1аА':
+                        if answer in '1aAаА':
                             choice = 1
                         if answer in '2бБ':
                             choice = 2
@@ -479,15 +488,24 @@ def load_test(request):
                             choice = 4
                         if answer in '5дД':
                             choice = 5
+                        if answer in '6eE':
+                            choice = 6
+                        if answer in '7жЖ':
+                            choice = 7
+                        if answer in '8зЗ':
+                            choice = 8
+                        if answer in '9иИ':
+                            choice = 9
                     state = IN_TASK
                     problem_number = (problem_number + 1)           ### int(result.group(2)) or
-                    text = result.group(3)
+                    text = result.group(4)
+                    print(result.group(3))
             elif state == IN_TASK:
                 print('IN_TASK type:', problem_type, line)
 
                 if problem_type != 1 and (line.startswith("+") or (line[:2] in two_symb_filter)):
                     print('Not type 1', problem_type)
-                    problem = Problem(task=text, problem_type=problem_type, yesno_answer=yesno_answer)
+                    problem = Problem(task=text, problem_type=problem_type)
                     problem.save()
                     if request.POST['topic_id']:
                         problem.topics.add(topic_id)
@@ -499,17 +517,10 @@ def load_test(request):
                     right = line.startswith('+')
                     if line.startswith('+'):
                         variant_text = line[4:]
-                        if line[1] in '12345':
-                            variant_order = int(line[1])
-                        else:
-                            variant_order = (ord(line[1].lower()) - ord('a')) + 1
                     else:
                         variant_text = line[3:]
-                        if line[0] in '12345':
-                            variant_order = int(line[0])
-                        else:
-                            variant_order = (ord(line[0].lower()) - ord('a')) + 1
-                elif problem_type == 1 and (line=="" or re.match(r'^\s*$', line) or re.match(r'^\s*([+-абвгдАБВГД]*)\s*(\d+)\.\s(.*)$', line)):
+                    oldline = line
+                elif problem_type == 1 and (line=="" or re.match(r'^\s*$', line) or re.match(r'^\s*([+-aабвгдежзиAАБВГДЕЖЗИ]*)\s*(\d+)\.\s(.*)$', line)):
                     print('IN YES/NO - END')
                     problem = Problem(task=text, problem_type=1, yesno_answer=yesno_answer)
                     problem.save()
@@ -524,42 +535,40 @@ def load_test(request):
                 else:
                     print('append:', line, '$')
                     text = text + line
+                    oldline = line
             elif problem_type != 1 and state == IN_VARIANT:
                 print('IN VARIANT', line, "problem type:", problem_type, "$")
                 result = re.match(r'^(\d+)\. (.*)$', line)
+                
                 if problem_type != 1 and (line.startswith("+") or (line[:2] in two_symb_filter)):
                     variant_counter += 1
+                    variant_order += 1
                     if choice:  # right answer before task number
                         if variant_counter == choice:
                             variant = Variant(text=variant_text, order=variant_order, problem=problem, right=True)
                         else:
                             variant = Variant(text=variant_text, order=variant_order, problem=problem, right=False)
                     else:  # right answer before variant number
+                        print('variant order:', variant_order, oldline)
                         variant = Variant(text=variant_text, order=variant_order, problem=problem,
-                                          right=line.startswith('+'))
+                                          right=oldline.startswith('+'))
                     variant.save()
                     right = line.startswith('+')
                     if right:
                         variant_text = line[4:]
-                        if line[1] in '12345':
-                            variant_order = int(line[1])
-                        else:
-                            variant_order = (ord(line[1].lower()) - ord('a')) + 1
                     else:
                         variant_text = line[3:]
-                        if line[0] in '12345':
-                            variant_order = int(line[0])
-                        else:
-                            variant_order = (ord(line[0].lower()) - ord('a')) + 1
+                    oldline = line
                 elif line=="":
                     variant_counter += 1
+                    variant_order += 1
                     if choice: # right answer before task number
                         if variant_counter == choice:
                             variant = Variant(text=variant_text, order=variant_order, problem=problem, right=True)
                         else:
                             variant = Variant(text=variant_text, order=variant_order, problem=problem, right=False)
                     else: # right answer before variant number
-                        variant = Variant(text=variant_text, order=variant_order, problem=problem, right=line.startswith('+'))
+                        variant = Variant(text=variant_text, order=variant_order, problem=problem, right=oldline.startswith('+'))
                     variant.save()
                     state = BEFORE
                 else:
@@ -567,6 +576,7 @@ def load_test(request):
 
         if problem_type == 1 and variant_text:
             variant_counter += 1
+            variant_order += 1
             if choice:  # right answer before task number
                 if variant_counter == choice:
                     variant = Variant(text=variant_text, order=variant_order, problem=problem, right=True)
@@ -587,6 +597,7 @@ def testset(request, pk):
         problem.form = SubmitForm(prefix=str(problem.id), problem=problem)
         result.append(problem)
     return render(request, 'problems/solve_testset.html', {'assigned_tests': result, 'assigned': assigned_testset})
+
 
 def test_result(request, test_assignment_id):
     test_assignment = TestSetAssignment.objects.get(pk=test_assignment_id)
@@ -626,6 +637,7 @@ def testset_all_results(request, testset_pk):
         results.sort(key=lambda x:-int(x[1]))
     return render(request, 'problems/testset_all_results.html', {'problems': problem_list, 'results':results, 'testset_pk': testset_pk})
 
+
 def test(request):
     problem = Problem.objects.get(pk=223)
     #problem.submit = Submit.objects.get(pk=1)
@@ -651,6 +663,7 @@ def ajax_problems(request, start, amount, problem_type):
         result = {'length':length, 'html':render_to_string('problems/problem_list.html', {'problems':data, 'request':request})}
         return JsonResponse(result)
 
+
 def failed_tests(request, student_id, testset_pk):
     testset = TestSet.objects.get(pk=testset_pk)
     student = User.objects.get(pk=student_id)
@@ -661,6 +674,7 @@ def failed_tests(request, student_id, testset_pk):
         positive_result = TestSubmit.objects.filter(assignment__person=student, problem=problem, answer_autoverdict=True).count()
         if positive_result == 0 and negative_result > 0:
             answer.append(problem)
+    return render(request, "problems/testset_result.html", {'tests': answer, 'student':student})
 
 def create_user(request):
     if request.POST:
@@ -678,3 +692,9 @@ def create_user(request):
         return redirect('index')
     else:
         return render(request, "problems/sb/register.html", {})
+
+def student_page(request, pk):
+    student = User.objects.get(pk=pk)
+    testsets = TestSetAssignment.objects.filter(person=student)
+
+    return render(request, "problems/student_page.html", {'student': student, 'testsets': testsets})
