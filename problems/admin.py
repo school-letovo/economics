@@ -1,6 +1,5 @@
 from django.contrib import admin
 
-# Register your models here.
 
 from .models import Problem, Assignment, Topic, Submit, Source, Variant, TestSet, TestSetAssignment, TestSubmit, GroupTeacher
 from .forms import SourceAdminForm
