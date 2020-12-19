@@ -23,7 +23,7 @@ urlpatterns = [
     path('testset_result/<int:test_assignment_id>', views.test_result, name='testset_result'),
     path('testset_result_all/<int:testset_pk>', views.testset_all_results, name='testset_result_all'),
     path('test', views.test, name='test'),
-    path('rejudge_test/<int:test_id>', views.rejudge_test, name='rejudge_test'),
+    path('rejudge_test/', views.rejudge_test, name='rejudge_test'),
     path('student_page/<int:pk>', views.student_page, name='student_page'),
-
+    path('rejudge', views.rejudge_page, name='rejudge')
 ]
