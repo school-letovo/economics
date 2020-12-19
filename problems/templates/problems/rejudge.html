@@ -1,0 +1,15 @@
+{% extends "problems/sb/index_teacher.html" %}
+{% block content %}
+<div class="container-fluid">
+    <h2>Оценить тест заново</h2>
+    <form method="POST" action="rejudge_test/">
+        {% csrf_token %}
+        <label>
+            Номер теста:
+            <input type="number" name="test_id" id="test_id" placeholder="Номер теста"/>
+        </label>
+        <input type="submit" value="Перетестировать" onclick="if (document.getElementById('test_id').value === '') {document.getElementById('no_id_error').hidden = false; return false;} else return true;"/>
+    </form>
+    <b style="color:red" hidden id="no_id_error">Введите номер теста</b>
+</div>
+{% endblock %}

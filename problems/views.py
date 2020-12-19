@@ -164,8 +164,9 @@ def check_single_choice(student, author):
     except:
         return False
 
-def rejudge_test(request, test_id):
+def rejudge_test(request):
     if request.user.is_superuser:
+        test_id = int(request.POST['test_id'])
         submits = TestSubmit.objects.filter(problem=test_id)
         for submit in submits:
             print(submit)
@@ -698,3 +699,7 @@ def student_page(request, pk):
     testsets = TestSetAssignment.objects.filter(person=student)
 
     return render(request, "problems/student_page.html", {'student': student, 'testsets': testsets})
+
+def rejudge_page(request):
+    if request.user.groups.filter(name='teachers').exists():
+        return render(request, "problems/rejudge.html")
