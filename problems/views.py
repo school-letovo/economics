@@ -1,6 +1,7 @@
 from datetime import datetime
 import re
 
+from django.db.models import Count
 from django.shortcuts import render, redirect
 from django.template.loader import render_to_string
 from django.http import HttpResponse, JsonResponse
@@ -129,6 +130,27 @@ def assign(request):
         assign_test(request)
 
     return redirect('index')
+
+def add_students(request):
+    for student in request.POST.getlist('student'):
+        for group_id in request.POST.getlist('group'):
+            user = User.objects.get(id=int(student))
+            user_group = Group.objects.get(id=group_id)
+            user.groups.add(user_group)
+            user.save()
+
+
+    return redirect('index')
+
+def add_students_to_groups(request):
+    group_ids = GroupTeacher.objects.filter(teacher=request.user).values_list('group__id', flat=True)
+    students = User.objects.annotate(numofgroups = Count('groups')).filter(numofgroups__lte = 1).order_by('last_name')
+    groups = Group.objects.filter(id__in=group_ids)
+    context = {'students': students, 'groups': groups,}
+    if request.POST:
+        return render(request, 'problems/add_students_to_groups.html', context)
+    else:
+        return render(request, 'problems/add_students_to_groups.html', context)
 
 
 def clean(string):
