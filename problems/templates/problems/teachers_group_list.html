@@ -1,0 +1,8 @@
+{% for group in groups %}
+    {% if group.teacher_group == user.username %}
+    <div class="group">
+        <input type="checkbox" name="group" value="{{ group.id }}">
+        {{ group.name }}
+    </div>
+    {% endif %}
+{% endfor %}
