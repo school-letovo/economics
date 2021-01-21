@@ -4,7 +4,6 @@ from django.utils.safestring import mark_safe
 
 from ckeditor_uploader.fields import RichTextUploadingField
 
-# Create your models here.
 
 class GroupTeacher(models.Model):
     group = models.OneToOneField(Group, on_delete=models.CASCADE, related_name='teacher')

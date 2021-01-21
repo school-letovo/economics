@@ -8,6 +8,7 @@ urlpatterns = [
     path('failed/<int:student_id>/<int:testset_pk>', views.failed_tests, name='failed'),
     path('<str:problem_type>/<int:start>/<int:amount>', views.ajax_problems, name='ajax_problems'),
     path('assign', views.assign, name='assign'),
+    path('add_students', views.add_students, name='add_students'),
     path('submit', views.submit, name='submit'),
     path('save_verdict', views.save_verdict, name='save_verdict'),
     path('source_list', views.source_list, name='source_list'),
@@ -22,7 +23,10 @@ urlpatterns = [
     path('testset_result/<int:test_assignment_id>', views.test_result, name='testset_result'),
     path('testset_result_all/<int:testset_pk>', views.testset_all_results, name='testset_result_all'),
     path('test', views.test, name='test'),
-    path('rejudge_test/<int:test_id>', views.rejudge_test, name='rejudge_test'),
+    path('rejudge_test/', views.rejudge_test, name='rejudge_test'),
     path('student_page/<int:pk>', views.student_page, name='student_page'),
+    path('rejudge', views.rejudge_page, name='rejudge'),
+    path('add_students', views.add_students, name='add_students'),
+    path('add_students_to_groups', views.add_students_to_groups, name='add_students_to_groups')
 
 ]

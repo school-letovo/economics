@@ -1,6 +1,7 @@
 from datetime import datetime
 import re
 
+from django.db.models import Count
 from django.shortcuts import render, redirect
 from django.template.loader import render_to_string
 from django.http import HttpResponse, JsonResponse
@@ -130,6 +131,27 @@ def assign(request):
 
     return redirect('index')
 
+def add_students(request):
+    for student in request.POST.getlist('student'):
+        for group_id in request.POST.getlist('group'):
+            user = User.objects.get(id=int(student))
+            user_group = Group.objects.get(id=group_id)
+            user.groups.add(user_group)
+            user.save()
+
+
+    return redirect('index')
+
+def add_students_to_groups(request):
+    group_ids = GroupTeacher.objects.filter(teacher=request.user).values_list('group__id', flat=True)
+    students = User.objects.annotate(numofgroups = Count('groups')).filter(numofgroups__lte = 1).order_by('last_name')
+    groups = Group.objects.filter(id__in=group_ids)
+    context = {'students': students, 'groups': groups,}
+    if request.POST:
+        return render(request, 'problems/add_students_to_groups.html', context)
+    else:
+        return render(request, 'problems/add_students_to_groups.html', context)
+
 
 def clean(string):
     string = string.replace(" ", "")
@@ -164,8 +186,9 @@ def check_single_choice(student, author):
     except:
         return False
 
-def rejudge_test(request, test_id):
+def rejudge_test(request):
     if request.user.is_superuser:
+        test_id = int(request.POST['test_id'])
         submits = TestSubmit.objects.filter(problem=test_id)
         for submit in submits:
             print(submit)
@@ -440,6 +463,16 @@ def load_test(request):
     state = BEFORE
     variant_text = None
     economics = Topic.objects.get(pk=TOPIC_ROOT)
+
+    letters = ['a', 'б', 'в', 'г', 'д', 'е', 'ж', 'з', 'и']
+    numbers = ['1', '2', '3', '4', '5', '6', '7', '8', '9']
+    numb_let = numbers + letters
+
+    symb_bracket = [symb + ')' for symb in numb_let]
+    upper_bracket = [letter.upper() + ')' for letter in letters]
+    symb_dot = [symb + '.' for symb in numb_let]
+    two_symb_filter = symb_bracket + upper_bracket + symb_dot
+
     if request.POST:
         source_id = int(request.POST['source_id'])
         test_text = request.POST['test_text']
@@ -492,13 +525,8 @@ def load_test(request):
                     print(result.group(3))
             elif state == IN_TASK:
                 print('IN_TASK type:', problem_type, line)
-                if problem_type != 1 and (line.startswith("а)") or line.startswith("a)") or line.startswith("б)") or line.startswith("в)") or line.startswith("г)") or line.startswith("д)") or
-                                          line.startswith("e)") or line.startswith("ж)") or line.startswith("з)") or line.startswith("и)") or
-                                          line.startswith("A)") or line.startswith("Б)") or line.startswith("В)") or line.startswith("Г)") or line.startswith("Д)") or line.startswith("+")
-                                          or line.startswith("E)") or line.startswith("Ж)") or line.startswith("З)") or line.startswith("И)")
-                                    or line.startswith("1.") or line.startswith("2.") or line.startswith("3.") or line.startswith("4.") or line.startswith("5.")
-                                          or line.startswith("а.") or line.startswith("a.") or line.startswith("б.") or line.startswith("в.") or line.startswith("г.") or line.startswith("д.")
-                                          or line.startswith("1)") or line.startswith("2)") or line.startswith("3)") or line.startswith("4)") or line.startswith("5)")):
+
+                if problem_type != 1 and (line.startswith("+") or (line[:2] in two_symb_filter)):
                     print('Not type 1', problem_type)
                     problem = Problem(task=text, problem_type=problem_type)
                     problem.save()
@@ -534,18 +562,8 @@ def load_test(request):
             elif problem_type != 1 and state == IN_VARIANT:
                 print('IN VARIANT', line, "problem type:", problem_type, "$")
                 result = re.match(r'^(\d+)\. (.*)$', line)
-                if problem_type != 1 and (
-                        line.startswith("а)") or line.startswith("a)") or line.startswith("б)") or line.startswith("в)") or line.startswith("г)")
-                        or line.startswith("д)") or line.startswith("е)") or line.startswith("ж)") or line.startswith("з)")
-                        or line.startswith("и)") or line.startswith("А)") or line.startswith("A)") or line.startswith("Б)") or line.startswith(
-                        "В)") or line.startswith("Г)") or line.startswith("Д)")
-                        or line.startswith("Е)") or line.startswith("Ж)")
-                        or line.startswith("З)") or line.startswith("И)")
-                        or line.startswith("+")
-                        or line.startswith("1.") or line.startswith("2.") or line.startswith("3.") or line.startswith("4.") or line.startswith("5.")
-                        or line.startswith("а.") or line.startswith("a.") or line.startswith("б.") or line.startswith("в.") or line.startswith("г.") or line.startswith("д.")
-                        or line.startswith("e.") or line.startswith("ж.") or line.startswith("з.") or line.startswith("и.")
-                        or line.startswith("1)") or line.startswith("2)") or line.startswith("3)") or line.startswith("4)") or line.startswith("5)")):
+                
+                if problem_type != 1 and (line.startswith("+") or (line[:2] in two_symb_filter)):
                     variant_counter += 1
                     variant_order += 1
                     if choice:  # right answer before task number
@@ -703,3 +721,7 @@ def student_page(request, pk):
     testsets = TestSetAssignment.objects.filter(person=student)
 
     return render(request, "problems/student_page.html", {'student': student, 'testsets': testsets})
+
+def rejudge_page(request):
+    if request.user.groups.filter(name='teachers').exists():
+        return render(request, "problems/rejudge.html")

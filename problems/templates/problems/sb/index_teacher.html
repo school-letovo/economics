@@ -54,7 +54,9 @@
 </ul>
 {% endblock %}
 {% block sidebar%}
-<li><a class="fas text-gray-400" href="admin">Admin page</a></li>
+<li><a class="fas text-gray-400" href="{% url 'admin:index' %}">Admin page</a></li>
+<li><a class="fas text-gray-400" href="{% url 'rejudge' %}">Оценить заново тест</a></li>
+<li><a class="fas text-gray-400" href="{% url 'add_students_to_groups' %}">Добавить учеников в группы</a></li>
 {% endblock %}
 {% block content %}
 <style>
@@ -62,7 +64,7 @@
   cursor: pointer;
   outline: none;
 }
-
+s
 .active, .collapsible:hover {
 }
 
@@ -155,8 +157,13 @@
                   </div>
                 </div>
             </div>
+            </div>
 
-                <div class="col-md-auto">
+    </form>
+    <form method="POST" action="{% url 'add_students' %}">
+        {% csrf_token %}
+
+            <div class="col-md-auto">
                     <h3>Ученики</h3>
                     <div id="students">
                         {% include "problems/student_list.html" %}
@@ -166,11 +173,12 @@
                     <div id="groups">
                         {% include "problems/group_list.html" %}
                     </div>
+
                 </div>
-
-        </div>
-
     </form>
+
+
+
 </div>
 <!-- /.container-fluid -->
 <script>
