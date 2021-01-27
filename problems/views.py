@@ -97,6 +97,11 @@ def create_test(request):
     for problem in request.POST.getlist('problem'):
         test_set.problems.add(Problem.objects.get(id=int(problem)))
 
+def delete_test(request):
+    # delete TestSet
+    for test_set_id in request.POST.getlist('testset'):
+        test_set = TestSet.objects.get(id=int(test_set_id))
+        test_set.delete()
 
 def assign_test(request):
     if request.POST['date_test_deadline']:
@@ -128,6 +133,8 @@ def assign(request):
         create_test(request)
     elif request.POST['submit'] == 'Назначить тесты':
         assign_test(request)
+    elif request.POST['submit'] == 'Удалить тесты':
+        delete_test(request)
 
     return redirect('index')
 
@@ -562,7 +569,7 @@ def load_test(request):
             elif problem_type != 1 and state == IN_VARIANT:
                 print('IN VARIANT', line, "problem type:", problem_type, "$")
                 result = re.match(r'^(\d+)\. (.*)$', line)
-                
+
                 if problem_type != 1 and (line.startswith("+") or (line[:2] in two_symb_filter)):
                     variant_counter += 1
                     variant_order += 1
