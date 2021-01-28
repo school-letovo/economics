@@ -49,8 +49,11 @@ MIDDLEWARE = [
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware'
 ]
+
+if int(os.getenv('PROFILING', '1')):
+    MIDDLEWARE.append('django_cprofile_middleware.middleware.ProfilerMiddleware')
 
 ROOT_URLCONF = 'economics.urls'
 
