@@ -20,11 +20,11 @@
                         {% if item is True %}
                                 <td align='center' bgcolor="darkgreen"><font color="white"><b>+</b></font></td>
                             {% elif item is None %}
-                                <td>&nbsp;
+                                <td>&nbsp;</td>
                             {% elif item is False %}
                                 <td align='center' bgcolor="darkred"><font color="white"><b>-</b></font></td>
                             {% else %}
-                                <td align="right">{{ item }}
+                                <td align="right">{{ item }}</td>
                             {% endif %}
                         </td>
                     {% endif %}

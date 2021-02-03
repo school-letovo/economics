@@ -652,7 +652,7 @@ def testset_all_results(request, testset_pk):
                 else:
                     cur[problem_index[submission['problem']]] = submission['answer_autoverdict']
         results.append(cur)
-    results.sort(key=lambda x: -int(x[1]))
+    results.sort(key=lambda x: (-int(x[1]), x[0].last_name, x[0].first_name))
     return render(request, 'problems/testset_all_results.html', {'problems': problem_list, 'results':results, 'testset_pk': testset_pk})
 
 
