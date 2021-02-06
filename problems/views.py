@@ -1,20 +1,19 @@
-from datetime import datetime
 import re
-
+from datetime import datetime
+from django.contrib.auth.hashers import make_password
+from django.contrib.auth.models import User, Group
+from django.core import serializers
 from django.db.models import Count
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
 from django.template.loader import render_to_string
-from django.http import HttpResponse, JsonResponse
-from django.contrib.auth.models import User, Group
 from django.views.generic.detail import DetailView
-from django.contrib.auth.hashers import make_password
-from django.core import serializers
 
 from economics.settings import TOPIC_ROOT, SOURCE_ROOT
-
-
-from .models import Assignment, Problem, Topic, Submit, Source, Variant, TestSet, TestSetAssignment, TestSubmit, GroupTeacher
 from .forms import SubmitForm, CheckForm
+from .models import Assignment, Problem, Topic, Submit, Source, Variant, TestSet, TestSetAssignment, TestSubmit, \
+    GroupTeacher
+
 
 # Create your views here.
 
@@ -725,9 +724,45 @@ def create_user(request):
 
 def student_page(request, pk):
     student = User.objects.get(pk=pk)
-    testsets = TestSetAssignment.objects.filter(person=student)
-
-    return render(request, "problems/student_page.html", {'student': student, 'testsets': testsets})
+    testsetsAssignment = TestSetAssignment.objects.filter(person=student)
+    all_testsets = TestSet.objects.all()
+    id = student.id
+    testsets = []
+    points = ['0'] * len(testsetsAssignment)
+    for i, assingment in enumerate(testsetsAssignment):
+        testsets.append(assingment.test_set)
+        testset = assingment.test_set
+        problems = testset.problems.all()
+        for problem in problems:
+            if assingment.status == 0 or assingment.status == 1:
+                points[i] = "Ожидание"
+            else:
+                for submit in TestSubmit.objects.filter(problem=problem, assignment__person=student):
+                    if submit.answer_autoverdict is True:
+                        points[i] = str(int(points[i]) + 1)
+    if request.POST:
+        try:
+            new_assing = request.POST["new_test"]
+            test_set = TestSet.objects.get(name=str(new_assing))
+            try:
+                TestSetAssignment(person=student, test_set=test_set, assigned_by=request.user).save()
+            except:
+                TestSetAssignment(person=student, test_set=test_set[0], assigned_by=request.user).save()
+            testsetsAssignment = TestSetAssignment.objects.filter(person=student)
+            testsets = []
+            for assingment in testsetsAssignment:
+                testsets.append(assingment.test_set)
+            return render(request, "problems/student_page.html",
+                          {'student': student, 'testsets': testsets, 'all_testsets': all_testsets,
+                           'testsetsAssignment': testsetsAssignment, 'id': id, 'points': points})
+        except:
+            return render(request, "problems/student_page.html",
+                          {'student': student, 'testsets': testsets, 'all_testsets': all_testsets,
+                           'testsetsAssignment': testsetsAssignment, 'id': id, 'points': points})
+    else:
+        return render(request, "problems/student_page.html",
+                      {'student': student, 'testsets': testsets, 'all_testsets': all_testsets,
+                       'testsetsAssignment': testsetsAssignment, 'id': id, 'points': points})
 
 def rejudge_page(request):
     if request.user.groups.filter(name='teachers').exists():
