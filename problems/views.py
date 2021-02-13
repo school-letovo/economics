@@ -1,20 +1,19 @@
-from datetime import datetime
 import re
-
+from datetime import datetime
+from django.contrib.auth.hashers import make_password
+from django.contrib.auth.models import User, Group
+from django.core import serializers
 from django.db.models import Count
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
 from django.template.loader import render_to_string
-from django.http import HttpResponse, JsonResponse
-from django.contrib.auth.models import User, Group
 from django.views.generic.detail import DetailView
-from django.contrib.auth.hashers import make_password
-from django.core import serializers
 
 from economics.settings import TOPIC_ROOT, SOURCE_ROOT
-
-
-from .models import Assignment, Problem, Topic, Submit, Source, Variant, TestSet, TestSetAssignment, TestSubmit, GroupTeacher
 from .forms import SubmitForm, CheckForm
+from .models import Assignment, Problem, Topic, Submit, Source, Variant, TestSet, TestSetAssignment, TestSubmit, \
+    GroupTeacher
+
 
 # Create your views here.
 
@@ -723,11 +722,57 @@ def create_user(request):
     else:
         return render(request, "problems/sb/register.html", {})
 
-def student_page(request, pk):
-    student = User.objects.get(pk=pk)
-    testsets = TestSetAssignment.objects.filter(person=student)
 
-    return render(request, "problems/student_page.html", {'student': student, 'testsets': testsets})
+def student_page(request, pk):
+    options = {
+        (0, 'Решение не сдано'),
+        (1, 'Ожидает проверки'),
+        (2, 'Проверено учителем'),
+        (3, 'Проверено автоматически'),
+    }
+    student = User.objects.get(pk=pk)
+    teacher = request.user
+    testsetsAssignment = TestSetAssignment.objects.filter(person=student)  # , assigned_by=teacher
+    all_testsets = TestSet.objects.all()  # filter(assigned_by=teacher)
+    id = student.id
+    testsets = []
+    points = ['0'] * len(testsetsAssignment)
+    print(points)
+    for i, assingment in enumerate(testsetsAssignment):
+        testsets.append(assingment.test_set)
+        testset = assingment.test_set
+        problems = testset.problems.all()
+        all = 0
+        result = 0
+        for problem in problems:
+            all += 1
+            if assingment.status == 0 or assingment.status == 1:
+                points[i] = "Ожидание"
+            else:
+                for submit in TestSubmit.objects.filter(problem=problem, assignment__person=student):
+                    if submit.answer_autoverdict is True:
+                        result += 1
+                points[i] = str(result)
+        if all != 0:
+            if points[i] != 'Ожидание':
+                points[i] = '{} из {} ({}%)'.format(points[i], str(all), str(int(round(int(points[i]) / all, 2) * 100)))
+        else:
+            points[i] = 'Ожидание'
+    print(points)
+    if request.POST:
+        new_assign = request.POST["new_test"]
+        if new_assign != '':
+            test_set = TestSet.objects.get(name=str(new_assign))
+            if TestSetAssignment(person=student, test_set=test_set,
+                                 assigned_by=request.user) not in TestSetAssignment.objects.all():
+                TestSetAssignment(person=student, test_set=test_set, assigned_by=request.user).save()
+            testsetsAssignment = TestSetAssignment.objects.filter(person=student, assinged_by=teacher)
+            testsets.append(test_set)
+
+    return render(request, "problems/student_page.html",
+                  {'student': student, 'testsets': testsets, 'all_testsets': all_testsets,
+                   'testsetsAssignment': testsetsAssignment, 'id': id, 'points': points})
+
 
 def rejudge_page(request):
     if request.user.groups.filter(name='teachers').exists():

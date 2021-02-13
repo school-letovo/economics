@@ -1,15 +1,48 @@
+{% extends "problems/sb/base.html" %}
+{% block content %}
+<head>
+    <link href="sb/css/sb-admin-2.min.css" rel="stylesheet">
+</head>
+<body>
+{{ student.last_name }} {{ student.first_name }}
+{% for group in student.groups.all %}
+{% if group.name != 'students' %}
+[{{ group.name }}]
+{% endif %}
+{% endfor %}
 
-    {{ student.last_name }} {{ student.first_name }}
-    {% for group in student.groups.all %}
-        {% if group.name != 'students' %}
-            [{{ group.name }}]
-        {% endif %}
-    {% endfor %}
-    <table border="1">
-    {% for testset in testsets %}
-        <tr>
-            <td><a href="{% url 'testset_result_all' testset.test_set.id %}">{{ testset.test_set }}</a></td>
-            <td><tt>{{ testset.get_status_display }}</tt></td>
-        </tr>
-    {% endfor %}
-    </table>
+<div>
+    <p><h5>Назначенные тесты</h5></p>
+    <div id="sidebar">
+        {% for assignment in testsetsAssignment %}
+        <p><a href="{% url 'testset_result_all' assignment.test_set.id %}">{{ assignment.test_set }}</a>
+            <tt>{{ assignment.get_status_display }}</tt></p>
+        {% endfor %}
+    </div>
+    <div id="content">
+        {% for point in points %}
+        <p>
+            {{ point }}
+        </p>
+        {% endfor %}
+    </div>
+</div>
+<div>
+    <p><h5>Неназначенные тесты</h5></p>
+    <form method="post" name="new_test" action="{% url 'student_page' id %}">
+        {% csrf_token %}
+        <table border="1">
+            {% for testset in all_testsets %}
+            <tr>
+                {% if testset not in testsets %}
+                <td><tt>{{ testset }}</tt></td>
+                <td><tt><input type="radio" name="new_test" value="{{ testset }}"> Назначить тест</tt></td>
+                {% endif %}
+            </tr>
+            {% endfor %}
+        </table>
+        <input type="submit" value="Назначить выбранный тест">
+    </form>
+</div>
+</body>
+{% endblock %}
