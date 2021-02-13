@@ -724,19 +724,26 @@ def create_user(request):
 
 
 def student_page(request, pk):
+    options = {
+        (0, 'Решение не сдано'),
+        (1, 'Ожидает проверки'),
+        (2, 'Проверено учителем'),
+        (3, 'Проверено автоматически'),
+    }
     student = User.objects.get(pk=pk)
     teacher = request.user
-    print(teacher)
-    testsetsAssignment = TestSetAssignment.objects.filter(person=student, assigned_by=teacher)
-    all_testsets = TestSet.objects.filter(assigned_by=teacher)
+    testsetsAssignment = TestSetAssignment.objects.filter(person=student)  # , assigned_by=teacher
+    all_testsets = TestSet.objects.all()  # filter(assigned_by=teacher)
     id = student.id
     testsets = []
     points = ['0'] * len(testsetsAssignment)
+    print(points)
     for i, assingment in enumerate(testsetsAssignment):
         testsets.append(assingment.test_set)
         testset = assingment.test_set
         problems = testset.problems.all()
         all = 0
+        result = 0
         for problem in problems:
             all += 1
             if assingment.status == 0 or assingment.status == 1:
@@ -744,40 +751,27 @@ def student_page(request, pk):
             else:
                 for submit in TestSubmit.objects.filter(problem=problem, assignment__person=student):
                     if submit.answer_autoverdict is True:
-                        points[i] = str(int(points[i]) + 1)
+                        result += 1
+                points[i] = str(result)
         if all != 0:
             if points[i] != 'Ожидание':
-                points[i] = points[i] + ' из ' + str(all) + ' (' + str(
-                    int(round(round(int(points[i]) / all, 2) * 100))) + '%)'
+                points[i] = '{} из {} ({}%)'.format(points[i], str(all), str(int(round(int(points[i]) / all, 2) * 100)))
         else:
-            points = []
+            points[i] = 'Ожидание'
+    print(points)
     if request.POST:
-        try:
-            new_assign = request.POST["new_test"]
+        new_assign = request.POST["new_test"]
+        if new_assign != '':
             test_set = TestSet.objects.get(name=str(new_assign))
-            try:
-                if TestSetAssignment(person=student, test_set=test_set,
-                                     assigned_by=request.user) not in TestSetAssignment.objects.all():
-                    TestSetAssignment(person=student, test_set=test_set, assigned_by=request.user).save()
-            except:
-                if TestSetAssignment(person=student, test_set=test_set[0],
-                                     assigned_by=request.user) not in TestSetAssignment.objects.all():
-                    TestSetAssignment(person=student, test_set=test_set[0], assigned_by=request.user).save()
+            if TestSetAssignment(person=student, test_set=test_set,
+                                 assigned_by=request.user) not in TestSetAssignment.objects.all():
+                TestSetAssignment(person=student, test_set=test_set, assigned_by=request.user).save()
             testsetsAssignment = TestSetAssignment.objects.filter(person=student, assinged_by=teacher)
-            testsets = []
-            for assingment in testsetsAssignment:
-                testsets.append(assingment.test_set)
-            return render(request, "problems/student_page.html",
-                          {'student': student, 'testsets': testsets, 'all_testsets': all_testsets,
-                           'testsetsAssignment': testsetsAssignment, 'id': id, 'points': points})
-        except:
-            return render(request, "problems/student_page.html",
-                          {'student': student, 'testsets': testsets, 'all_testsets': all_testsets,
-                           'testsetsAssignment': testsetsAssignment, 'id': id, 'points': points})
-    else:
-        return render(request, "problems/student_page.html",
-                      {'student': student, 'testsets': testsets, 'all_testsets': all_testsets,
-                       'testsetsAssignment': testsetsAssignment, 'id': id, 'points': points})
+            testsets.append(test_set)
+
+    return render(request, "problems/student_page.html",
+                  {'student': student, 'testsets': testsets, 'all_testsets': all_testsets,
+                   'testsetsAssignment': testsetsAssignment, 'id': id, 'points': points})
 
 
 def rejudge_page(request):
