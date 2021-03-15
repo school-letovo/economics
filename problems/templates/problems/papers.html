@@ -1,0 +1,6 @@
+    <div class="alert alert-primary" role="alert">
+    <p><b>Листы с задачами</b></p>
+    {% for paper in papers %}
+    <p><input type="checkbox" name="paper" value="{{ paper.id }}"> {{ paper.name }}</li></p>
+    {% endfor %}
+</div>

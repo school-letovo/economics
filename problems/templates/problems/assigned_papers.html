@@ -1,0 +1,10 @@
+<div class="alert alert-primary" role="alert">
+    <p><b>Назначенные листы с задачами:</b></p>
+    {% for assigned in assigned_papers %}
+    <p>{{ assigned.paper.name }}</p>
+    {% endfor %}
+    <p><b>Сданные листы с задачами:</b></p>
+    {% for solved in solved_papers %}
+    <p>{{ solved.paper.name }}</p>
+    {% endfor %}
+</div>

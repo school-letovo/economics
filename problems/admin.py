@@ -2,7 +2,7 @@ from django.contrib import admin
 
 # Register your models here.
 
-from .models import Problem, Assignment, Topic, Submit, Source, Variant, TestSet, TestSetAssignment, TestSubmit, GroupTeacher
+from .models import Problem, Assignment, Topic, Submit, Source, Variant, TestSet, TestSetAssignment, TestSubmit, GroupTeacher, Paper, PaperAssignment, Theory
 from .forms import SourceAdminForm
 
 class AssignmentAdmin(admin.ModelAdmin):
@@ -44,3 +44,6 @@ admin.site.register(TestSet)
 admin.site.register(TestSetAssignment)
 admin.site.register(TestSubmit)
 admin.site.register(GroupTeacher)
+admin.site.register(Paper)
+admin.site.register(PaperAssignment)
+admin.site.register(Theory)

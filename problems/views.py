@@ -13,7 +13,7 @@ from django.core import serializers
 from economics.settings import TOPIC_ROOT, SOURCE_ROOT
 
 
-from .models import Assignment, Problem, Topic, Submit, Source, Variant, TestSet, TestSetAssignment, TestSubmit, GroupTeacher
+from .models import Assignment, Problem, Topic, Submit, Source, Variant, TestSet, TestSetAssignment, TestSubmit, GroupTeacher, Paper, PaperAssignment
 from .forms import SubmitForm, CheckForm
 
 # Create your views here.
@@ -27,11 +27,13 @@ def index(request):
             students = User.objects.filter(groups__name='students').order_by('last_name')
             groups = Group.objects.all()
             testsets = TestSet.objects.all()
+            papers = Paper.objects.all()
         else:
             group_ids = GroupTeacher.objects.filter(teacher=request.user).values_list('group__id', flat=True)
             students = User.objects.filter(groups__in=group_ids).order_by('last_name')
             groups = Group.objects.filter(id__in=group_ids)
             testsets = TestSet.objects.filter(assigned_by=request.user)
+            papers = Paper.objects.filter(assigned_by=request.user)
 
         topic = Topic.objects.get(id=TOPIC_ROOT)
         topic_list = tree2List(topic, count_problems_by_topic())
@@ -51,6 +53,7 @@ def index(request):
                    'testsets': testsets,
                    'checked_topics': checked_topics,
                    'checked_sources': checked_sources,
+                   'papers' : papers
         }
         return render(request, 'problems/sb/index_teacher.html', context)
 
@@ -65,8 +68,11 @@ def index(request):
             problems.append(problem)
         assigned_testsets = TestSetAssignment.objects.filter(person=request.user, status=0)
         solved_testsets = TestSetAssignment.objects.filter(person=request.user, status=3)
+        assigned_papers = PaperAssignment.objects.filter(person=request.user, status=0)
+        solved_papers = TestSetAssignment.objects.filter(person=request.user, status=3)
 
-        context = {'assigned_problems': problems, 'assigned_testsets': assigned_testsets, 'solved_testsets': solved_testsets}
+        context = {'assigned_problems': problems, 'assigned_testsets': assigned_testsets, 'solved_testsets': solved_testsets,
+                   'assigned_papers': assigned_papers, 'solved_papers': solved_papers}
         return render(request, 'problems/sb/index_student.html', context)
 
     else:
@@ -627,6 +633,7 @@ def testset(request, pk):
         problem.form = SubmitForm(prefix=str(problem.id), problem=problem)
         result.append(problem)
     return render(request, 'problems/solve_testset.html', {'assigned_tests': result, 'assigned': assigned_testset})
+
 
 
 def test_result(request, test_assignment_id):
