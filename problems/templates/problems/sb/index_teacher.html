@@ -54,9 +54,7 @@
 </ul>
 {% endblock %}
 {% block sidebar%}
-<li><a class="fas text-gray-400" href="{% url 'admin:index' %}">Admin page</a></li>
-<li><a class="fas text-gray-400" href="{% url 'rejudge' %}">Оценить заново тест</a></li>
-<li><a class="fas text-gray-400" href="{% url 'add_students_to_groups' %}">Добавить учеников в группы</a></li>
+<li><a class="fas text-gray-400" href="admin">Admin page</a></li>
 {% endblock %}
 {% block content %}
 <style>
@@ -64,7 +62,7 @@
   cursor: pointer;
   outline: none;
 }
-s
+
 .active, .collapsible:hover {
 }
 
@@ -117,14 +115,15 @@ s
                     <input type="submit" name="submit" value="Создать тест">
                 </div>
                 <div class="alert alert-primary" role="alert">
-                    <b>Удалить выбранные тесты</b>
-                    <input type="submit" name="submit" value="Удалить тесты">
-                </div>
-                <div class="alert alert-primary" role="alert">
                     <b>Назначить выбранные тесты выбранным ученикам/группам</b>
                     <br><br>Срок сдачи:
                     <input type="date" name="date_test_deadline">&nbsp;&nbsp;&nbsp;
                     <input type="submit" name="submit" value="Назначить тесты">
+                </div>
+                <div class="alert alert-primary" role="alert">
+                    <b>Посмотреть результаты выбранных учеников по выбранным тестам/задачам</b>
+                    <br><br>
+                    <input type="submit" name="submit" value="Все результаты">
                 </div>
                 <div class="alert alert-primary" role="alert">
                     <b>Назначить выбранные задачи выбранным ученикам/группам</b>
@@ -133,12 +132,17 @@ s
                     <input type="submit" name="submit" value="Назначить задачи">
                 </div>
                 <div class="alert alert-primary" role="alert">
-                    <b>Выбрано задач: <div class="counter" style="display:inline;"></div></b>
+                    <b>Выбрано задач:
+                        <div class="counter" style="display:inline;"></div>
+                    </b>
                 </div>
                 <ul class="nav nav-tabs">
-                    <li class="nav-item active"><a class="nav-link active paginator-amount" data-toggle="tab" href="#problems">Задачи (</a></li>
-                    <li class="nav-item"><a class="nav-link paginator-amount" data-toggle="tab" href="#tests">Тестовые вопросы (</a></li>
-                    <li class="nav-item"><a class="nav-link paginator-amount" data-toggle="tab" href="#cases">Качественные задачи (</a></li>
+                    <li class="nav-item active"><a class="nav-link active paginator-amount" data-toggle="tab"
+                                                   href="#problems">Задачи (</a></li>
+                    <li class="nav-item"><a class="nav-link paginator-amount" data-toggle="tab" href="#tests">Тестовые
+                        вопросы (</a></li>
+                    <li class="nav-item"><a class="nav-link paginator-amount" data-toggle="tab" href="#cases">Качественные
+                        задачи (</a></li>
                 </ul>
                 <div class="tab-content">
                   <div id="problems" class="tab-pane in active">
@@ -161,28 +165,22 @@ s
                   </div>
                 </div>
             </div>
-            </div>
-
-    </form>
-    <form method="POST" action="{% url 'add_students' %}">
-        {% csrf_token %}
 
             <div class="col-md-auto">
-                    <h3>Ученики</h3>
-                    <div id="students">
-                        {% include "problems/student_list.html" %}
-                    </div>
-                    <p></p>
-                    <h3>Группы</h3>
-                    <div id="groups">
-                        {% include "problems/group_list.html" %}
-                    </div>
-
+                <h3>Ученики</h3>
+                <div id="students">
+                    {% include "problems/student_list.html" %}
                 </div>
+                <p></p>
+                <h3>Группы</h3>
+                <div id="groups">
+                    {% include "problems/group_list.html" %}
+                </div>
+            </div>
+
+        </div>
+
     </form>
-
-
-
 </div>
 <!-- /.container-fluid -->
 <script>
