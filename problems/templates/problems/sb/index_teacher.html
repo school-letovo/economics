@@ -117,6 +117,7 @@
                 </div>
                 <div class="alert alert-primary" role="alert">
                     <b>Удалить выбранные тесты</b>
+                    <br><br>
                     <input type="submit" name="submit" value="Удалить тесты">
                 </div>
                 <div class="alert alert-primary" role="alert">
@@ -179,9 +180,16 @@
 
                 </div>
     </form>
-
-
-
+    <form method="POST" action="{% url 'update_lists' %}">
+        {% csrf_token %}
+            <br><br>
+            <input type="submit" name="submit" value="Перевести учеников в следующие классы">
+    </form>
+    <form method="POST" action="{% url 'downgrade_lists' %}">
+        {% csrf_token %}
+            <br><br>
+            <input type="submit" name="submit" value="Перевести учеников в предыдущие классы">
+    </form>
 </div>
 <!-- /.container-fluid -->
 <script>

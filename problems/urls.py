@@ -27,6 +27,7 @@ urlpatterns = [
     path('student_page/<int:pk>', views.student_page, name='student_page'),
     path('rejudge', views.rejudge_page, name='rejudge'),
     path('add_students', views.add_students, name='add_students'),
-    path('add_students_to_groups', views.add_students_to_groups, name='add_students_to_groups')
-
+    path('add_students_to_groups', views.add_students_to_groups, name='add_students_to_groups'),
+    path('update_lists', views.update_lists, name='update_lists'),
+    path('downgrade_lists', views.downgrade_lists, name='downgrade_lists')
 ]

@@ -138,6 +138,34 @@ def assign(request):
 
     return redirect('index')
 
+def update_lists(request):
+    graduates = Group.objects.get(name='graduates')
+    eleven_grade = Group.objects.get(name='11 класс')
+    ten_grade = Group.objects.get(name='10 класс')
+    nine_grade = Group.objects.get(name='9 класс')
+    graduates.user_set.add(*eleven_grade.user_set.all())
+    eleven_grade.user_set.clear()
+    eleven_grade.user_set.add(*ten_grade.user_set.all())
+    ten_grade.user_set.clear()
+    ten_grade.user_set.add(*nine_grade.user_set.all())
+    nine_grade.user_set.clear()
+
+    return redirect('index')
+
+def downgrade_lists(request):
+    graduates = Group.objects.get(name='graduates')
+    eleven_grade = Group.objects.get(name='11 класс')
+    ten_grade = Group.objects.get(name='10 класс')
+    nine_grade = Group.objects.get(name='9 класс')
+    nine_grade.user_set.add(*ten_grade.user_set.all())
+    ten_grade.user_set.clear()
+    ten_grade.user_set.add(*eleven_grade.user_set.all())
+    eleven_grade.user_set.clear()
+    eleven_grade.user_set.add(*graduates.user_set.all())
+    graduates.user_set.clear()
+
+    return redirect('index')
+
 def add_students(request):
     for student in request.POST.getlist('student'):
         for group_id in request.POST.getlist('group'):
@@ -158,7 +186,6 @@ def add_students_to_groups(request):
         return render(request, 'problems/add_students_to_groups.html', context)
     else:
         return render(request, 'problems/add_students_to_groups.html', context)
-
 
 def clean(string):
     string = string.replace(" ", "")
