@@ -135,6 +135,8 @@ def assign(request):
         assign_test(request)
     elif request.POST['submit'] == 'Удалить тесты':
         delete_test(request)
+    elif request.POST['submit'] == 'Все результаты':
+        return show_all_results(request)
 
     return redirect('index')
 
@@ -667,6 +669,41 @@ def testset_all_results(request, testset_pk):
         results.sort(key=lambda x:-int(x[1]))
     return render(request, 'problems/testset_all_results.html', {'problems': problem_list, 'results':results, 'testset_pk': testset_pk})
 
+
+def show_all_results(request):
+    testset = request.POST.getlist('testset')
+    posted_problem_list = request.POST.getlist('problem')
+    problem_list = []
+    for problem_id in posted_problem_list:
+        problem_list.append(Problem.objects.get(pk=int(problem_id)))
+
+    students = request.POST.getlist('student')
+
+    for test in testset:
+        gotten_test = TestSet.objects.get(pk=int(test))
+        for problem in gotten_test.problems.all():
+            problem_list.append(problem)
+    results = []
+
+    for student_id in students:
+        student = User.objects.get(pk=student_id)
+        results.append([])
+        score = 0
+        for problem in problem_list:
+            submits = TestSubmit.objects.filter(problem=problem, assignment__person=student)
+            mark = None
+            for submit in submits:
+                if submit.answer_autoverdict is True:
+                    mark = True
+                    score += 1
+                    break
+                elif mark is None:
+                    mark = False
+            results[-1].append(mark)
+        results[-1] = [student, score] + results[-1]
+        results.sort(key=lambda x: -int(x[1]))
+    return render(request, 'problems/all_results.html',
+                  {'problems': problem_list, 'results': results})
 
 def test(request):
     problem = Problem.objects.get(pk=223)
