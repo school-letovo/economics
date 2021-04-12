@@ -43,6 +43,12 @@ TYPE_CHOICES = {
 }
 
 
+# class Paper_object(models.Model):
+#     # name = models.CharField('Название', max_length=200, blank=True, null=True)
+#     # def __str__(self):
+#     #     return self.name
+#     pass
+
 class Problem(models.Model):
     name = models.CharField('Название', max_length=200, blank=True, null=True)
     task = RichTextUploadingField('Условие')
@@ -148,6 +154,8 @@ class TestSet(models.Model):
     def __str__(self):
         return self.name
 
+
+
 class Theory(models.Model):
     name = models.CharField('Название', max_length=200, blank=True, null=True)
     task = RichTextUploadingField('Текст')
@@ -162,6 +170,7 @@ class Paper(models.Model):
     name = models.CharField('Название', max_length=200)
     theory = models.ManyToManyField(Theory)
     problems = models.ManyToManyField(Problem)
+    # objects = models.ManyToManyField(Paper_object)
     assigned_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='papers_assigner',
                                     verbose_name='Кем задано')
     def __str__(self):
