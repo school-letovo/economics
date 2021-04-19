@@ -39,9 +39,15 @@ TYPE_CHOICES = {
     (1, 'Тест с ответом ДА/НЕТ'),
     (2, 'Тест с выбором одного ответа'),
     (3, 'Тест с выбором нескольких ответов'),
-    (4, 'Качественная задача')
+    (4, 'Качественная задача'),
 }
 
+
+# class Paper_object(models.Model):
+#     # name = models.CharField('Название', max_length=200, blank=True, null=True)
+#     # def __str__(self):
+#     #     return self.name
+#     pass
 
 class Problem(models.Model):
     name = models.CharField('Название', max_length=200, blank=True, null=True)
@@ -148,6 +154,29 @@ class TestSet(models.Model):
     def __str__(self):
         return self.name
 
+
+
+class Theory(models.Model):
+    name = models.CharField('Название', max_length=200, blank=True, null=True)
+    task = RichTextUploadingField('Текст')
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        ordering = ['id']
+
+
+class Paper(models.Model):
+    name = models.CharField('Название', max_length=200)
+    theory = models.ManyToManyField(Theory)
+    problems = models.ManyToManyField(Problem)
+    # objects = models.ManyToManyField(Paper_object)
+    assigned_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='papers_assigner',
+                                    verbose_name='Кем задано')
+    def __str__(self):
+        return self.name
+
+
 class TestSetAssignment(models.Model):
     person = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Кому задано')
     test_set = models.ForeignKey(TestSet, on_delete=models.CASCADE, verbose_name='Тест', related_name="assignments")
@@ -161,6 +190,23 @@ class TestSetAssignment(models.Model):
 
     class Meta:
         ordering = ['date_deadline']
+
+
+class PaperAssignment(models.Model):
+    person = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Кому задано')
+    paper = models.ForeignKey(Paper, on_delete=models.CASCADE, verbose_name='Лист', related_name="paper_assignments")
+    date_assigned = models.DateField('Когда задано', auto_now_add=True, blank=False)
+    date_deadline = models.DateField('Сдать до', blank=True, null=True)
+    assigned_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='paper_assigner', verbose_name='Кем задано')
+    status = models.IntegerField('Статус', choices=STATUS_CHOICES, null=False, blank=False, default=0)
+
+    def __str__(self):
+        return "{} -> {}. {} {}".format(self.paper, self.person.id, self.person.last_name, self.person.first_name)
+
+    class Meta:
+        ordering = ['date_deadline']
+
+
 
 
 VERDICT_CHOICES = [

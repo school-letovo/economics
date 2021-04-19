@@ -12,9 +12,10 @@ from django.core import serializers
 
 from economics.settings import TOPIC_ROOT, SOURCE_ROOT
 
-
-from .models import Assignment, Problem, Topic, Submit, Source, Variant, TestSet, TestSetAssignment, TestSubmit, GroupTeacher
+from .models import Assignment, Problem, Topic, Submit, Source, Variant, TestSet, TestSetAssignment, TestSubmit, \
+    GroupTeacher, Paper, PaperAssignment
 from .forms import SubmitForm, CheckForm
+
 
 # Create your views here.
 
@@ -27,11 +28,13 @@ def index(request):
             students = User.objects.filter(groups__name='students').order_by('last_name')
             groups = Group.objects.all()
             testsets = TestSet.objects.all()
+            papers = Paper.objects.all()
         else:
             group_ids = GroupTeacher.objects.filter(teacher=request.user).values_list('group__id', flat=True)
             students = User.objects.filter(groups__in=group_ids).order_by('last_name')
             groups = Group.objects.filter(id__in=group_ids)
             testsets = TestSet.objects.filter(assigned_by=request.user)
+            papers = Paper.objects.filter(assigned_by=request.user)
 
         topic = Topic.objects.get(id=TOPIC_ROOT)
         topic_list = tree2List(topic, count_problems_by_topic())
@@ -39,18 +42,20 @@ def index(request):
         checked_sources = list(map(int, request.POST.getlist('source'))) or [SOURCE_ROOT]
         source = Source.objects.get(id=SOURCE_ROOT)
         source_list = tree2List(source, count_problems_by_source())
-        submits = Submit.objects.filter(assignment__assigned_by=request.user).filter(assignment__status=1)  # solution not checked
-        context = {#'problems': probs,
-                   #'tests': tests,
-                   #'cases': cases,
-                   'students': students,
-                   'topic_list': topic_list,
-                   'source_list': source_list,
-                   'submits': submits,
-                   'groups': groups,
-                   'testsets': testsets,
-                   'checked_topics': checked_topics,
-                   'checked_sources': checked_sources,
+        submits = Submit.objects.filter(assignment__assigned_by=request.user).filter(
+            assignment__status=1)  # solution not checked
+        context = {  # 'problems': probs,
+            # 'tests': tests,
+            # 'cases': cases,
+            'students': students,
+            'topic_list': topic_list,
+            'source_list': source_list,
+            'submits': submits,
+            'groups': groups,
+            'testsets': testsets,
+            'checked_topics': checked_topics,
+            'checked_sources': checked_sources,
+            'papers': papers
         }
         return render(request, 'problems/sb/index_teacher.html', context)
 
@@ -65,12 +70,17 @@ def index(request):
             problems.append(problem)
         assigned_testsets = TestSetAssignment.objects.filter(person=request.user, status=0)
         solved_testsets = TestSetAssignment.objects.filter(person=request.user, status=3)
+        assigned_papers = PaperAssignment.objects.filter(person=request.user, status=0)
+        solved_papers = PaperAssignment.objects.filter(person=request.user, status=3)
 
-        context = {'assigned_problems': problems, 'assigned_testsets': assigned_testsets, 'solved_testsets': solved_testsets}
+        context = {'assigned_problems': problems, 'assigned_testsets': assigned_testsets,
+                   'solved_testsets': solved_testsets,
+                   'assigned_papers': assigned_papers, 'solved_papers': solved_papers}
         return render(request, 'problems/sb/index_student.html', context)
 
     else:
         return render(request, 'problems/sb/login.html', {})
+
 
 def assign_problems(request):
     if request.POST['date_deadline']:
@@ -97,11 +107,13 @@ def create_test(request):
     for problem in request.POST.getlist('problem'):
         test_set.problems.add(Problem.objects.get(id=int(problem)))
 
+
 def delete_test(request):
     # delete TestSet
     for test_set_id in request.POST.getlist('testset'):
         test_set = TestSet.objects.get(id=int(test_set_id))
         test_set.delete()
+
 
 def assign_test(request):
     if request.POST['date_test_deadline']:
@@ -138,6 +150,7 @@ def assign(request):
 
     return redirect('index')
 
+
 def add_students(request):
     for student in request.POST.getlist('student'):
         for group_id in request.POST.getlist('group'):
@@ -146,14 +159,14 @@ def add_students(request):
             user.groups.add(user_group)
             user.save()
 
-
     return redirect('index')
+
 
 def add_students_to_groups(request):
     group_ids = GroupTeacher.objects.filter(teacher=request.user).values_list('group__id', flat=True)
-    students = User.objects.annotate(numofgroups = Count('groups')).filter(numofgroups__lte = 1).order_by('last_name')
+    students = User.objects.annotate(numofgroups=Count('groups')).filter(numofgroups__lte=1).order_by('last_name')
     groups = Group.objects.filter(id__in=group_ids)
-    context = {'students': students, 'groups': groups,}
+    context = {'students': students, 'groups': groups, }
     if request.POST:
         return render(request, 'problems/add_students_to_groups.html', context)
     else:
@@ -180,7 +193,7 @@ def check_yesno_answer(student, author):
 def check_single_choice(student, author):
     try:
         correct = author.get(right=True).id
-    except: # в базе забыли внести правильный ответ или внесли несколько - трактуем в пользу ученика
+    except:  # в базе забыли внести правильный ответ или внесли несколько - трактуем в пользу ученика
         return True
     if '[' in student:
         test = student
@@ -192,6 +205,7 @@ def check_single_choice(student, author):
         return int(student) == correct
     except:
         return False
+
 
 def rejudge_test(request):
     if request.user.is_superuser:
@@ -212,14 +226,16 @@ def rejudge_test(request):
 
     return redirect('index')
 
+
 def check_multiple_choice(student, author):
     correct = author.filter(right=True).values_list('id', flat=True)
     return set(map(int, student)) == set(correct)
 
+
 # @transaction.atomic - TODO потестить
 def testset_submit(request):
     assignment = TestSetAssignment.objects.get(pk=int(request.POST["assigned_id"]))
-    if assignment.status == 0: # исключаем возможность сдать второй раз, но это не очень надежно - нужны транзакции по-хорошему
+    if assignment.status == 0:  # исключаем возможность сдать второй раз, но это не очень надежно - нужны транзакции по-хорошему
         tests = assignment.test_set.problems.all()
         for test in tests:
             submit = TestSubmit(problem=test, assignment=assignment)
@@ -239,13 +255,11 @@ def testset_submit(request):
     return redirect('index')
 
 
-
 def submit(request):
     id = request.POST["assignment_id"]
     assignment = Assignment.objects.get(id=id)
 
     submit = Submit(assignment=assignment)
-
 
     if assignment.problem.problem_type == 0:
         student_short_answer = submit.short_answer = request.POST[id + "-short_answer"]
@@ -261,7 +275,7 @@ def submit(request):
         submit.answer_autoverdict = check_single_choice(student_single_answer, assignment.problem.variants.all())
         assignment.status = 3
     elif assignment.problem.problem_type == 3:
-        student_multiple_answer = submit.multiplechoice_answer=request.POST.getlist(id + "-variants")
+        student_multiple_answer = submit.multiplechoice_answer = request.POST.getlist(id + "-variants")
         submit.answer_autoverdict = check_multiple_choice(student_multiple_answer, assignment.problem.variants)
         assignment.status = 3
     elif assignment.problem.problem_type == 4:
@@ -329,7 +343,6 @@ def tree2List(root, counter):
     return result
 
 
-
 def filter_problems(request, problem_type=None):
     filter_topics = list(map(int, request.POST.getlist('topic'))) or [TOPIC_ROOT]
     filter_sources = list(map(int, request.POST.getlist('source'))) or [SOURCE_ROOT]
@@ -371,13 +384,13 @@ def bulk_create_users(request):
     if request.method == 'POST':
         result = []
         students = Group.objects.get(name='students')
-        text =  request.FILES['csvfile'].read().decode('utf=8').split()
+        text = request.FILES['csvfile'].read().decode('utf=8').split()
         for line in text:
             try:
                 username, password, email, last_name, first_name, *_ = line.split(';')
             except:
                 username, password, email, last_name, first_name, *_ = line.split(';')
-            user=User(
+            user = User(
                 username=username,
                 email=email,
                 password=make_password(password),
@@ -395,15 +408,15 @@ def bulk_create_users(request):
 def bulk_create_sources(request):
     # csv file format: existing_source_name;new_source_name;new_subsource_nams;...;
     if request.method == 'POST':
-        text =  request.FILES['csvfile'].read().decode('utf=8').split("\r\n")
+        text = request.FILES['csvfile'].read().decode('utf=8').split("\r\n")
         for line in text:
             if not line:
-                break   # empty line in the end of file
+                break  # empty line in the end of file
             sources = line.split(';')
             parent_source = Source.objects.get(name=sources[0])
             for source in sources[1:]:
                 if not source:
-                    break   # empty field in the end of line
+                    break  # empty field in the end of line
                 if Source.objects.filter(name=source, parent=parent_source).count() == 1:
                     parent_source = Source.objects.get(name=source, parent=parent_source)
 
@@ -414,7 +427,7 @@ def bulk_create_sources(request):
                         order = 1
                     new_source = Source(name=source, parent=parent_source, order=order)
                     new_source.save()
-                    parent_source=new_source
+                    parent_source = new_source
 
     return render(request, 'problems/bulk_sources.html', {})
 
@@ -527,7 +540,7 @@ def load_test(request):
                         if answer in '9иИ':
                             choice = 9
                     state = IN_TASK
-                    problem_number = (problem_number + 1)           ### int(result.group(2)) or
+                    problem_number = (problem_number + 1)  ### int(result.group(2)) or
                     text = result.group(4)
                     print(result.group(3))
             elif state == IN_TASK:
@@ -541,7 +554,8 @@ def load_test(request):
                         problem.topics.add(topic_id)
                     else:
                         problem.topics.add(economics)
-                    Source(name="Задача {}".format(problem_number), order=problem_number, parent = parent_source, problem=problem).save()
+                    Source(name="Задача {}".format(problem_number), order=problem_number, parent=parent_source,
+                           problem=problem).save()
                     text = None
                     state = IN_VARIANT
                     right = line.startswith('+')
@@ -550,7 +564,8 @@ def load_test(request):
                     else:
                         variant_text = line[3:]
                     oldline = line
-                elif problem_type == 1 and (line=="" or re.match(r'^\s*$', line) or re.match(r'^\s*([+-aабвгдежзиAАБВГДЕЖЗИ]*)\s*(\d+)\.\s(.*)$', line)):
+                elif problem_type == 1 and (line == "" or re.match(r'^\s*$', line) or re.match(
+                        r'^\s*([+-aабвгдежзиAАБВГДЕЖЗИ]*)\s*(\d+)\.\s(.*)$', line)):
                     print('IN YES/NO - END')
                     problem = Problem(task=text, problem_type=1, yesno_answer=yesno_answer)
                     problem.save()
@@ -589,16 +604,17 @@ def load_test(request):
                     else:
                         variant_text = line[3:]
                     oldline = line
-                elif line=="":
+                elif line == "":
                     variant_counter += 1
                     variant_order += 1
-                    if choice: # right answer before task number
+                    if choice:  # right answer before task number
                         if variant_counter == choice:
                             variant = Variant(text=variant_text, order=variant_order, problem=problem, right=True)
                         else:
                             variant = Variant(text=variant_text, order=variant_order, problem=problem, right=False)
-                    else: # right answer before variant number
-                        variant = Variant(text=variant_text, order=variant_order, problem=problem, right=oldline.startswith('+'))
+                    else:  # right answer before variant number
+                        variant = Variant(text=variant_text, order=variant_order, problem=problem,
+                                          right=oldline.startswith('+'))
                     variant.save()
                     state = BEFORE
                 else:
@@ -629,6 +645,18 @@ def testset(request, pk):
     return render(request, 'problems/solve_testset.html', {'assigned_tests': result, 'assigned': assigned_testset})
 
 
+def paper(request, pk):
+    result_problems = []
+    result_theory = []
+    assigned_papers = PaperAssignment.objects.get(pk=pk)
+    for problem in assigned_papers.paper.problems.all():
+        result_problems.append(problem.task)
+    for theory in assigned_papers.paper.theory.all():
+        result_theory.append(theory.task)
+    context = {'result_theory': result_theory, 'result_problems': result_problems}
+    return render(request, 'problems/solve_paper.html', context)
+
+
 def test_result(request, test_assignment_id):
     test_assignment = TestSetAssignment.objects.get(pk=test_assignment_id)
     if test_assignment.person != request.user:
@@ -636,11 +664,13 @@ def test_result(request, test_assignment_id):
     result = []
     tests_ok = 0
     for problem in test_assignment.test_set.problems.all():
-        problem.submit =TestSubmit.objects.get(problem=problem, assignment=test_assignment)
+        problem.submit = TestSubmit.objects.get(problem=problem, assignment=test_assignment)
         if problem.submit.answer_autoverdict:
             tests_ok += 1
         result.append(problem)
-    return render(request, 'problems/testset_result.html', {'tests': result, 'tests_ok': tests_ok, 'test_problems': test_assignment.test_set.problems})
+    return render(request, 'problems/testset_result.html',
+                  {'tests': result, 'tests_ok': tests_ok, 'test_problems': test_assignment.test_set.problems})
+
 
 def testset_all_results(request, testset_pk):
     testset = TestSet.objects.get(pk=testset_pk)
@@ -664,15 +694,16 @@ def testset_all_results(request, testset_pk):
                     mark = False
             results[-1].append(mark)
         results[-1] = [student, score] + results[-1]
-        results.sort(key=lambda x:-int(x[1]))
-    return render(request, 'problems/testset_all_results.html', {'problems': problem_list, 'results':results, 'testset_pk': testset_pk})
+        results.sort(key=lambda x: -int(x[1]))
+    return render(request, 'problems/testset_all_results.html',
+                  {'problems': problem_list, 'results': results, 'testset_pk': testset_pk})
 
 
 def test(request):
     problem = Problem.objects.get(pk=223)
-    #problem.submit = Submit.objects.get(pk=1)
-    #problem.assignment = Assignment.objects.get(pk=149)
-    #problem.assignment.form = SubmitForm(prefix=str(problem.assignment.id), problem=problem)
+    # problem.submit = Submit.objects.get(pk=1)
+    # problem.assignment = Assignment.objects.get(pk=149)
+    # problem.assignment.form = SubmitForm(prefix=str(problem.assignment.id), problem=problem)
 
 
 def ajax_problems(request, start, amount, problem_type):
@@ -680,17 +711,18 @@ def ajax_problems(request, start, amount, problem_type):
         # Teacher index
         if problem_type == 'prob':
             probs, tests, cases = filter_problems(request, [0])
-            data = probs[(start-1) * amount:start * amount]
+            data = probs[(start - 1) * amount:start * amount]
             length = len(probs)
         elif problem_type == 'test':
             probs, tests, cases = filter_problems(request, [1, 2, 3])
-            data = tests[(start-1) * amount:start * amount]
+            data = tests[(start - 1) * amount:start * amount]
             length = len(tests)
-        else: # problem_type == 'case'
+        else:  # problem_type == 'case'
             probs, tests, cases = filter_problems(request, [4])
-            data = cases[(start-1) * amount:start * amount]
+            data = cases[(start - 1) * amount:start * amount]
             length = len(cases)
-        result = {'length':length, 'html':render_to_string('problems/problem_list.html', {'problems':data, 'request':request})}
+        result = {'length': length,
+                  'html': render_to_string('problems/problem_list.html', {'problems': data, 'request': request})}
         return JsonResponse(result)
 
 
@@ -700,11 +732,14 @@ def failed_tests(request, student_id, testset_pk):
     problem_list = testset.problems.all()
     answer = []
     for problem in problem_list:
-        negative_result = TestSubmit.objects.filter(assignment__person=student, problem=problem, answer_autoverdict=False).count()
-        positive_result = TestSubmit.objects.filter(assignment__person=student, problem=problem, answer_autoverdict=True).count()
+        negative_result = TestSubmit.objects.filter(assignment__person=student, problem=problem,
+                                                    answer_autoverdict=False).count()
+        positive_result = TestSubmit.objects.filter(assignment__person=student, problem=problem,
+                                                    answer_autoverdict=True).count()
         if positive_result == 0 and negative_result > 0:
             answer.append(problem)
-    return render(request, "problems/testset_result.html", {'tests': answer, 'student':student})
+    return render(request, "problems/testset_result.html", {'tests': answer, 'student': student})
+
 
 def create_user(request):
     if request.POST:
@@ -723,11 +758,13 @@ def create_user(request):
     else:
         return render(request, "problems/sb/register.html", {})
 
+
 def student_page(request, pk):
     student = User.objects.get(pk=pk)
     testsets = TestSetAssignment.objects.filter(person=student)
 
     return render(request, "problems/student_page.html", {'student': student, 'testsets': testsets})
+
 
 def rejudge_page(request):
     if request.user.groups.filter(name='teachers').exists():
