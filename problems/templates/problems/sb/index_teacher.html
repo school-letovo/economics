@@ -53,19 +53,21 @@
 
 </ul>
 {% endblock %}
-{% block sidebar%}
-<li><a class="fas text-gray-400" href="admin">Admin page</a></li>
-<li><a class="fas text-gray-400" href="{% url 'add_students_to_groups' %}">Добавить учеников в группы</a></li>
+{% block sidebar %}
+    <li><a class="fas text-gray-400" href="admin">Admin page</a></li>
+    <li><a class="fas text-gray-400" href="{% url 'add_students_to_groups' %}">Добавить учеников в группы</a></li>
+    <li><a class="fas text-gray-400" href="{% url 'transfer_from_group_to_group' %}">Перевести из группы в группу</a>
+    </li>
 {% endblock %}
 {% block content %}
-<style>
-.collapsible {
-  cursor: pointer;
-  outline: none;
-}
+    <style>
+        .collapsible {
+            cursor: pointer;
+            outline: none;
+        }
 
-.active, .collapsible:hover {
-}
+        .active, .collapsible:hover {
+        }
 
 .content {
   display: none;
@@ -112,7 +114,7 @@
                 <div class="alert alert-primary" role="alert">
                     <b>Создать новый тест из выбранных задач</b>
                     <br><br>Название теста:
-                    <input type="text" name="name">&nbsp;&nbsp;&nbsp;
+                    <input type="text" name="name">&nbsp;
                     <input type="submit" name="submit" value="Создать тест">
                 </div>
                 <div class="alert alert-primary" role="alert">
@@ -179,16 +181,6 @@
                     </div>
 
                 </div>
-    </form>
-    <form method="POST" action="{% url 'update_lists' %}">
-        {% csrf_token %}
-            <br><br>
-            <input type="submit" name="submit" value="Перевести учеников в следующие классы">
-    </form>
-    <form method="POST" action="{% url 'downgrade_lists' %}">
-        {% csrf_token %}
-            <br><br>
-            <input type="submit" name="submit" value="Перевести учеников в предыдущие классы">
     </form>
 </div>
 <!-- /.container-fluid -->

@@ -28,6 +28,6 @@ urlpatterns = [
     path('rejudge', views.rejudge_page, name='rejudge'),
     path('add_students', views.add_students, name='add_students'),
     path('add_students_to_groups', views.add_students_to_groups, name='add_students_to_groups'),
-    path('update_lists', views.update_lists, name='update_lists'),
-    path('downgrade_lists', views.downgrade_lists, name='downgrade_lists')
+    path('transfer_groups', views.transfer_groups, name='transfer_groups'),
+    path('transfer_from_group_to_group', views.transfer_from_group_to_group, name='transfer_from_group_to_group')
 ]

@@ -55,18 +55,18 @@
           </ul>
 {% endblock %}
 {% block content %}
-            <div class="container-fluid">
+    <div class="container-fluid">
 
-                  <div class="row">
-                      <div class="col-10">
-                          {% include 'problems/assigned_testsets.html' %}
-                          <h3>Назначенные задачи</h3>
-                          <div id="problems">
-                              {% autoescape off %}
-                              {% include "problems/assigned_list.html" %}
-                              {% endautoescape %}
-                          </div>
-                      </div>
-                  </div>
+        <div class="row">
+            <div class="col-10">
+                {% include 'problems/assigned_testsets.html' %}
+                <h3>Назначенные задачи</h3>
+                <div id="problems">
+                    {% autoescape off %}
+                        {% include "problems/assigned_list.html" %}
+                    {% endautoescape %}
+                </div>
             </div>
+        </div>
+    </div>
 {% endblock %}

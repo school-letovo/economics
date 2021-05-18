@@ -1,0 +1,20 @@
+<form method="post" action="{% url 'transfer_groups' %}">
+    {% csrf_token %}
+
+    <div class="col-md-auto">
+        <h3>Перевести из группы</h3>
+        <div id="groups">
+            {% include "problems/group_list.html" %}
+        </div>
+        <p></p>
+        <h3>Перевести в группу</h3>
+        <div id="groups">
+            {% with group_list_name="group_to" %}
+                {% include "problems/group_list.html" %}
+            {% endwith %}
+        </div>
+        <div class="alert alert-primary" role="alert">
+            <input type="submit" name="submit" value="Перевести из группы в группу">
+        </div>
+    </div>
+</form>

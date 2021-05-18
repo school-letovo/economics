@@ -44,15 +44,22 @@ def index(request):
                    #'tests': tests,
                    #'cases': cases,
                    'students': students,
-                   'topic_list': topic_list,
-                   'source_list': source_list,
-                   'submits': submits,
-                   'groups': groups,
-                   'testsets': testsets,
-                   'checked_topics': checked_topics,
-                   'checked_sources': checked_sources,
+            'topic_list': topic_list,
+            'source_list': source_list,
+            'submits': submits,
+            'groups': groups,
+            'testsets': testsets,
+            'checked_topics': checked_topics,
+            'checked_sources': checked_sources,
         }
         return render(request, 'problems/sb/index_teacher.html', context)
+
+    elif request.user.groups.filter(name='graduates').exists():
+        # Graduate index
+        solved_testsets = TestSetAssignment.objects.filter(person=request.user, status=3)
+
+        context = {'solved_testsets': solved_testsets}
+        return render(request, 'problems/sb/index_graduate.html', context)
 
     elif request.user.groups.filter(name='students').exists():
         # Student index
@@ -138,33 +145,26 @@ def assign(request):
 
     return redirect('index')
 
-def update_lists(request):
-    graduates = Group.objects.get(name='graduates')
-    eleven_grade = Group.objects.get(name='11 класс')
-    ten_grade = Group.objects.get(name='10 класс')
-    nine_grade = Group.objects.get(name='9 класс')
-    graduates.user_set.add(*eleven_grade.user_set.all())
-    eleven_grade.user_set.clear()
-    eleven_grade.user_set.add(*ten_grade.user_set.all())
-    ten_grade.user_set.clear()
-    ten_grade.user_set.add(*nine_grade.user_set.all())
-    nine_grade.user_set.clear()
+
+def transfer_groups(request):
+    groups_to = {group_to_id: Group.objects.get(id=group_to_id) for group_to_id in request.POST.getlist('group_to')}
+    for group1_id in request.POST.getlist('group'):
+        group1 = Group.objects.get(id=group1_id)
+        for group2_id in request.POST.getlist('group_to'):
+            group2 = groups_to[group2_id]
+            group2.user_set.add(*group1.user_set.all())
+        group1.user_set.clear()
 
     return redirect('index')
 
-def downgrade_lists(request):
-    graduates = Group.objects.get(name='graduates')
-    eleven_grade = Group.objects.get(name='11 класс')
-    ten_grade = Group.objects.get(name='10 класс')
-    nine_grade = Group.objects.get(name='9 класс')
-    nine_grade.user_set.add(*ten_grade.user_set.all())
-    ten_grade.user_set.clear()
-    ten_grade.user_set.add(*eleven_grade.user_set.all())
-    eleven_grade.user_set.clear()
-    eleven_grade.user_set.add(*graduates.user_set.all())
-    graduates.user_set.clear()
 
-    return redirect('index')
+def transfer_from_group_to_group(request):
+    groups = Group.objects.all()
+    context = {'groups': groups, }
+    if request.POST:
+        return render(request, 'problems/transfer_from_group_to_group.html', context)
+    else:
+        return render(request, 'problems/transfer_from_group_to_group.html', context)
 
 def add_students(request):
     for student in request.POST.getlist('student'):

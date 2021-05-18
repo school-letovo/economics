@@ -1,8 +1,8 @@
 {% for group in groups %}
     {% if group.name != 'admins' and group.name != 'students' and group.name != 'supervisor' and group.name != 'teachers' %}
-    <div class="group">
-        <input type="checkbox" name="group" value="{{ group.id }}">
-        {{ group.name }}
-    </div>
+        <div class="group">
+            <input type="checkbox" name={{ group_list_name|default:"group" }} value="{{ group.id }}">
+            {{ group.name }}
+        </div>
     {% endif %}
 {% endfor %}
