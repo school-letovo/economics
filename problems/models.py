@@ -124,6 +124,7 @@ STATUS_CHOICES = {
     (1, 'Ожидает проверки'),
     (2, 'Проверено учителем'),
     (3, 'Проверено автоматически'),
+    (4, 'Задача для самопроверки'),
 }
 
 class Assignment(models.Model):
@@ -139,6 +140,9 @@ class Assignment(models.Model):
 
     class Meta:
         ordering = ['status', 'date_deadline']
+
+
+
 
 class TestSet(models.Model):
     name = models.CharField('Название', max_length=200)

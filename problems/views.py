@@ -125,6 +125,22 @@ def assign_test(request):
                 assign_task = TestSetAssignment(person=student, test_set=test_set,
                                                 date_deadline=date_test_deadline, assigned_by=request.user).save()
 
+def assign_flash(request):
+    if request.POST['date_deadline']:
+        date_deadline = datetime.strptime(request.POST['date_deadline'], "%Y-%m-%d")
+    else:
+        date_deadline = None
+    for student in request.POST.getlist('student'):
+        for problem in request.POST.getlist('problem'):
+            assign_task = Assignment(person=User.objects.get(id=int(student)),
+                                     problem=Problem.objects.get(id=int(problem)), date_deadline=date_deadline,
+                                     assigned_by=request.user, status=4).save()
+    for group_id in request.POST.getlist('group'):
+        group = Group.objects.get(id=group_id)
+        for student in group.user_set.all():
+            for problem in request.POST.getlist('problem'):
+                assign_task = Assignment(person=student, problem=Problem.objects.get(id=int(problem)),
+                                         date_deadline=date_deadline, assigned_by=request.user, status=4).save()
 
 def assign(request):
     if request.POST['submit'] == 'Назначить задачи':
@@ -135,6 +151,8 @@ def assign(request):
         assign_test(request)
     elif request.POST['submit'] == 'Удалить тесты':
         delete_test(request)
+    elif request.POST['submit'] == 'Назначить задачи для самопроверки':
+        assign_flash(request)
 
     return redirect('index')
 
@@ -272,7 +290,6 @@ def submit(request):
     assignment.save()
 
     return redirect("index")
-
 
 def check_solution(request, submit_id):
     submit = Submit.objects.get(id=submit_id)
