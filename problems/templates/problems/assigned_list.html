@@ -3,9 +3,20 @@
     <form method="post" action="{% url 'submit' %}">
         {% csrf_token %}
         {% include 'problems/problem.html' %}
-        {% if problem.assignment.status != 1 %}
+        {% if problem.assignment.status != 1 and problem.assignment.status != 4 %}
             <input type="hidden" name="assignment_id" value="{{ problem.assignment.id }}">
             <p><input type="submit" value="Сдать на проверку"></p>
+        {% endif %}
+        {% if problem.assignment.status == 4 %}
+            <input type="hidden" name="assignment_id" value="{{ problem.assignment.id }}">
+            <div class="problem-buttons">
+                <a class="btn btn-primary" data-toggle="collapse" href="#solution-{{ problem.id }}" role="button" aria-expanded="false" aria-controls="collapseExample">Решение</a>
+            </div>
+            <div class="right-solution">
+                <div class="collapse" id="solution-{{ problem.id }}">
+                    {% include 'problems/problem_solution.html' %}
+                </div>
+            </div>
         {% endif %}
     </form>
 
