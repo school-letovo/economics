@@ -43,15 +43,18 @@ TYPE_CHOICES = {
 }
 
 
-# class Paper_object(models.Model):
-#     # name = models.CharField('Название', max_length=200, blank=True, null=True)
-#     # def __str__(self):
-#     #     return self.name
-#     pass
-
-class Problem(models.Model):
+class PaperObject(models.Model):
     name = models.CharField('Название', max_length=200, blank=True, null=True)
     task = RichTextUploadingField('Условие')
+    # class Meta:
+    #     abstract = True
+    #     ordering = ["name"]
+
+
+
+class Problem(PaperObject):
+    # name = models.CharField('Название', max_length=200, blank=True, null=True)
+    # task = RichTextUploadingField('Условие')
     problem_type = models.IntegerField('Тип задачи', choices=TYPE_CHOICES, blank=False, null=False, default=0)
     short_answer = models.CharField('Ответ (для автоматической проверки)', max_length=200, blank=True)
     yesno_answer = models.IntegerField('Ответ ДА/НЕТ', choices=YESNO_CHOICES, blank=False, default=0)
@@ -156,9 +159,9 @@ class TestSet(models.Model):
 
 
 
-class Theory(models.Model):
-    name = models.CharField('Название', max_length=200, blank=True, null=True)
-    task = RichTextUploadingField('Текст')
+class Theory(PaperObject):
+    # name = models.CharField('Название', max_length=200, blank=True, null=True)
+    # task = RichTextUploadingField('Текст')
     def __str__(self):
         return self.name
 
@@ -167,15 +170,24 @@ class Theory(models.Model):
 
 
 class Paper(models.Model):
-    name = models.CharField('Название', max_length=200)
-    theory = models.ManyToManyField(Theory)
-    problems = models.ManyToManyField(Problem)
-    # objects = models.ManyToManyField(Paper_object)
+    title = models.CharField('Название', max_length=200, blank=True, null=True)
+    blocks = models.ManyToManyField(PaperObject)
     assigned_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='papers_assigner',
                                     verbose_name='Кем задано')
     def __str__(self):
-        return self.name
+        return self.title
 
+# class TaskOrder(models.Model):
+#     paper = models.ForeignKey(Paper, verbose_name="Последовательность", on_delete=models.CASCADE, blank=True, default=-1, related_name='task_order')
+#     number = models.CharField('номер PaperObject', max_length=1000, blank=False)
+#     order = models.IntegerField('номер объекта в листе', blank=False, null=False, default=-1)
+#
+#     class Meta:
+#         verbose_name = 'Объект'
+#         verbose_name_plural = 'Объекты'
+#
+#     def __str__(self):
+#         return mark_safe(self.number)
 
 class TestSetAssignment(models.Model):
     person = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Кому задано')
