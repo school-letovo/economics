@@ -177,17 +177,17 @@ class Paper(models.Model):
     def __str__(self):
         return self.title
 
-# class TaskOrder(models.Model):
-#     paper = models.ForeignKey(Paper, verbose_name="Последовательность", on_delete=models.CASCADE, blank=True, default=-1, related_name='task_order')
-#     number = models.CharField('номер PaperObject', max_length=1000, blank=False)
-#     order = models.IntegerField('номер объекта в листе', blank=False, null=False, default=-1)
-#
-#     class Meta:
-#         verbose_name = 'Объект'
-#         verbose_name_plural = 'Объекты'
-#
-#     def __str__(self):
-#         return mark_safe(self.number)
+class TaskOrder(models.Model):
+    paper = models.ForeignKey(Paper, verbose_name="Последовательность", on_delete=models.CASCADE, blank=True, default=-1, related_name='task_order')
+    number = models.CharField('номер PaperObject', max_length=1000, blank=False)
+    order = models.IntegerField('номер объекта в листе', blank=False, null=False, default=-1)
+
+    class Meta:
+        verbose_name = 'Объект'
+        verbose_name_plural = 'Объекты'
+
+    def __str__(self):
+        return mark_safe(self.number)
 
 class TestSetAssignment(models.Model):
     person = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Кому задано')
