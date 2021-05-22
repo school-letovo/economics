@@ -13,7 +13,7 @@ from django.core import serializers
 from economics.settings import TOPIC_ROOT, SOURCE_ROOT
 
 from .models import Assignment, Problem, Topic, Submit, Source, Variant, TestSet, TestSetAssignment, TestSubmit, \
-    GroupTeacher, Paper, PaperAssignment
+    GroupTeacher, Paper, PaperAssignment, TaskOrder
 from .forms import SubmitForm, CheckForm
 
 
@@ -645,15 +645,25 @@ def testset(request, pk):
     return render(request, 'problems/solve_testset.html', {'assigned_tests': result, 'assigned': assigned_testset})
 
 
-def paper(request, pk):
-    result_problems = []
-    result_theory = []
-    assigned_papers = PaperAssignment.objects.get(pk=pk)
-    for problem in assigned_papers.paper.problems.all():
-        result_problems.append(problem.task)
-    for theory in assigned_papers.paper.theory.all():
-        result_theory.append(theory.task)
-    context = {'result_theory': result_theory, 'result_problems': result_problems}
+def paper_show(request, pk):
+    blocks = []
+    obj = Paper.objects.get(pk=pk)
+    ord = TaskOrder.objects.filter(paper=obj)
+    print(ord, 67, len(ord))
+    print(obj.blocks.all())
+    for block in obj.blocks.all():
+        blocks.append(block.task)
+    result_blocks = [""] * len(ord)
+    numbers = []
+    for item in ord:
+        a, b = item.number, item.order
+        numbers.append((a, b))
+    numbers.sort()
+    for item in range(len(numbers)):
+        result_blocks[numbers[item][1] - 1] = blocks[item]
+    print(numbers)
+    print(result_blocks)
+    context = {'result_blocks': result_blocks}
     return render(request, 'problems/solve_paper.html', context)
 
 

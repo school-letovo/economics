@@ -1,13 +1,8 @@
 <div class="col-md-auto">
-    <h3>Теория</h3>
-    {% for theory in result_theory %}
-        {{theory}}
-       {% endfor %}
-    <p></p>
-    <h3>Задачи</h3>
-    {% for problem in result_problems %}
-        {{problem}}
-       {% endfor %}
+    <h3>Лист</h3>
+    {% for block in result_blocks %}
+        <p>{{ block }}</p>
+    {% endfor %}
 
 </div>
 

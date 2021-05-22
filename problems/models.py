@@ -45,7 +45,7 @@ TYPE_CHOICES = {
 
 class PaperObject(models.Model):
     name = models.CharField('Название', max_length=200, blank=True, null=True)
-    task = RichTextUploadingField('Условие')
+    task = RichTextUploadingField('Текст')
     # class Meta:
     #     abstract = True
     #     ordering = ["name"]
