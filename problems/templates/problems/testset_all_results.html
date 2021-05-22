@@ -14,19 +14,16 @@
             {% for result in results %}
                 <tr>
                 {% for item in result %}
-                    {% if forloop.counter0 == 0 %}
-                        <td>{{ item.last_name }}&nbsp;{{ item.first_name }}</td>
+                    {% if item is True %}
+                        <td align='center' bgcolor="darkgreen"><font color="white"><b>+</b></font></td>
+                    {% elif item is None %}
+                        <td>&nbsp;</td>
+                    {% elif item is False %}
+                        <td align='center' bgcolor="darkred"><font color="white"><b>-</b></font></td>
+                    {% elif forloop.counter != 1 %}
+                        <td align="right">{{ item }}</td>
                     {% else %}
-                        {% if item is True %}
-                                <td align='center' bgcolor="darkgreen"><font color="white"><b>+</b></font></td>
-                            {% elif item is None %}
-                                <td>&nbsp;</td>
-                            {% elif item is False %}
-                                <td align='center' bgcolor="darkred"><font color="white"><b>-</b></font></td>
-                            {% else %}
-                                <td align="right">{{ item }}</td>
-                            {% endif %}
-                        </td>
+                        <td>{{ item.name }}</td>
                     {% endif %}
                 {% endfor %}
                     <td><a href="{% url 'failed' result.0.id testset_pk %}"><nobr>Задачи, решенные неверно</nobr></a></td>

@@ -66,7 +66,6 @@ class Problem(models.Model):
     #   TODO pictures_quality : draft, final
     #   TODO text_quality: draft, final
 
-
     hint = RichTextUploadingField('Подсказка', blank=True)
 
     topics = models.ManyToManyField(Topic, related_name="problems", verbose_name='Темы')
@@ -104,7 +103,7 @@ class Source(models.Model):
     parent = models.ForeignKey('Source', on_delete=models.CASCADE, verbose_name="Предок", related_name='children',
                                blank=True, null=True)
     order = models.IntegerField('Порядковый номер')
-    problem = models.ForeignKey(Problem, on_delete=models.CASCADE, blank=True, null=True)
+    problems = models.ManyToManyField(Problem, blank=True, null=True, related_name="source_set")
 
     def __str__(self):
         try: # recursion could raise error

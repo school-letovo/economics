@@ -72,7 +72,7 @@ class ParentSourceWidget(forms.Select):
 class SourceAdminForm(forms.ModelForm):
   class Meta:
     model = Source
-    fields = ['name', 'order', 'problem', 'parent', ]
+    fields = ['name', 'order', 'problems', 'parent', ]
     widgets = {
       'parent': ParentSourceWidget(),
     }

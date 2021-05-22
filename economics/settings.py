@@ -39,7 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'ckeditor',
     'ckeditor_uploader',
-    'problems',
+    'problems.apps.ProblemsConfig',
 ]
 
 MIDDLEWARE = [
@@ -136,3 +136,4 @@ CKEDITOR_UPLOAD_PATH = 'ckeditor/'
 #################################
 SOURCE_ROOT = 22
 TOPIC_ROOT = 1
+TOPIC_UNALLOCATED = 20
