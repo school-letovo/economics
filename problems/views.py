@@ -70,9 +70,15 @@ def index(request):
             problems.append(problem)
         assigned_testsets = TestSetAssignment.objects.filter(person=request.user, status=0)
         solved_testsets = TestSetAssignment.objects.filter(person=request.user, status=3)
-        assigned_papers = PaperAssignment.objects.filter(person=request.user, status=0)
-        solved_papers = PaperAssignment.objects.filter(person=request.user, status=3)
-
+        paper_assignments = PaperAssignment.objects.filter(person=request.user, status=0)
+        print(paper_assignments, 'assigned_papers')
+        assigned_papers = []
+        for i in paper_assignments:
+            assigned_papers.append(i.paper)
+        paper_solutions = PaperAssignment.objects.filter(person=request.user, status=2)
+        solved_papers = []
+        for i in paper_solutions:
+            solved_papers.append(i.paper)
         context = {'assigned_problems': problems, 'assigned_testsets': assigned_testsets,
                    'solved_testsets': solved_testsets,
                    'assigned_papers': assigned_papers, 'solved_papers': solved_papers}

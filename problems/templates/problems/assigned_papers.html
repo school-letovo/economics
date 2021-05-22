@@ -1,10 +1,11 @@
 <div class="alert alert-primary" role="alert">
     <p><b>Назначенные листы с задачами:</b></p>
-    {% for assigned in assigned_papers %}
-    <p><a href="{% url 'paper' assigned.id %}">{{ assigned.paper.name }}</a></p>
+    {% for paper in assigned_papers %}
+        <p><input type="checkbox" name="paper" value="{{ paper.id }}"> <a href="{% url 'paper' paper.id %}">{{ paper.title }}</a></p>
     {% endfor %}
     <p><b>Сданные листы с задачами:</b></p>
-    {% for solved in solved_papers %}
-    <p><a href="{% url 'paper' assigned.id %}">{{ solved.paper.name }}</a></p>
+    {% for paper in solved_papers %}
+        <p><input type="checkbox" name="paper" value="{{ paper.id }}"> <a href="{% url 'paper' paper.id %}">{{ paper.title }}</a></p>
     {% endfor %}
 </div>
+
