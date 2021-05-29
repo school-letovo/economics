@@ -249,6 +249,7 @@ class TestSubmit(models.Model):
     yesno_answer = models.IntegerField('Ответ ДА/НЕТ', choices=YESNO_CHOICES, blank=False, null=False, default=0)
     multiplechoice_answer = models.CharField('Выбор ответов', max_length=200, blank=True, null=True)
     submit_datetime = models.DateTimeField('Время и дата сдачи решения', auto_now_add=True, blank=False)
+    submit_datetime = models.DateTimeField('Время и дата сдачи решения', auto_now_add=True, blank=False)
     answer_autoverdict = models.BooleanField('Результат автоматической проверки', blank=True, null=True)
 
     def __str__(self):

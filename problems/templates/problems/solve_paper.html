@@ -1,7 +1,9 @@
 <div class="col-md-auto">
     <h3>Лист</h3>
     {% for block in result_blocks %}
-        <p>{{ block }}</p>
+        {% autoescape off %}
+            {{ block}}
+        {% endautoescape %}
     {% endfor %}
 
 </div>

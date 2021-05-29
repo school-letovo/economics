@@ -71,7 +71,6 @@ def index(request):
         assigned_testsets = TestSetAssignment.objects.filter(person=request.user, status=0)
         solved_testsets = TestSetAssignment.objects.filter(person=request.user, status=3)
         paper_assignments = PaperAssignment.objects.filter(person=request.user, status=0)
-        print(paper_assignments, 'assigned_papers')
         assigned_papers = []
         for i in paper_assignments:
             assigned_papers.append(i.paper)
@@ -218,7 +217,6 @@ def rejudge_test(request):
         test_id = int(request.POST['test_id'])
         submits = TestSubmit.objects.filter(problem=test_id)
         for submit in submits:
-            print(submit)
             if submit.problem.problem_type == 1:
                 student_yesno_answer = submit.yesno_answer
                 submit.answer_autoverdict = check_yesno_answer(student_yesno_answer, submit.problem.yesno_answer)
@@ -511,7 +509,6 @@ def load_test(request):
         for line in test_text.split('\n'):
             line = line.lstrip()
             if state == BEFORE:
-                print('BEFORE')
                 yesno_answer = 2
                 choice = None
                 variant_counter = 0
@@ -520,13 +517,10 @@ def load_test(request):
                 if result:
                     answer = result.group(1)
                     if answer:
-                        print(result.group(1))
                         if answer == '+':
                             yesno_answer = 1
-                            print(1)
                         if answer == '-':
                             yesno_answer = 2
-                            print(2)
                         if answer in '1aAаА':
                             choice = 1
                         if answer in '2бБ':
@@ -548,12 +542,10 @@ def load_test(request):
                     state = IN_TASK
                     problem_number = (problem_number + 1)  ### int(result.group(2)) or
                     text = result.group(4)
-                    print(result.group(3))
             elif state == IN_TASK:
-                print('IN_TASK type:', problem_type, line)
+                pass
 
                 if problem_type != 1 and (line.startswith("+") or (line[:2] in two_symb_filter)):
-                    print('Not type 1', problem_type)
                     problem = Problem(task=text, problem_type=problem_type)
                     problem.save()
                     if request.POST['topic_id']:
@@ -572,7 +564,6 @@ def load_test(request):
                     oldline = line
                 elif problem_type == 1 and (line == "" or re.match(r'^\s*$', line) or re.match(
                         r'^\s*([+-aабвгдежзиAАБВГДЕЖЗИ]*)\s*(\d+)\.\s(.*)$', line)):
-                    print('IN YES/NO - END')
                     problem = Problem(task=text, problem_type=1, yesno_answer=yesno_answer)
                     problem.save()
                     if request.POST['topic_id']:
@@ -584,11 +575,9 @@ def load_test(request):
                     text = None
                     state = BEFORE
                 else:
-                    print('append:', line, '$')
                     text = text + line
                     oldline = line
             elif problem_type != 1 and state == IN_VARIANT:
-                print('IN VARIANT', line, "problem type:", problem_type, "$")
                 result = re.match(r'^(\d+)\. (.*)$', line)
 
                 if problem_type != 1 and (line.startswith("+") or (line[:2] in two_symb_filter)):
@@ -600,7 +589,6 @@ def load_test(request):
                         else:
                             variant = Variant(text=variant_text, order=variant_order, problem=problem, right=False)
                     else:  # right answer before variant number
-                        print('variant order:', variant_order, oldline)
                         variant = Variant(text=variant_text, order=variant_order, problem=problem,
                                           right=oldline.startswith('+'))
                     variant.save()
@@ -655,8 +643,6 @@ def paper_show(request, pk):
     blocks = []
     obj = Paper.objects.get(pk=pk)
     ord = TaskOrder.objects.filter(paper=obj)
-    print(ord, 67, len(ord))
-    print(obj.blocks.all())
     for block in obj.blocks.all():
         blocks.append(block.task)
     result_blocks = [""] * len(ord)
@@ -667,7 +653,6 @@ def paper_show(request, pk):
     numbers.sort()
     for item in range(len(numbers)):
         result_blocks[numbers[item][1] - 1] = blocks[item]
-    print(numbers)
     print(result_blocks)
     context = {'result_blocks': result_blocks}
     return render(request, 'problems/solve_paper.html', context)
