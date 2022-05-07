@@ -597,16 +597,18 @@ def test_result(request, test_assignment_id):
         result.append(problem)
     return render(request, 'problems/testset_result.html', {'tests': result, 'tests_ok': tests_ok, 'test_problems': test_assignment.test_set.problems})
 
+
 def testset_all_results(request, testset_pk):
     testset = TestSet.objects.get(pk=testset_pk)
     results = []
-    problem_list = testset.problems.values()
+    problem_list = testset.problems.all()
     n_problems = len(problem_list)
-    problem_index = {problem['id']: i + 2 for i, problem in enumerate(problem_list)}
+    problem_index = {problem.id: i + 2 for i, problem in enumerate(problem_list)}
     students = {assignment.person: assignment.submits.values('answer_autoverdict', 'problem')
                 for assignment in testset.assignments.all().prefetch_related('submits', 'person')}
     for student in students:
-        student_vals = {'name': student.last_name + ' ' + student.first_name, 'id': student.id}
+        # Use no-break space in student name to avoid line breaking
+        student_vals = {'name': student.last_name + ' ' + student.first_name, 'id': student.id}
         cur = [student_vals] + [0] + [None] * n_problems
         for submission in students[student]:
             if not cur[problem_index[submission['problem']]]:
@@ -617,7 +619,8 @@ def testset_all_results(request, testset_pk):
                     cur[problem_index[submission['problem']]] = submission['answer_autoverdict']
         results.append(cur)
     results.sort(key=lambda x: (-int(x[1]), x[0]['name']))
-    return render(request, 'problems/testset_all_results.html', {'problems': problem_list, 'results':results, 'testset_pk': testset_pk})
+    return render(request, 'problems/testset_all_results.html', {'problems': problem_list,
+                                                                 'results': results, 'testset_pk': testset_pk})
 
 
 def test(request):

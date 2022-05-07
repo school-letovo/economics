@@ -52,7 +52,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware'
 ]
 
-if int(os.getenv('PROFILING', '1')):
+if int(os.getenv('PROFILING', '0')):
     MIDDLEWARE.append('django_cprofile_middleware.middleware.ProfilerMiddleware')
 
 ROOT_URLCONF = 'economics.urls'
