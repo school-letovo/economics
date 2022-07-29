@@ -39,7 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'ckeditor',
     'ckeditor_uploader',
-    'problems',
+    'problems.apps.ProblemsConfig',
 ]
 
 MIDDLEWARE = [
@@ -51,8 +51,11 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'django_cprofile_middleware.middleware.ProfilerMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware'
 ]
+
+if int(os.getenv('PROFILING', '0')):
+    MIDDLEWARE.append('django_cprofile_middleware.middleware.ProfilerMiddleware')
 
 ROOT_URLCONF = 'economics.urls'
 
@@ -148,3 +151,4 @@ CKEDITOR_UPLOAD_PATH = 'ckeditor/'
 #################################
 SOURCE_ROOT = 22
 TOPIC_ROOT = 1
+TOPIC_UNALLOCATED = 20

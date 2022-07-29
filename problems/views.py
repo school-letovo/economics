@@ -4,11 +4,10 @@ import re
 from django.db.models import Count
 from django.shortcuts import render, redirect
 from django.template.loader import render_to_string
-from django.http import HttpResponse, JsonResponse
+from django.http import JsonResponse
 from django.contrib.auth.models import User, Group
 from django.views.generic.detail import DetailView
 from django.contrib.auth.hashers import make_password
-from django.core import serializers
 
 from economics.settings import TOPIC_ROOT, SOURCE_ROOT
 
@@ -331,37 +330,28 @@ def tree2List(root, counter):
 
 
 def filter_problems(request, problem_type=None):
-    filter_topics = list(map(int, request.POST.getlist('topic'))) or [TOPIC_ROOT]
-    filter_sources = list(map(int, request.POST.getlist('source'))) or [SOURCE_ROOT]
+    filter_topics = set(map(int, request.POST.getlist('topic'))) or {TOPIC_ROOT}
+    filter_sources = set(map(int, request.POST.getlist('source'))) or {SOURCE_ROOT}
     if problem_type is None:
-        problems = Problem.objects.all()
+        problems = Problem.objects.filter(source_set__in=filter_sources)
     else:
-        problems = Problem.objects.filter(problem_type__in=problem_type)
+        problems = Problem.objects.filter(problem_type__in=problem_type,
+                                          source_set__in=filter_sources)
     probs, tests, cases = [], [], []
     for problem in problems:
-        for source in problem.source_set.all():
-            while source.id not in filter_sources and source.id != SOURCE_ROOT:
-                source = source.parent
-            if source.id in filter_sources:
-                for topic in problem.topics.all():
-                    while topic.id not in filter_topics and topic.id != TOPIC_ROOT:
-                        topic = topic.parent
-                    if topic.id in filter_topics:
-                        if problem_type is None:
-                            if problem.problem_type == 0:
-                                probs.append(problem)
-                            elif problem.problem_type == 4:
-                                cases.append(problem)
-                            else:
-                                tests.append(problem)
-                        elif problem_type == [0]:
-                            probs.append(problem)
-                        elif problem_type == [4]:
-                            cases.append(problem)
-                        else:
-                            tests.append(problem)
-                        break
-                break
+        if problem_type is None:
+            if problem.problem_type == 0:
+                probs.append(problem)
+            elif problem.problem_type == 4:
+                cases.append(problem)
+            else:
+                tests.append(problem)
+        elif problem_type == [0]:
+            probs.append(problem)
+        elif problem_type == [4]:
+            cases.append(problem)
+        else:
+            tests.append(problem)
 
     return (probs, tests, cases)
 
@@ -419,40 +409,12 @@ def bulk_create_sources(request):
     return render(request, 'problems/bulk_sources.html', {})
 
 
-def count_problems_by_source():
-    counter = dict()
-    source = Source.objects.get(id=SOURCE_ROOT)
-    count_problems_by_source_dfs(source, counter)
-    return counter
-
-
 def count_problems_by_topic():
-    counter = dict()
-    topic = Topic.objects.get(id=TOPIC_ROOT)
-    count_problems_by_topic_dfs(topic, counter)
-    return counter
+    return {topic.id: topic.problems.count for topic in Topic.objects.all()}
 
 
-def count_problems_by_source_dfs(source, counter):
-    if source.problem:
-        counter[source.id] = 1
-    else:
-        counter[source.id] = 0
-        for child in source.children.all():
-            counter[source.id] += count_problems_by_source_dfs(child, counter)
-
-    return counter[source.id]
-
-
-def count_problems_by_topic_dfs(topic, counter):
-    if topic.leaf:
-        counter[topic.id] = len(topic.problems.all())
-    else:
-        counter[topic.id] = 0
-        for child in topic.children.all():
-            counter[topic.id] += count_problems_by_topic_dfs(child, counter)
-
-    return counter[topic.id]
+def count_problems_by_source():
+    return {source.id: source.problems.count for source in Source.objects.all()}
 
 
 def submit_detail(request, pk):
@@ -642,30 +604,30 @@ def test_result(request, test_assignment_id):
         result.append(problem)
     return render(request, 'problems/testset_result.html', {'tests': result, 'tests_ok': tests_ok, 'test_problems': test_assignment.test_set.problems})
 
+
 def testset_all_results(request, testset_pk):
     testset = TestSet.objects.get(pk=testset_pk)
     results = []
-    students = set(testset.assignments.values_list('person', flat=True))
     problem_list = testset.problems.all()
-
-    for student_id in students:
-        student = User.objects.get(pk=student_id)
-        results.append([])
-        score = 0
-        for problem in problem_list:
-            submits = TestSubmit.objects.filter(problem=problem, assignment__person=student)
-            mark = None
-            for submit in submits:
-                if submit.answer_autoverdict is True:
-                    mark = True
-                    score += 1
-                    break
-                elif mark is None:
-                    mark = False
-            results[-1].append(mark)
-        results[-1] = [student, score] + results[-1]
-        results.sort(key=lambda x:-int(x[1]))
-    return render(request, 'problems/testset_all_results.html', {'problems': problem_list, 'results':results, 'testset_pk': testset_pk})
+    n_problems = len(problem_list)
+    problem_index = {problem.id: i + 2 for i, problem in enumerate(problem_list)}
+    students = {assignment.person: assignment.submits.values('answer_autoverdict', 'problem')
+                for assignment in testset.assignments.all().prefetch_related('submits', 'person')}
+    for student in students:
+        # Use no-break space in student name to avoid line breaking
+        student_vals = {'name': student.last_name + ' ' + student.first_name, 'id': student.id}
+        cur = [student_vals] + [0] + [None] * n_problems
+        for submission in students[student]:
+            if not cur[problem_index[submission['problem']]]:
+                if submission['answer_autoverdict']:
+                    cur[1] += 1
+                    cur[problem_index[submission['problem']]] = submission['answer_autoverdict']
+                else:
+                    cur[problem_index[submission['problem']]] = submission['answer_autoverdict']
+        results.append(cur)
+    results.sort(key=lambda x: (-int(x[1]), x[0]['name']))
+    return render(request, 'problems/testset_all_results.html', {'problems': problem_list,
+                                                                 'results': results, 'testset_pk': testset_pk})
 
 
 def test(request):
@@ -716,7 +678,7 @@ def create_user(request):
         user.last_name = request.POST['last_name']
         user.save()
 
-        group = Group.objects.get(name='students')
+        group = Group.objects.get(name='studentsajax')
         group.user_set.add(user)
 
         return redirect('index')
