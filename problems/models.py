@@ -74,8 +74,9 @@ class Problem(models.Model):
 
     def __str__(self):
         result = "#" + str(self.id)
-        if self.source_set.all():
-            result += ". " + ", ".join(map(str, self.source_set.all()))
+        sources = self.source_set.filter(children__isnull=True).all()
+        if sources:
+            result += ". " + ", ".join(map(str, sources))
         if self.name:
             result += ". " + self.name
         return result + ". " + self.task[:30] + "..."
