@@ -39,7 +39,8 @@ TYPE_CHOICES = {
     (1, 'Тест с ответом ДА/НЕТ'),
     (2, 'Тест с выбором одного ответа'),
     (3, 'Тест с выбором нескольких ответов'),
-    (4, 'Качественная задача')
+    (4, 'Качественная задача'),
+    (5, 'Тест с открытым ответом'),
 }
 
 
@@ -189,6 +190,7 @@ class TestSubmit(models.Model):
     assignment = models.ForeignKey(TestSetAssignment, on_delete=models.CASCADE, verbose_name='Назначенный тест', related_name='submits')
     problem = models.ForeignKey(Problem, on_delete=models.CASCADE, verbose_name='Задача', related_name='test_submits')
     yesno_answer = models.IntegerField('Ответ ДА/НЕТ', choices=YESNO_CHOICES, blank=False, null=False, default=0)
+    short_answer = models.CharField('Ответ (для автоматической проверки)', max_length=200, blank=True)
     multiplechoice_answer = models.CharField('Выбор ответов', max_length=200, blank=True, null=True)
     submit_datetime = models.DateTimeField('Время и дата сдачи решения', auto_now_add=True, blank=False)
     answer_autoverdict = models.BooleanField('Результат автоматической проверки', blank=True, null=True)
