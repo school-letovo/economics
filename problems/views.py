@@ -168,7 +168,8 @@ def clean(string):
 
 def autocheck_answer(student, author):
     for answer in author.split(';'):  # several correct answers could be separated by ;
-        if clean(answer) == clean(student):
+        if (clean(answer) ==
+                clean(student)):
             return True
     return False
 
@@ -208,6 +209,9 @@ def rejudge_test(request):
             elif submit.problem.problem_type == 3:
                 student_multiple_answer = submit.multiplechoice_answer
                 submit.answer_autoverdict = check_multiple_choice(student_multiple_answer, submit.problem.variants)
+            elif submit.problem.problem_type == 5:
+                student_open_answer = submit.short_answer
+                submit.answer_autoverdict = autocheck_answer(student_open_answer, submit.problem.short_answer)
             submit.save()
 
     return redirect('index')
@@ -233,7 +237,11 @@ def testset_submit(request):
             elif test.problem_type == 3:
                 student_multiple_answer = submit.multiplechoice_answer = request.POST.getlist(id + "-variants")
                 submit.answer_autoverdict = check_multiple_choice(student_multiple_answer, test.variants)
-            submit.save()
+            elif test.problem_type == 5:
+                student_open_answer = submit.short_answer = request.POST.getlist(id + "-short_answer")
+                submit.answer_autoverdict = autocheck_answer(student_open_answer[0], test.short_answer)
+
+        submit.save()
         assignment.status = 3
         assignment.save()
     return redirect('index')
