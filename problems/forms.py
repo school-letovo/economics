@@ -30,7 +30,7 @@ class SubmitForm(forms.ModelForm):
             self.fields['yesno_answer'].empty_label = None
 
 
-        if problem.problem_type in [1, 2, 3]:
+        if problem.problem_type in [1, 2, 3, 5]:
             del self.fields['solution']
 
 def source_admin_tree(root):
