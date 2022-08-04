@@ -1,7 +1,13 @@
 var paginators = document.querySelectorAll(".paginator");
 var amounts = document.querySelectorAll('.paginator-amount');
+var createTest = document.querySelector('#createTest');
+var assignProb = document.querySelector('#assignProb');
 var SHOWN_PAGES = 10;
 var SHOWN_NUMBER = 20;
+var problem = [];
+var student = [];
+var counter = 0;
+
 
 var sendRequest = function(method , url, data) {
     return new Promise((resolve, reject) => {
@@ -54,15 +60,18 @@ var recreatePaginator = function (curBtn,pag,numList,SHOWN_NUMBER) {
 
 	        var lastDivs = document.querySelector('.counter');
             lastDivs.innerHTML = "";
-	        var counter = 0;
             var checkboxes = document.querySelectorAll('.checkbox-check');
 
             var check = function (checkbox) {
-	            checkbox.onclick = function() {
+                checkbox.onclick = function() {
 		            if (checkbox.checked) {
 			            counter++;
+                        problem.push(parseInt(checkbox.value));
 		            } else {
 			            counter--;
+                        problem = problem.filter(function(value, index, arr) {
+                            return value !== parseInt(checkbox.value);
+                        });
 		            }
 		            span.textContent = counter;
 	            }
@@ -76,13 +85,15 @@ var recreatePaginator = function (curBtn,pag,numList,SHOWN_NUMBER) {
             clear.textContent = "Очистить";
 
             for (var i = 0; i < checkboxes.length; i++) {
+                if (problem.includes(parseInt(checkboxes[i].value)))
+                    checkboxes[i].checked = true;
 	            check(checkboxes[i]);
             }
 
             divs.appendChild(span);
             divs.appendChild(clear);
             divs.appendChild(selectAll);
-            span.textContent = "0";
+            span.textContent = counter;
 
             clear.onclick = function(evt) {
 	            evt.preventDefault();
@@ -91,6 +102,7 @@ var recreatePaginator = function (curBtn,pag,numList,SHOWN_NUMBER) {
 		            checkboxes[i].checked = false;
 	            }
 
+                problem = [];
 	            counter = 0;
 	            span.textContent = counter;
             }
@@ -98,11 +110,15 @@ var recreatePaginator = function (curBtn,pag,numList,SHOWN_NUMBER) {
             selectAll.addEventListener('click' , function(evt) {
 	            evt.preventDefault();
 
+                let checked = 0;
 	            for (var i = 0; i < checkboxes.length; i++) {
+                    if (checkboxes[i].checked)
+                        checked++;
 		            checkboxes[i].checked = true;
+                    problem.push(parseInt(checkboxes[i].value));
 	            }
 
-	            counter = checkboxes.length;
+	            counter = counter + checkboxes.length - checked;
 	            span.textContent = counter;
             });
 
@@ -143,16 +159,18 @@ var filterRecreate = function (paginator,resistor,SHOWN_NUMBER) {
 
 	        var lastDivs = document.querySelector('.counter');
             lastDivs.innerHTML = "";
-	        var counter = 0;
             var checkboxes = document.querySelectorAll('.checkbox-check');
 
-
             var check = function (checkbox) {
-	            checkbox.onclick = function() {
+                checkbox.onclick = function() {
 		            if (checkbox.checked) {
 			            counter++;
+                        problem.push(parseInt(checkbox.value));
 		            } else {
 			            counter--;
+                        problem = problem.filter(function(value, index, arr) {
+                            return value !== parseInt(checkbox.value);
+                        });
 		            }
 		            span.textContent = counter;
 	            }
@@ -166,13 +184,15 @@ var filterRecreate = function (paginator,resistor,SHOWN_NUMBER) {
             clear.textContent = "Очистить";
 
             for (var i = 0; i < checkboxes.length; i++) {
+                if (problem.includes(parseInt(checkboxes[i].value)))
+                    checkboxes[i].checked = true;
 	            check(checkboxes[i]);
             }
 
             divs.appendChild(span);
             divs.appendChild(clear);
             divs.appendChild(selectAll);
-            span.textContent = "0";
+            span.textContent = counter;
 
             clear.onclick = function(evt) {
 	            evt.preventDefault();
@@ -181,6 +201,7 @@ var filterRecreate = function (paginator,resistor,SHOWN_NUMBER) {
 		            checkboxes[i].checked = false;
 	            }
 
+                problem = [];
 	            counter = 0;
 	            span.textContent = counter;
             }
@@ -188,11 +209,15 @@ var filterRecreate = function (paginator,resistor,SHOWN_NUMBER) {
             selectAll.addEventListener('click' , function(evt) {
 	            evt.preventDefault();
 
+                let checked = 0;
 	            for (var i = 0; i < checkboxes.length; i++) {
+                    if (checkboxes[i].checked)
+                        checked++;
 		            checkboxes[i].checked = true;
+                    problem.push(parseInt(checkboxes[i].value));
 	            }
 
-	            counter = checkboxes.length;
+	            counter = counter + checkboxes.length - checked;
 	            span.textContent = counter;
             });
 
@@ -249,7 +274,7 @@ var filterRecreate = function (paginator,resistor,SHOWN_NUMBER) {
                 newBtn.addEventListener('click', function (evt) {
                     evt.preventDefault();
 
-                    recreatePaginator(this.textContent, paginator, numList,SHOWN_NUMBER);
+                    recreatePaginator(this.textContent, paginator, numList,SHOWN_NUMBER, problem, counter);
                 });
                 numList.appendChild(newBtn);
             }
@@ -357,20 +382,58 @@ var startFunction = async function(paginators,amounts) {
     for (var i = 0; i < paginators.length; i++) {
         await createPaginator(paginators[i],SHOWN_NUMBER,amounts[i]);
     }
-    var counter = 0;
     var checkboxes = document.querySelectorAll('.checkbox-check');
+    var studentChecks = document.querySelectorAll('.checkbox-student');
 
 
     var check = function (checkbox) {
         checkbox.onclick = function() {
 		    if (checkbox.checked) {
 			    counter++;
+                problem.push(parseInt(checkbox.value));
 		    } else {
 			    counter--;
+                problem = problem.filter(function(value, index, arr) {
+                    return value !== parseInt(checkbox.value);
+                });
 		    }
 		    span.textContent = counter;
 	    }
     }
+
+    var checkStudent = function (checkbox) {
+        checkbox.onclick = function () {
+            if (checkbox.checked)
+                student.push(parseInt(checkbox.value));
+            else
+                student = student.filter(function (value, index, arr) {
+                    return value !== parseInt(checkbox.value);
+                });
+        }
+    }
+
+    createTest.addEventListener('click', async function (evt) {
+        evt.preventDefault();
+
+        let fdata = new FormData();
+        fdata.append('csrfmiddlewaretoken', document.getElementsByName('csrfmiddlewaretoken')[0].value);
+        fdata.append('submit', 'Создать тест');
+        fdata.append('name', document.querySelector('#testName').value);
+        fdata.append('problem', problem.join(','));
+        await sendRequest('POST', '/problems/assign', fdata).then(data => location.reload());
+    });
+
+    assignProb.addEventListener('click', async function(evt) {
+        evt.preventDefault();
+
+        let fdata = new FormData();
+        fdata.append('csrfmiddlewaretoken', document.getElementsByName('csrfmiddlewaretoken')[0].value);
+        fdata.append('submit', 'Назначить задачи');
+        fdata.append('date_deadline', document.getElementsByName('date_deadline')[0].value);
+        fdata.append('problem', problem.join(','));
+        fdata.append('student', student.join(','));
+        await sendRequest('POST', '/problems/assign', fdata).then(data => location.reload());
+    })
 
     var divs = document.querySelector('.counter');
     var clear = document.createElement('button');
@@ -381,6 +444,9 @@ var startFunction = async function(paginators,amounts) {
 
     for (var i = 0; i < checkboxes.length; i++) {
 	    check(checkboxes[i]);
+    }
+    for (var i = 0; i < studentChecks.length; i++) {
+        checkStudent(studentChecks[i]);
     }
 
     divs.appendChild(span);
@@ -395,6 +461,7 @@ var startFunction = async function(paginators,amounts) {
 		    checkboxes[i].checked = false;
 	    }
 
+        problem = []
 	    counter = 0;
 	    span.textContent = counter;
     }
@@ -402,11 +469,15 @@ var startFunction = async function(paginators,amounts) {
     selectAll.addEventListener('click' , function(evt) {
 	    evt.preventDefault();
 
+        let checked = 0;
 	    for (var i = 0; i < checkboxes.length; i++) {
+            if (checkboxes[i].checked)
+                checked++;
 		    checkboxes[i].checked = true;
+            problem.push(parseInt(checkboxes[i].value));
 	    }
 
-	    counter = checkboxes.length;
+	    counter = counter + checkboxes.length - checked;
 	    span.textContent = counter;
     });
 };

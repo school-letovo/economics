@@ -77,8 +77,8 @@ def assign_problems(request):
         date_deadline = datetime.strptime(request.POST['date_deadline'], "%Y-%m-%d")
     else:
         date_deadline = None
-    for student in request.POST.getlist('student'):
-        for problem in request.POST.getlist('problem'):
+    for student in request.POST['student'].split(','):
+        for problem in request.POST['problem'].split(','):
             assign_task = Assignment(person=User.objects.get(id=int(student)),
                                      problem=Problem.objects.get(id=int(problem)), date_deadline=date_deadline,
                                      assigned_by=request.user).save()
@@ -94,7 +94,7 @@ def create_test(request):
     # create TestSet
     test_set = TestSet(name=request.POST["name"], assigned_by_id=request.user.id)
     test_set.save()
-    for problem in request.POST.getlist('problem'):
+    for problem in request.POST['problem'].split(','):
         test_set.problems.add(Problem.objects.get(id=int(problem)))
 
 def delete_test(request):
