@@ -27,21 +27,21 @@ class Topic(models.Model):
         ordering = ['order']
 
 
-YESNO_CHOICES = {
+YESNO_CHOICES = [
     (0, '---'),
     (1, 'Да'),
     (2, 'Нет'),
-}
+]
 
 
-TYPE_CHOICES = {
+TYPE_CHOICES = [
     (0, 'Задача'),
     (1, 'Тест с ответом ДА/НЕТ'),
     (2, 'Тест с выбором одного ответа'),
     (3, 'Тест с выбором нескольких ответов'),
     (4, 'Качественная задача'),
     (5, 'Тест с открытым ответом'),
-}
+]
 
 
 class Problem(models.Model):
@@ -120,12 +120,12 @@ class Source(models.Model):
         ordering = ['id']
 
 
-STATUS_CHOICES = {
+STATUS_CHOICES = [
     (0, 'Решение не сдано'),
     (1, 'Ожидает проверки'),
     (2, 'Проверено учителем'),
     (3, 'Проверено автоматически'),
-}
+]
 
 class Assignment(models.Model):
     person = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Кому задано')
