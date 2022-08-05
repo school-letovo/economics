@@ -74,8 +74,8 @@ var recreatePaginator = function (curBtn,pag,numList,SHOWN_NUMBER) {
                         });
 		            }
 		            span.textContent = counter;
-	            }
-            }
+	            };
+            };
 
             var divs = document.querySelector('.counter');
             var clear = document.createElement('button');
@@ -105,7 +105,7 @@ var recreatePaginator = function (curBtn,pag,numList,SHOWN_NUMBER) {
                 problem = [];
 	            counter = 0;
 	            span.textContent = counter;
-            }
+            };
 
             selectAll.addEventListener('click' , function(evt) {
 	            evt.preventDefault();
@@ -173,8 +173,8 @@ var filterRecreate = function (paginator,resistor,SHOWN_NUMBER) {
                         });
 		            }
 		            span.textContent = counter;
-	            }
-            }
+	            };
+            };
 
             var divs = document.querySelector('.counter');
             var clear = document.createElement('button');
@@ -204,7 +204,7 @@ var filterRecreate = function (paginator,resistor,SHOWN_NUMBER) {
                 problem = [];
 	            counter = 0;
 	            span.textContent = counter;
-            }
+            };
 
             selectAll.addEventListener('click' , function(evt) {
 	            evt.preventDefault();
@@ -274,7 +274,7 @@ var filterRecreate = function (paginator,resistor,SHOWN_NUMBER) {
                 newBtn.addEventListener('click', function (evt) {
                     evt.preventDefault();
 
-                    recreatePaginator(this.textContent, paginator, numList,SHOWN_NUMBER, problem, counter);
+                    recreatePaginator(this.textContent, paginator, numList,SHOWN_NUMBER);
                 });
                 numList.appendChild(newBtn);
             }
@@ -287,6 +287,9 @@ var filterRecreate = function (paginator,resistor,SHOWN_NUMBER) {
             resistor.appendChild(btnList);
             resistor.appendChild(chooseFilter);
             resistor.appendChild(filters);
+            MathJax.typesetPromise().then(() => {
+                MathJax.typesetPromise();
+            }).catch((err) => console.log(err.message));
       });
 };
 
@@ -374,8 +377,8 @@ var createPaginator = async function (paginator,SHOWN_NUMBER,amount) {
             paginator.parentElement.appendChild(resistor);
             MathJax.typesetPromise().then(() => {
                 MathJax.typesetPromise();
-              }).catch((err) => console.log(err.message));
-            });
+            }).catch((err) => console.log(err.message));
+        });
 };
 
 var startFunction = async function(paginators,amounts) {
@@ -398,8 +401,8 @@ var startFunction = async function(paginators,amounts) {
                 });
 		    }
 		    span.textContent = counter;
-	    }
-    }
+	    };
+    };
 
     var checkStudent = function (checkbox) {
         checkbox.onclick = function () {
@@ -409,31 +412,36 @@ var startFunction = async function(paginators,amounts) {
                 student = student.filter(function (value, index, arr) {
                     return value !== parseInt(checkbox.value);
                 });
-        }
+        };
+    };
+
+    if (createTest !== null) {
+        createTest.addEventListener('click', async function (evt) {
+            evt.preventDefault();
+
+            let fdata = new FormData();
+            fdata.append('csrfmiddlewaretoken', document.getElementsByName('csrfmiddlewaretoken')[0].value);
+            fdata.append('submit', 'Создать тест');
+            fdata.append('name', document.querySelector('#testName').value);
+            fdata.append('problem', problem.join(','));
+            await sendRequest('POST', '/problems/assign', fdata).then(data => location.reload());
+        });
     }
 
-    createTest.addEventListener('click', async function (evt) {
-        evt.preventDefault();
+    if (assignProb !== null) {
+        assignProb.addEventListener('click', async function(evt) {
+            evt.preventDefault();
 
-        let fdata = new FormData();
-        fdata.append('csrfmiddlewaretoken', document.getElementsByName('csrfmiddlewaretoken')[0].value);
-        fdata.append('submit', 'Создать тест');
-        fdata.append('name', document.querySelector('#testName').value);
-        fdata.append('problem', problem.join(','));
-        await sendRequest('POST', '/problems/assign', fdata).then(data => location.reload());
-    });
+            let fdata = new FormData();
+            fdata.append('csrfmiddlewaretoken', document.getElementsByName('csrfmiddlewaretoken')[0].value);
+            fdata.append('submit', 'Назначить задачи');
+            fdata.append('date_deadline', document.getElementsByName('date_deadline')[0].value);
+            fdata.append('problem', problem.join(','));
+            fdata.append('student', student.join(','));
+            await sendRequest('POST', '/problems/assign', fdata).then(data => location.reload());
+        });
+    }
 
-    assignProb.addEventListener('click', async function(evt) {
-        evt.preventDefault();
-
-        let fdata = new FormData();
-        fdata.append('csrfmiddlewaretoken', document.getElementsByName('csrfmiddlewaretoken')[0].value);
-        fdata.append('submit', 'Назначить задачи');
-        fdata.append('date_deadline', document.getElementsByName('date_deadline')[0].value);
-        fdata.append('problem', problem.join(','));
-        fdata.append('student', student.join(','));
-        await sendRequest('POST', '/problems/assign', fdata).then(data => location.reload());
-    })
 
     var divs = document.querySelector('.counter');
     var clear = document.createElement('button');
@@ -464,7 +472,7 @@ var startFunction = async function(paginators,amounts) {
         problem = [];
 	    counter = 0;
 	    span.textContent = counter;
-    }
+    };
 
     selectAll.addEventListener('click' , function(evt) {
 	    evt.preventDefault();
