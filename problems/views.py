@@ -541,8 +541,8 @@ def load_test(request):
             elif state == IN_TASK:
                 print('IN_TASK type:', problem_type, line)
 
-                if problem_type != 1 and (line.startswith("+") or (line[:2] in two_symb_filter)):
-                    print('Not type 1', problem_type)
+                if problem_type != 1 and problem_type != 5 and (line.startswith("+") or (line[:2] in two_symb_filter)):
+                    print('Not type 1, 5', problem_type)
                     problem = Problem(task=text, problem_type=problem_type)
                     problem.save()
                     if request.POST['topic_id']:
@@ -570,15 +570,33 @@ def load_test(request):
                            problem=problem).save()
                     text = None
                     state = BEFORE
-                else:
+                elif problem_type == 1:
                     print('append:', line, '$')
                     text = text + line
                     oldline = line
-            elif problem_type != 1 and state == IN_VARIANT:
+                elif problem_type == 5:
+                    result = re.match(r'^\s*\[(.+)\]\s*$', line)
+                    if result:
+                        open_answer = result.group(1)
+                        print("open answer", open_answer)
+                        problem = Problem(task=text, problem_type=5, short_answer=open_answer)
+                        problem.save()
+                        if request.POST['topic_id']:
+                            problem.topics.add(topic_id)
+                        else:
+                            problem.topics.add(economics)
+                        Source(name="Задача {}".format(problem_number), order=problem_number, parent=parent_source,
+                               problem=problem).save()
+                        text = None
+                        state = BEFORE
+                    else:
+                        print('append:', line, '$')
+                        text = text + line
+                        oldline = line
+            elif problem_type != 1 and problem_type != 5 and state == IN_VARIANT:
                 print('IN VARIANT', line, "problem type:", problem_type, "$")
                 result = re.match(r'^(\d+)\. (.*)$', line)
-
-                if problem_type != 1 and (line.startswith("+") or (line[:2] in two_symb_filter)):
+                if problem_type != 1 and problem_type != 5 and (line.startswith("+") or (line[:2] in two_symb_filter)):
                     variant_counter += 1
                     variant_order += 1
                     if choice:  # right answer before task number
@@ -597,7 +615,7 @@ def load_test(request):
                     else:
                         variant_text = line[3:]
                     oldline = line
-                elif line=="":
+                elif line == "":
                     variant_counter += 1
                     variant_order += 1
                     if choice: # right answer before task number
