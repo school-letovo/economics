@@ -34,7 +34,7 @@ var sendRequest = function(method , url, data) {
 };
 
 var createUrl = function(type,page,number) {
-  return '/problems/'+type+'/'+page+'/'+number
+  return '/problems/'+type+'/'+page+'/'+number;
 };
 
 var makeEl = function (tag, classX, txt = '') {
@@ -461,7 +461,7 @@ var startFunction = async function(paginators,amounts) {
 		    checkboxes[i].checked = false;
 	    }
 
-        problem = []
+        problem = [];
 	    counter = 0;
 	    span.textContent = counter;
     }
