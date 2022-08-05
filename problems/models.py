@@ -27,20 +27,21 @@ class Topic(models.Model):
         ordering = ['order']
 
 
-YESNO_CHOICES = {
+YESNO_CHOICES = [
     (0, '---'),
     (1, 'Да'),
     (2, 'Нет'),
-}
+]
 
 
-TYPE_CHOICES = {
+TYPE_CHOICES = [
     (0, 'Задача'),
     (1, 'Тест с ответом ДА/НЕТ'),
     (2, 'Тест с выбором одного ответа'),
     (3, 'Тест с выбором нескольких ответов'),
-    (4, 'Качественная задача')
-}
+    (4, 'Качественная задача'),
+    (5, 'Тест с открытым ответом'),
+]
 
 
 class Problem(models.Model):
@@ -119,12 +120,12 @@ class Source(models.Model):
         ordering = ['id']
 
 
-STATUS_CHOICES = {
+STATUS_CHOICES = [
     (0, 'Решение не сдано'),
     (1, 'Ожидает проверки'),
     (2, 'Проверено учителем'),
     (3, 'Проверено автоматически'),
-}
+]
 
 class Assignment(models.Model):
     person = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Кому задано')
@@ -189,6 +190,7 @@ class TestSubmit(models.Model):
     assignment = models.ForeignKey(TestSetAssignment, on_delete=models.CASCADE, verbose_name='Назначенный тест', related_name='submits')
     problem = models.ForeignKey(Problem, on_delete=models.CASCADE, verbose_name='Задача', related_name='test_submits')
     yesno_answer = models.IntegerField('Ответ ДА/НЕТ', choices=YESNO_CHOICES, blank=False, null=False, default=0)
+    short_answer = models.CharField('Ответ (для автоматической проверки)', max_length=200, blank=True)
     multiplechoice_answer = models.CharField('Выбор ответов', max_length=200, blank=True, null=True)
     submit_datetime = models.DateTimeField('Время и дата сдачи решения', auto_now_add=True, blank=False)
     answer_autoverdict = models.BooleanField('Результат автоматической проверки', blank=True, null=True)

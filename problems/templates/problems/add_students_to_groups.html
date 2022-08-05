@@ -1,0 +1,19 @@
+<form method="post" action="{% url 'add_students' %}">
+        {% csrf_token %}
+
+            <div class="col-md-auto">
+                    <h3>Ученики</h3>
+                    <div id="students">
+                        {% include "problems/student_list.html" %}
+                    </div>
+                    <p></p>
+                    <h3>Группы</h3>
+                    <div id="groups">
+                        {% include "problems/group_list.html" %}
+                    </div>
+                    <div class="alert alert-primary" role="alert">
+                    <input type="submit" name="submit" value="Добавить учеников в группы">
+                </div>
+                </div>
+    </form>
+
