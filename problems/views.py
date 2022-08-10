@@ -554,6 +554,10 @@ def load_test(request):
                             problem.topics.add(economics)
                         text = None
                         state = BEFORE
+                    else:
+                        print('append:', line, '$')
+                        text = text + line
+                        oldline = line
                 else:
                     print('append:', line, '$')
                     text = text + line
