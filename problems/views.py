@@ -599,8 +599,9 @@ def load_test(request):
                 variant = Variant(text=variant_text, order=variant_order, problem=problem, right=line.startswith('+'))
             variant.save()
         source = Source(name="Задача {}".format(problem_number), order=problem_number, parent=parent_source)
-        source.problems.add(problem)
         source.save()
+        source.problems.add(problem)
+
         return render(request, 'problems/load_test.html', {})
     else:
         return render(request, 'problems/load_test.html', {})
