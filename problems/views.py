@@ -431,6 +431,11 @@ def submit_detail(request, pk):
     problem.submit = submit
     return render(request, 'problems/submit_detail.html', {'problem': problem})
 
+def create_problem_source(problem, problem_number, parent_source):
+    source = Source(name="Задача {}".format(problem_number), order=problem_number, parent=parent_source)
+    source.save()
+    source.problems.add(problem)
+
 
 def load_test(request):
     IN_TASK = 1
@@ -507,6 +512,7 @@ def load_test(request):
                     print('Not type 1, 5', problem_type)
                     problem = Problem(task=text, problem_type=problem_type)
                     problem.save()
+                    create_problem_source(problem, problem_number, parent_source)
                     if request.POST['topic_id']:
                         problem.topics.add(topic_id)
                     else:
@@ -523,6 +529,7 @@ def load_test(request):
                     print('IN YES/NO - END')
                     problem = Problem(task=text, problem_type=1, yesno_answer=yesno_answer)
                     problem.save()
+                    create_problem_source(problem, problem_number, parent_source)
                     if request.POST['topic_id']:
                         problem.topics.add(topic_id)
                     else:
@@ -540,6 +547,7 @@ def load_test(request):
                         print("open answer", open_answer)
                         problem = Problem(task=text, problem_type=5, short_answer=open_answer)
                         problem.save()
+                        create_problem_source(problem, problem_number, parent_source)
                         if request.POST['topic_id']:
                             problem.topics.add(topic_id)
                         else:
@@ -598,9 +606,6 @@ def load_test(request):
             else:  # right answer before variant number
                 variant = Variant(text=variant_text, order=variant_order, problem=problem, right=line.startswith('+'))
             variant.save()
-        source = Source(name="Задача {}".format(problem_number), order=problem_number, parent=parent_source)
-        source.save()
-        source.problems.add(problem)
 
         return render(request, 'problems/load_test.html', {})
     else:
