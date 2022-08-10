@@ -238,8 +238,8 @@ def testset_submit(request):
                 student_multiple_answer = submit.multiplechoice_answer = request.POST.getlist(id + "-variants")
                 submit.answer_autoverdict = check_multiple_choice(student_multiple_answer, test.variants)
             elif test.problem_type == 5:
-                print(id, request.POST(id + "-short_answer"))
-                student_open_answer = submit.short_answer = request.POST(id + "-short_answer")
+                print(id, request.POST[id + "-short_answer"])
+                student_open_answer = submit.short_answer = request.POST[id + "-short_answer"]
                 submit.answer_autoverdict = autocheck_answer(student_open_answer[0], test.short_answer)
 
         submit.save()
