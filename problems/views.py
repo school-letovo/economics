@@ -241,8 +241,8 @@ def testset_submit(request):
                 print(id, request.POST[id + "-short_answer"])
                 student_open_answer = submit.short_answer = request.POST[id + "-short_answer"]
                 submit.answer_autoverdict = autocheck_answer(student_open_answer[0], test.short_answer)
+            submit.save()
 
-        submit.save()
         assignment.status = 3
         assignment.save()
     return redirect('index')
