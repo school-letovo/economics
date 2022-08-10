@@ -511,7 +511,6 @@ def load_test(request):
                         problem.topics.add(topic_id)
                     else:
                         problem.topics.add(economics)
-                    Source(name="Задача {}".format(problem_number), order=problem_number, parent = parent_source, problem=problem).save()
                     text = None
                     state = IN_VARIANT
                     right = line.startswith('+')
@@ -528,8 +527,6 @@ def load_test(request):
                         problem.topics.add(topic_id)
                     else:
                         problem.topics.add(economics)
-                    Source(name="Задача {}".format(problem_number), order=problem_number, parent=parent_source,
-                           problem=problem).save()
                     text = None
                     state = BEFORE
                 elif problem_type == 1:
@@ -547,8 +544,6 @@ def load_test(request):
                             problem.topics.add(topic_id)
                         else:
                             problem.topics.add(economics)
-                        Source(name="Задача {}".format(problem_number), order=problem_number, parent=parent_source,
-                               problem=problem).save()
                         text = None
                         state = BEFORE
                     else:
@@ -603,6 +598,10 @@ def load_test(request):
             else:  # right answer before variant number
                 variant = Variant(text=variant_text, order=variant_order, problem=problem, right=line.startswith('+'))
             variant.save()
+        source = Source(name="Задача {}".format(problem_number), order=problem_number, parent=parent_source)
+        source.problems.add(problem)
+        source.save()
+
         return render(request, 'problems/load_test.html', {})
     else:
         return render(request, 'problems/load_test.html', {})
