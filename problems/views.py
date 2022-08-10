@@ -446,7 +446,7 @@ def load_test(request):
     variant_text = None
     economics = Topic.objects.get(pk=TOPIC_ROOT)
 
-    letters = ['a', 'б', 'в', 'г', 'д', 'е', 'ж', 'з', 'и']
+    letters = ['а', 'a', 'б', 'в', 'г', 'д', 'е', 'e', 'ж', 'з', 'и', ]
     numbers = ['1', '2', '3', '4', '5', '6', '7', '8', '9']
     numb_let = numbers + letters
 
