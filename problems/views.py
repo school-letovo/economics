@@ -225,6 +225,7 @@ def testset_submit(request):
     if assignment.status == 0: # исключаем возможность сдать второй раз, но это не очень надежно - нужны транзакции по-хорошему
         tests = assignment.test_set.problems.all()
         for test in tests:
+            print(test)
             submit = TestSubmit(problem=test, assignment=assignment)
             id = str(test.id)
             if test.problem_type == 1:
@@ -237,7 +238,8 @@ def testset_submit(request):
                 student_multiple_answer = submit.multiplechoice_answer = request.POST.getlist(id + "-variants")
                 submit.answer_autoverdict = check_multiple_choice(student_multiple_answer, test.variants)
             elif test.problem_type == 5:
-                student_open_answer = submit.short_answer = request.POST.getlist(id + "-short_answer")
+                print(id, request.POST(id + "-short_answer"))
+                student_open_answer = submit.short_answer = request.POST(id + "-short_answer")
                 submit.answer_autoverdict = autocheck_answer(student_open_answer[0], test.short_answer)
 
         submit.save()
