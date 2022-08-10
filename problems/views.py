@@ -254,7 +254,7 @@ def submit(request):
     submit = Submit(assignment=assignment)
 
 
-    if assignment.problem.problem_type == 0:
+    if assignment.problem.problem_type == 0 or assignment.problem.problem_type == 5:
         student_short_answer = submit.short_answer = request.POST[id + "-short_answer"]
         submit.solution = request.POST[id + "-solution"]
         submit.answer_autoverdict = autocheck_answer(student_short_answer, assignment.problem.short_answer)
