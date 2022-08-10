@@ -675,7 +675,7 @@ def ajax_problems(request, start, amount, problem_type):
             data = probs[(start-1) * amount:start * amount]
             length = len(probs)
         elif problem_type == 'test':
-            probs, tests, cases = filter_problems(request, [1, 2, 3])
+            probs, tests, cases = filter_problems(request, [1, 2, 3, 5])
             data = tests[(start-1) * amount:start * amount]
             length = len(tests)
         else: # problem_type == 'case'
