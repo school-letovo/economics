@@ -554,10 +554,10 @@ def load_test(request):
                             problem.topics.add(economics)
                         text = None
                         state = BEFORE
-                    else:
-                        print('append:', line, '$')
-                        text = text + line
-                        oldline = line
+                else:
+                    print('append:', line, '$')
+                    text = text + line
+                    oldline = line
             elif problem_type != 1 and problem_type != 5 and state == IN_VARIANT:
                 print('IN VARIANT', line, "problem type:", problem_type, "$")
                 result = re.match(r'^(\d+)\. (.*)$', line)
