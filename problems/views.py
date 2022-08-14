@@ -712,7 +712,7 @@ def create_user(request):
         user.last_name = request.POST['last_name']
         user.save()
 
-        group = Group.objects.get(name='studentsajax')
+        group = Group.objects.get(name='students')
         group.user_set.add(user)
 
         return redirect('index')
