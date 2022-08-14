@@ -705,6 +705,8 @@ def failed_tests(request, student_id, testset_pk):
 def create_user(request):
     if request.POST:
         # Create user and save to the database
+        if User.objects.filter(username=request.POST['login']):
+            return render(request, "problems/sb/register.html", {})
         user = User.objects.create_user(request.POST['login'], request.POST['email'], request.POST['password'])
 
         # Update fields and then save again
