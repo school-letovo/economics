@@ -217,6 +217,13 @@ def rejudge_test(request):
 
 def check_multiple_choice(student, author):
     correct = author.filter(right=True).values_list('id', flat=True)
+    if '[' in student: # костыль для "['123', '100', '90']"
+        student = student.replace("[", "")
+        student = student.replace("]", "")
+        student = student.replace("'", "")
+        student = student.replace('"', "")
+        student = student.replace(' ', "")
+        student = student.split(',')
     return set(map(int, student)) == set(correct)
 
 # @transaction.atomic - TODO потестить
