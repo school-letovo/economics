@@ -1,0 +1,13 @@
+<table border="1"><tr>
+{% for cell in header %}
+    <th height="300" style="writing-mode:vertical-rl">{{ cell }}</th>
+{% endfor %}
+</tr>
+{% for line in result %}
+    <tr>
+        {% for cell in line %}
+            <td>{{ cell }}</td>
+        {% endfor %}
+    </tr>
+{% endfor %}
+</table>

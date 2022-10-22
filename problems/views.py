@@ -737,3 +737,31 @@ def student_page(request, pk):
 def rejudge_page(request):
     if request.user.groups.filter(name='teachers').exists():
         return render(request, "problems/rejudge.html")
+
+def group_results(request, group_id):
+    group = Group.objects.get(pk=group_id)
+    users = group.user_set.all()
+    testsets = TestSet.objects.all()
+    result = [[user.last_name+" "+user.first_name, 0] for user in users]
+    for testset in testsets:
+        problems = testset.problems.all()
+        max_score = len(problems)
+        i = 0
+        for user in users:
+            score = TestSubmit.objects.filter(assignment__person=user, answer_autoverdict=True, assignment__test_set=testset).count()
+            if score > 0:
+                percent = int(score / max_score * 100)
+                result[i].append(percent)
+                result[i][1] += 1
+            else:
+                result[i].append(0)
+            i += 1
+    for i in range(len(result)):
+        try:
+            result[i].append(int(sum(result[i][2:])/(result[i][1])))
+        except:
+            result[i].append(0)
+    result.sort(key=lambda x:-x[-1])
+    header = ["Ученик", "Кол-во тестов"] + [testset.name for testset in testsets] + ["Средний процент"]
+
+    return render(request, "problems/group_results.html", {'header': header, 'result': result})
