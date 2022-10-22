@@ -742,6 +742,7 @@ def group_results(request, group_id):
     group = Group.objects.get(pk=group_id)
     users = group.user_set.all()
     testsets = TestSet.objects.all()
+    header = ["Ученик", "Кол-во тестов"] + [testset.name for testset in testsets] + ["Средний процент"]
     result = [[user.last_name+" "+user.first_name, 0] for user in users]
     for testset in testsets:
         problems = testset.problems.all()
@@ -762,6 +763,17 @@ def group_results(request, group_id):
         except:
             result[i].append(0)
     result.sort(key=lambda x:-x[-1])
-    header = ["Ученик", "Кол-во тестов"] + [testset.name for testset in testsets] + ["Средний процент"]
+    # delete empty columns: REFACTOR ME!!!
+    i = 2
+    while i < len(result[0]) - 1:
+        for j in range(len(result)):
+            if result[j][i]:
+                break
+        else:
+            for j in range(len(result)):
+                del result[j][i]
+            del header[i]
+            i -= 1
+        i += 1
 
     return render(request, "problems/group_results.html", {'header': header, 'result': result})
