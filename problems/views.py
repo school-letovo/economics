@@ -381,7 +381,7 @@ def bulk_create_users(request):
             try:
                 username, password, email, last_name, first_name, *_ = line.split(';')
             except:
-                username, password, email, last_name, first_name, *_ = line.split(';')
+                username, password, email, last_name, first_name, *_ = line.split(',')
             user=User(
                 username=username,
                 email=email,
