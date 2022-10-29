@@ -224,6 +224,8 @@ def check_multiple_choice(student, author):
         student = student.replace('"', "")
         student = student.replace(' ', "")
         student = student.split(',')
+    if student == ['']: # еще один костыль
+        return False
     return set(map(int, student)) == set(correct)
 
 # @transaction.atomic - TODO потестить
