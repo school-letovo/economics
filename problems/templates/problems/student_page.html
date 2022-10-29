@@ -8,8 +8,9 @@
     <table border="1">
     {% for testset in testsets %}
         <tr>
-            <td><a href="{% url 'testset_result_all' testset.test_set.id %}">{{ testset.test_set }}</a></td>
-            <td><tt>{{ testset.get_status_display }}</tt></td>
+            <td><a href="{% url 'testset_result_all' testset.0.test_set.id %}">{{ testset.0.test_set }}</a></td>
+            <td><tt>{{ testset.0.get_status_display }}</tt></td>
+            <td>{{ testset.1.0 }}/{{ testset.1.1 }}</td>
         </tr>
     {% endfor %}
     </table>

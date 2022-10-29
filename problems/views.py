@@ -731,8 +731,19 @@ def create_user(request):
 def student_page(request, pk):
     student = User.objects.get(pk=pk)
     testsets = TestSetAssignment.objects.filter(person=student)
-
-    return render(request, "problems/student_page.html", {'student': student, 'testsets': testsets})
+    results = []
+    for testset in testsets:
+        tests_ok = 0
+        all = testset.test_set.problems.all()
+        for problem in all:
+            try:
+                problem.submit = TestSubmit.objects.get(problem=problem, assignment=testset)
+                if problem.submit.answer_autoverdict:
+                    tests_ok += 1
+            except:
+                pass
+        results.append([tests_ok, len(all)])
+    return render(request, "problems/student_page.html", {'student': student, 'testsets': zip(testsets, results)})
 
 def rejudge_page(request):
     if request.user.groups.filter(name='teachers').exists():
