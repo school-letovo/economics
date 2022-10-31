@@ -28,6 +28,8 @@ class VariantInline(admin.TabularInline):
 
 class ProblemAdmin(admin.ModelAdmin):
     inlines = [VariantInline]
+    list_display = ['id', '__str__']
+    search_fields = ['id']
 
 class SourceAdmin(admin.ModelAdmin):
     form = SourceAdminForm
