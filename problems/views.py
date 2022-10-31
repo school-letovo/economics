@@ -121,7 +121,10 @@ def assign_test(request):
         for group_id in request.POST.getlist('group'):
             group = Group.objects.get(id=group_id)
             for student in group.user_set.all():
-                assign_task = TestSetAssignment(person=student, test_set=test_set,
+                try:
+                    TestSetAssignment.objects.get(person=student, test_set=test_set)
+                except:
+                    assign_task = TestSetAssignment(person=student, test_set=test_set,
                                                 date_deadline=date_test_deadline, assigned_by=request.user).save()
 
 
