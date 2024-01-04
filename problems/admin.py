@@ -43,6 +43,14 @@ admin.site.register(Submit)
 admin.site.register(Source, SourceAdmin)
 admin.site.register(Variant)
 admin.site.register(TestSet)
-admin.site.register(TestSetAssignment)
+
+@admin.display(description='person')
+def name(obj):
+    return ("%s %s" % (obj.person.last_name, obj.person.first_name))
+
+class TestSetAssignmentAdmin(admin.ModelAdmin):
+    list_display = [name, 'test_set']
+
+admin.site.register(TestSetAssignment, TestSetAssignmentAdmin)
 admin.site.register(TestSubmit)
 admin.site.register(GroupTeacher)
