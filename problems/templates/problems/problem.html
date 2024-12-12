@@ -30,26 +30,31 @@
                     {% endif %}
                 {% if 'teacher' in request.user.groups.all.0.name %}
                     <div class="problem-subtitle">
-                        {% if problem.source_set.all %}
+                        {% if problem.source_set.count %}
                             <div class="problem-sources">
+                                <b>Источники:</b>
+                            <p>
                                 {% for source in problem.source_set.all %}
-                                    {% if forloop.last %}
-                                        {{ source }}
-                                    {% else %}
-                                        {{ source }},<br>
+                                    {% if source.children.count == 0 %}
+                                        {{ source }}<br>
                                     {% endif %}
                                 {% endfor %}
+                            </p>
                             </div>
                         {% endif %}
-                        <div class="problem-topics"><p>
+                        <div class="problem-topics">
+                        {% if problem.topics.count %}
+                        <b>Темы:</b><p>
                             {% for topic in problem.topics.all %}
-                                {% if forloop.last %}
-                                    {{ topic }}
-                                {% else %}
-                                    {{ topic }},<br>
+                                {# if topic.leaf -- некоторые задачи не привязаны к листам и с условием получается пустой список #}
+                                {% if topic.name != 'Тема не указана' %}
+                                    {{ topic }}<br>
                                 {% endif %}
+                                {# endif #}
                             {% endfor %}
-                        </p></div>
+                        </p>
+                            {% endif %}
+                        </div>
                     </div>
                 {% endif %}
             </a>

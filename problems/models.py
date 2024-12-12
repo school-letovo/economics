@@ -67,7 +67,6 @@ class Problem(models.Model):
     #   TODO pictures_quality : draft, final
     #   TODO text_quality: draft, final
 
-
     hint = RichTextUploadingField('Подсказка', blank=True)
 
     topics = models.ManyToManyField(Topic, related_name="problems", verbose_name='Темы')
@@ -76,8 +75,9 @@ class Problem(models.Model):
 
     def __str__(self):
         result = "#" + str(self.id)
-        if self.source_set.all():
-            result += ". " + ", ".join(map(str, self.source_set.all()))
+        sources = self.source_set.filter(children__isnull=True).all()
+        if sources:
+            result += ". " + ", ".join(map(str, sources))
         if self.name:
             result += ". " + self.name
         return result + ". " + self.task[:30] + "..."
@@ -105,7 +105,7 @@ class Source(models.Model):
     parent = models.ForeignKey('Source', on_delete=models.CASCADE, verbose_name="Предок", related_name='children',
                                blank=True, null=True)
     order = models.IntegerField('Порядковый номер')
-    problem = models.ForeignKey(Problem, on_delete=models.CASCADE, blank=True, null=True)
+    problems = models.ManyToManyField(Problem, blank=True, null=True, related_name="source_set")
 
     def __str__(self):
         try: # recursion could raise error
@@ -150,7 +150,7 @@ class TestSet(models.Model):
         return self.name
 
 class TestSetAssignment(models.Model):
-    person = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Кому задано')
+    person = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name='Кому задано', db_index=True)
     test_set = models.ForeignKey(TestSet, on_delete=models.CASCADE, verbose_name='Тест', related_name="assignments")
     date_assigned = models.DateField('Когда задано', auto_now_add=True, blank=False)
     date_deadline = models.DateField('Сдать до', blank=True, null=True)
@@ -187,14 +187,13 @@ class Submit(models.Model):
         return '{} {} {}'.format(self.assignment, self.submit_datetime, self.get_verdict_display())
 
 class TestSubmit(models.Model):
-    assignment = models.ForeignKey(TestSetAssignment, on_delete=models.CASCADE, verbose_name='Назначенный тест', related_name='submits')
-    problem = models.ForeignKey(Problem, on_delete=models.CASCADE, verbose_name='Задача', related_name='test_submits')
+    assignment = models.ForeignKey(TestSetAssignment, on_delete=models.CASCADE, verbose_name='Назначенный тест', related_name='submits', db_index=True)
+    problem = models.ForeignKey(Problem, on_delete=models.CASCADE, verbose_name='Задача', related_name='test_submits', db_index=True)
     yesno_answer = models.IntegerField('Ответ ДА/НЕТ', choices=YESNO_CHOICES, blank=False, null=False, default=0)
     short_answer = models.CharField('Ответ (для автоматической проверки)', max_length=200, blank=True)
     multiplechoice_answer = models.CharField('Выбор ответов', max_length=200, blank=True, null=True)
     submit_datetime = models.DateTimeField('Время и дата сдачи решения', auto_now_add=True, blank=False)
-    answer_autoverdict = models.BooleanField('Результат автоматической проверки', blank=True, null=True)
+    answer_autoverdict = models.BooleanField('Результат автоматической проверки', blank=True, null=True, db_index=True)
 
     def __str__(self):
         return '{} {}: {}'.format(self.assignment, self.submit_datetime, self.problem)
-
